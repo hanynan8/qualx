@@ -52,3 +52,74 @@ export async function connectToMongo() {
 }
 
 export default connectToMongo;
+
+// ─────────────────────────────────────────────────────────────────────
+// 🔐 موديل المستخدمين (كولكشن "auth") + سجل التدقيق (كولكشن "audit_logs")
+//
+// الحقول معرّفة صراحةً عشان userDoc.save() يحفظها فعلاً (Mongoose بيتجاهل
+// أي property مش موجودة في الـ schema). strict:false سايبينه عشان أي حقول
+// قديمة في الحسابات الموجودة عندك تفضل شغالة زي ما هي.
+//
+// ⚠️ الموديل ده مخصص لكود السيرفر الموثوق بس (authOptions, scripts, rbac).
+// كولكشن "auth" و "audit_logs" ممنوعين تمامًا من /api/data العام.
+// ─────────────────────────────────────────────────────────────────────
+export const USER_ROLES = ["admin", "user"];
+
+const authSchema = new mongoose.Schema(
+  {
+    name: String,
+    email: { type: String, lowercase: true, trim: true },
+    password: String,
+    phone: String,
+    role: { type: String, default: "user" },
+
+    // "active" عادي، "suspended" = موقوف يدويًا من الأدمن (بيتفحص قبل الباسورد).
+    status: { type: String, enum: ["active", "suspended"], default: "active" },
+
+    // إبطال الجلسات: أي زيادة في الرقم ده = كل الجلسات القديمة تتبطل.
+    tokenVersion: { type: Number, default: 0 },
+    passwordChangedAt: { type: Date, default: null },
+
+    // قفل الحساب المؤقت بعد محاولات فاشلة متكررة.
+    loginFailedAttempts: { type: Number, default: 0 },
+    loginFirstFailedAt: { type: Date, default: null },
+    loginLockedUntil: { type: Date, default: null },
+
+    // MFA (TOTP) — بيتفعّل بـ scripts/setup-mfa.mjs.
+    mfaEnabled: { type: Boolean, default: false },
+    mfaSecret: { type: String, default: null },
+    mfaBackupCodeHashes: { type: [String], default: [] },
+  },
+  { strict: false, timestamps: true }
+);
+
+// unique + sparse: إيميل واحد لكل حساب، ومايمنعش حسابات قديمة من غير إيميل.
+authSchema.index({ email: 1 }, { unique: true, sparse: true });
+authSchema.index({ name: 1 });
+
+export function getAuthModel() {
+  return mongoose.models.Model_auth || mongoose.model("Model_auth", authSchema, "auth");
+}
+
+const auditLogSchema = new mongoose.Schema(
+  {
+    action: { type: String, required: true },
+    actorId: { type: String, default: null },
+    actorEmail: { type: String, default: null },
+    actorName: { type: String, default: null },
+    targetId: { type: String, default: null },
+    targetEmail: { type: String, default: null },
+    details: { type: mongoose.Schema.Types.Mixed, default: {} },
+    ip: { type: String, default: null },
+    userAgent: { type: String, default: null },
+  },
+  { timestamps: { createdAt: true, updatedAt: false } }
+);
+auditLogSchema.index({ createdAt: -1 });
+
+export function getAuditLogModel() {
+  return (
+    mongoose.models.Model_audit_log ||
+    mongoose.model("Model_audit_log", auditLogSchema, "audit_logs")
+  );
+}

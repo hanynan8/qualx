@@ -12,8 +12,8 @@ import { useCollectionData, pickTranslation } from "../lib/useCollectionData";
 // "navbar" في مونجو) لأنها سلوك ثابت في الموقع مش محتوى بيتغير من لوحة
 // الأدمن، فمفيش داعي نعقّد شكل الـ document في الداتابيز عشانها.
 const AUTH_TEXT = {
-  en: { login: "Log in", logout: "Log out" },
-  ar: { login: "تسجيل الدخول", logout: "تسجيل الخروج" },
+  en: { login: "Log in", signup: "Sign up", logout: "Log out" },
+  ar: { login: "تسجيل الدخول", signup: "إنشاء حساب", logout: "تسجيل الخروج" },
 };
 
 // 🔄 DYNAMIC: كان فيه NAV_LINKS ثابتة جوه الكومبوننت. دلوقتي الروابط
@@ -143,10 +143,21 @@ function AuthControl({ status, session, authText, mobile = false, onNavigate }) 
   if (status === "authenticated") {
     return (
       <div className={mobile ? "flex items-center justify-between px-2 py-2" : "flex items-center gap-3"}>
-        <span className="flex items-center gap-1.5 text-sm font-medium text-offwhite/85">
-          <User size={14} />
-          {session.user?.name}
-        </span>
+        {session.user?.role === "admin" ? (
+          <Link
+            href="/admin"
+            onClick={onNavigate}
+            className="flex items-center gap-1.5 text-sm font-medium text-offwhite/85 hover:text-gold"
+          >
+            <User size={14} />
+            {session.user?.name}
+          </Link>
+        ) : (
+          <span className="flex items-center gap-1.5 text-sm font-medium text-offwhite/85">
+            <User size={14} />
+            {session.user?.name}
+          </span>
+        )}
         <button
           onClick={() => {
             onNavigate?.();
@@ -162,16 +173,29 @@ function AuthControl({ status, session, authText, mobile = false, onNavigate }) 
   }
 
   return (
-    <Link
-      href="/login"
-      onClick={onNavigate}
-      className={
-        mobile
-          ? "block rounded px-2 py-2 text-sm font-medium text-offwhite/90 hover:bg-offwhite/5"
-          : "text-sm font-medium text-offwhite/85 transition-colors hover:text-gold"
-      }
-    >
-      {authText.login}
-    </Link>
+    <div className={mobile ? "flex flex-col" : "flex items-center gap-4"}>
+      <Link
+        href="/login"
+        onClick={onNavigate}
+        className={
+          mobile
+            ? "block rounded px-2 py-2 text-sm font-medium text-offwhite/90 hover:bg-offwhite/5"
+            : "text-sm font-medium text-offwhite/85 transition-colors hover:text-gold"
+        }
+      >
+        {authText.login}
+      </Link>
+      <Link
+        href="/register"
+        onClick={onNavigate}
+        className={
+          mobile
+            ? "block rounded px-2 py-2 text-sm font-medium text-gold hover:bg-offwhite/5"
+            : "rounded border border-gold/60 px-3 py-1 text-sm font-medium text-gold transition-colors hover:bg-gold hover:text-navy"
+        }
+      >
+        {authText.signup}
+      </Link>
+    </div>
   );
 }
