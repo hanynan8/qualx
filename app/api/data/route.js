@@ -3,18 +3,31 @@
 // ==========================================================================
 // نسخة مؤمّنة (Hardened) — كل التعديلات موضّحة بتعليقات تبدأ بـ "🔒 SECURITY:"
 //
-// 🔄 ملحوظة: النسخة اللي كانت جوه الملف المرفوع (zip) كانت نسخة قديمة جدًا
-// وغير مؤمنة خالص (GET بدون collection كان بيرجع *كل* حاجة في الداتابيز
-// من غير أي تسجيل دخول). استبدلتها بالنسخة المؤمّنة اللي بعتهالي في المحادثة،
-// وشلت منها بس الأجزاء الخاصة بمشروع تاني (نماذج الاستشارات/الترجمة/إشعارات
-// Resend...) اللي مالهاش علاقة بـ Qualx، وسبت الجوهر: allowlist للقراءة
-// العامة، admin-only للكتابة، تعقيم كامل، rate limiting، إلخ.
+// 🔄 ملحوظة: شلت من النسخة الأصلية بس الأجزاء الخاصة بمشروع تاني (نماذج
+// الاستشارات/الترجمة/إشعارات Resend...) اللي مالهاش علاقة بـ Qualx،
+// وسبت الجوهر: allowlist للقراءة العامة، admin-only للكتابة، تعقيم كامل،
+// rate limiting، إلخ.
+//
+// ❌ سبب الأعطال اللي كانت بتحصل لما الراوت ده اتحط في المشروع، واتصلحت:
+//   1) app/lib/mongodb.js و app/lib/authOptions.js اللي الراوت ده بيعملهم
+//      import كانوا مش موجودين في الريبو خالص → أي طلب كان بيفشل على طول
+//      بـ "Module not found" وقت الـ build.
+//   2) تأمين "auth" هنا (PROTECTED_COLLECTIONS) كان صح من ناحية المبدأ،
+//      لكن app/api/auth/[...nextauth]/route.js كان لسه بيحاول يجيب
+//      المستخدمين عن طريق fetch لـ /api/data?collection=auth — وده بقى
+//      يرجع 403 دايمًا فتسجيل الدخول اتكسر بالكامل. الحل: authorize()
+//      بقى بيكلم mongoose مباشرة (شوف app/lib/authOptions.js)، مش بيعدي
+//      على الراوت ده خالص لكولكشن "auth".
+//   3) authorize() القديم كان بيرجع user من غير role، والـ jwt/session
+//      callbacks مكانوش بينسخوه للـ session — يعني isAdminRequest() تحت
+//      كانت هترجع false دايمًا حتى للأدمن الحقيقي، وكل كتابة/قراءة
+//      admin-only كانت بترفض بـ 401. اتصلح في app/lib/authOptions.js.
 // ==========================================================================
 
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/lib/authOptions";
-import { connectToMongo } from "@/app/lib/mongodb";
+import { authOptions } from "../../lib/authOptions";
+import { connectToMongo } from "../../lib/mongodb";
 
 if (!globalThis._mongoModels) globalThis._mongoModels = {};
 
@@ -281,7 +294,7 @@ export async function GET(request) {
 
     if (isProtectedCollection(colName)) {
       return jsonResponse(
-        { error: "This collection is protected. Use the dedicated API route instead." },
+        { error: "This collection is protected and is not accessible through this API." },
         403
       );
     }
