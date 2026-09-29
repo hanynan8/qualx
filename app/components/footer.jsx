@@ -10,7 +10,6 @@ import { useCollectionData, pickTranslation } from "../lib/useCollectionData";
 // جايه من كولكشن "footer" في مونجو، مش hardcoded. الـ FALLBACK بيحافظ على
 // نفس المحتوى الحالي لحد ما تتعمل seed للكولكشن.
 const FALLBACK_FOOTER = {
-  brandLetter: "Q",
   links: [
     { id: "home", href: "/" },
     { id: "services", href: "/services" },
@@ -63,9 +62,6 @@ export default function Footer() {
       <div className="container-content relative grid gap-12 py-16 md:grid-cols-4">
         <div className="md:col-span-2">
           <div className="flex items-center gap-2.5 font-display text-xl font-bold text-offwhite">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-gold to-[#E0BC3E] text-navy shadow-lg shadow-gold/25">
-              {footer.brandLetter || FALLBACK_FOOTER.brandLetter}
-            </span>
             {t.brand}
           </div>
           <p className="mt-5 max-w-sm text-sm leading-loose text-offwhite/70">{t.description}</p>
