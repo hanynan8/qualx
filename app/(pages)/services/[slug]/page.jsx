@@ -4,11 +4,11 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowRight, ArrowLeft, Check } from "lucide-react";
-import { useLanguage } from "../../../contexts/LanguageContext";
-import { useCollectionData, pickTranslation } from "../../lib/useCollectionData";
-import ServiceIcon from "../../components/ServiceIcon";
-import ServiceVisual from "../../components/ServiceVisual";
-import PageHero from "../../components/PageHero";
+import { useLanguage } from "../../../../contexts/LanguageContext";
+import { useCollectionData, pickTranslation } from "../../../lib/useCollectionData";
+import ServiceIcon from "../../../components/ServiceIcon";
+import ServiceVisual from "../../../components/ServiceVisual";
+import PageHero from "../../../components/PageHero";
 
 // 🔄 DYNAMIC: كانت الصفحة دي Server Component بتستخدم generateStaticParams +
 // generateMetadata (SSG). بما إن المحتوى بقى ديناميكي 100% من مونجو وبيتقرا
