@@ -68,8 +68,6 @@ export default function Navbar() {
         }`}
       >
         <Link href="/" className="flex items-center gap-3 font-display text-2xl font-bold tracking-wide">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-gold to-[#E0BC3E] text-navy shadow-lg shadow-gold/25 xl:h-11 xl:w-11 xl:text-2xl">
-          </span>
           <span className="xl:text-2xl">{t.brand}</span>
         </Link>
 
