@@ -94,7 +94,17 @@ body {
   animation: svc-rise 0.6s ease-out both;
 }
 
+@keyframes hero-scroll {
+  0% { opacity: 0; transform: translateY(0); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(14px); }
+}
+.hero-scroll-dot {
+  animation: hero-scroll 1.8s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .hero-scroll-dot,
   .svc-float,
   .svc-rise {
     animation: none;

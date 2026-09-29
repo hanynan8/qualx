@@ -83,82 +83,61 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-navy via-navy to-[#15406E] text-offwhite">
+      {/* Hero — عنوان كبير في النص فوق صورة خلفية full-width (public/hero-bg.jpg) */}
+      <section className="relative isolate flex min-h-[560px] items-center justify-center overflow-hidden bg-gradient-to-br from-navy via-navy to-[#15406E] text-offwhite xl:min-h-[calc(100svh-6rem)]">
+        {/* صورة الخلفية: public/hero-bg.jpg (لو موجودة) وإلا public/hero-bg.svg الافتراضية */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          className="absolute inset-0 -z-10 bg-cover bg-center"
+          style={{ backgroundImage: `url(${homeDoc.heroImage || "/hero-bg.jpg"}), url(/hero-bg.svg)` }}
+        />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-navy/55 via-navy/30 to-navy/60" />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 opacity-[0.07]"
           style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "22px 22px" }}
         />
-        <div aria-hidden className="pointer-events-none absolute -top-32 end-[-5rem] h-96 w-96 rounded-full bg-sky/20 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute bottom-[-7rem] start-[-4rem] h-80 w-80 rounded-full bg-gold/15 blur-3xl" />
 
-        <div className="container-content relative grid items-center gap-14 py-20 md:grid-cols-2 md:py-32">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-gold">
-              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-              {t.badge}
-            </span>
-            <h1 className="mt-6 font-display text-4xl font-bold leading-tight md:text-6xl">
-              {t.heroTitle}
-            </h1>
-            <p className="mt-6 max-w-lg leading-relaxed text-offwhite/75">{t.heroSummary}</p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="/services" className="btn-primary group">
-                {t.exploreServices}
-                <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
-              </Link>
-              <Link href="/careers" className="btn-secondary">
-                {t.joinTeam}
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            {cardIcons.map((iconKey, i) => {
-              const Icon = CARD_ICON_COMPONENTS[iconKey] || ShieldCheck;
-              return (
-                <div
-                  key={iconKey}
-                  style={{ animationDelay: `${i * 120}ms` }}
-                  className={`svc-rise group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky/50 hover:bg-white/10 ${
-                    i % 2 === 1 ? "mt-6 sm:mt-12" : ""
-                  }`}
-                >
-                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky/15 text-sky transition-colors duration-300 group-hover:bg-sky group-hover:text-navy">
-                    <Icon size={24} />
-                  </span>
-                  <p className="mt-4 text-sm leading-relaxed text-offwhite/85">{t.cards?.[iconKey]}</p>
-                </div>
-              );
-            })}
-            <div
-              style={{ animationDelay: `${cardIcons.length * 120}ms` }}
-              className="svc-rise mt-6 rounded-2xl border border-gold/40 bg-gradient-to-br from-gold/25 to-gold/5 p-6 sm:mt-12"
-            >
-              <p className="font-display text-2xl font-bold text-gold">{t.uspLabel}</p>
-              <p className="mt-2 text-sm leading-relaxed text-offwhite/85">{t.uspText}</p>
-            </div>
+        <div className="container-content relative py-24 text-center md:py-32">
+          <h1 className="mx-auto max-w-5xl font-display text-4xl font-extrabold leading-tight drop-shadow-lg md:text-6xl xl:text-7xl">
+            {t.heroTitle}
+          </h1>
+          <div className="mt-10 flex justify-center">
+            <Link href="/services" className="btn-primary group !px-7 !py-3 text-lg uppercase tracking-wide">
+              {t.exploreServices}
+              <ArrowRight size={18} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
+            </Link>
           </div>
         </div>
+
+        {/* أيقونة السكرول */}
+        <a href="#intro" aria-label="Scroll down" className="absolute bottom-10 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1">
+          <span className="h-6 w-px bg-white/60" />
+          <span className="flex h-11 w-6 justify-center rounded-full border-2 border-white/80 pt-2">
+            <span className="hero-scroll-dot h-1.5 w-1.5 rounded-full bg-white" />
+          </span>
+        </a>
+
+        {/* الشريط الملون أسفل الهيرو */}
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-2 bg-gradient-to-r from-gold via-gold to-sky" />
       </section>
 
       {/* Who we are */}
-      <section className="relative overflow-hidden bg-white py-20 md:py-28">
+      <section id="intro" className="relative scroll-mt-24 overflow-hidden bg-navy py-20 text-offwhite md:py-28">
         <div aria-hidden className="pointer-events-none absolute -top-20 start-[-5rem] h-72 w-72 rounded-full bg-sky/10 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute bottom-[-4rem] end-[-3rem] h-64 w-64 rounded-full bg-gold/10 blur-3xl" />
 
         <div className="container-content relative grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
           <div>
-            <span className="inline-block rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-navy">
+            <span className="inline-block rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-gold">
               {t.badge}
             </span>
-            <h2 className="mt-4 font-display text-3xl font-bold text-navy md:text-4xl">
+            <h2 className="mt-4 font-display text-3xl font-bold text-offwhite md:text-4xl">
               {t.whoWeAreTitle}
             </h2>
             <span className="mt-4 block h-1 w-14 rounded-full bg-gold" />
 
-            <p className="mt-6 text-base leading-loose text-charcoal/80 md:text-lg">
+            <p className="mt-6 text-base leading-loose text-offwhite/80 md:text-lg">
               {t.heroSummary}
             </p>
 
@@ -168,12 +147,12 @@ export default function HomePage() {
                 return (
                   <li
                     key={iconKey}
-                    className="group flex items-center gap-4 rounded-2xl border border-charcoal/10 bg-offwhite/60 p-4 transition-all duration-300 hover:border-sky/40 hover:bg-white hover:shadow-lg hover:shadow-navy/10"
+                    className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 transition-all duration-300 hover:border-sky/50 hover:bg-white/10"
                   >
-                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-navy text-gold transition-colors duration-300 group-hover:bg-gold group-hover:text-navy">
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gold/15 text-gold transition-colors duration-300 group-hover:bg-gold group-hover:text-navy">
                       <Icon size={22} />
                     </span>
-                    <span className="text-sm font-medium leading-relaxed text-navy">
+                    <span className="text-sm font-medium leading-relaxed text-offwhite">
                       {t.cards?.[iconKey]}
                     </span>
                   </li>

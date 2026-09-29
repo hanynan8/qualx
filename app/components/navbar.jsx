@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X, Globe, LogOut, User } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -36,6 +36,7 @@ const FALLBACK_NAVBAR = {
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const { language, changeLanguage } = useLanguage();
   const { data } = useCollectionData("navbar");
@@ -48,17 +49,33 @@ export default function Navbar() {
 
   const isActive = (href) => (href === "/" ? pathname === "/" : pathname?.startsWith(href));
 
+  // الناف بار الطويل بيصغر لما المستخدم ينزل بالصفحة عشان ما ياخدش مساحة.
+  useEffect(() => {
+    const onScroll = () => setScrolled((prev) => (prev ? window.scrollY > 10 : window.scrollY > 80));
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-navy/90 text-offwhite backdrop-blur-md">
-      <div className="container-content flex h-16 items-center justify-between md:h-[4.5rem]">
-        <Link href="/" className="flex items-center gap-2.5 font-display text-xl font-bold tracking-wide">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-gold to-[#E0BC3E] text-navy shadow-lg shadow-gold/25">
+    // 🐛 الـ wrapper ده بيحجز مساحة الناف بار بارتفاع ثابت، والـ header نفسه
+    // fixed. كده لما الناف بار يصغّر مع السكرول ارتفاع الصفحة ما بيتغيّرش،
+    // فمفيش scroll anchoring يرجّع السكرول فوق الحد ويعمل تذبذب (نزول/طلوع).
+    <div className="h-20 xl:h-24">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-navy text-offwhite shadow-lg shadow-navy/30">
+      <div
+        className={`mx-auto flex w-full max-w-[1600px] items-stretch justify-between px-6 transition-[height] duration-300 h-20 ${
+          scrolled ? "xl:h-16" : "xl:h-24"
+        }`}
+      >
+        <Link href="/" className="flex items-center gap-3 font-display text-2xl font-bold tracking-wide">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-gold to-[#E0BC3E] text-navy shadow-lg shadow-gold/25 xl:h-11 xl:w-11 xl:text-2xl">
             {navbar.brandLetter || FALLBACK_NAVBAR.brandLetter}
           </span>
-          {t.brand}
+          <span className="xl:text-2xl">{t.brand}</span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden flex-1 items-center justify-center gap-10 xl:flex">
           {links.map((link) => {
             const active = isActive(link.href);
             return (
@@ -66,8 +83,8 @@ export default function Navbar() {
                 key={link.id}
                 href={link.href}
                 aria-current={active ? "page" : undefined}
-                className={`group relative py-2 text-sm font-medium transition-colors ${
-                  active ? "text-gold" : "text-offwhite/85 hover:text-gold"
+                className={`group relative py-2 text-base font-medium transition-colors hover:text-gold ${
+                  active ? "text-gold" : "text-offwhite/85"
                 }`}
               >
                 {t.links?.[link.id] || link.id}
@@ -80,14 +97,17 @@ export default function Navbar() {
               </Link>
             );
           })}
+        </nav>
+
+        <div className="hidden items-center gap-4 border-x border-white/10 px-6 xl:flex">
           <Link href="/services" className="btn-primary !px-4 !py-2 text-sm">
             {t.quote}
           </Link>
           <LangSwitcher language={language} onChange={changeLanguage} />
           <AuthControl status={status} session={session} authText={authText} />
-        </nav>
+        </div>
 
-        <div className="flex items-center gap-3 md:hidden">
+        <div className="flex items-center gap-3 xl:hidden">
           <LangSwitcher language={language} onChange={changeLanguage} compact />
           <button
             aria-label={open ? "Close menu" : "Open menu"}
@@ -101,7 +121,7 @@ export default function Navbar() {
       </div>
 
       {open && (
-        <div className="svc-rise border-t border-white/10 bg-navy/95 backdrop-blur-md md:hidden">
+        <div className="svc-rise border-t border-white/10 bg-navy xl:hidden">
           <div className="container-content flex flex-col gap-1 py-4">
             {links.map((link) => {
               const active = isActive(link.href);
@@ -138,6 +158,7 @@ export default function Navbar() {
         </div>
       )}
     </header>
+    </div>
   );
 }
 
