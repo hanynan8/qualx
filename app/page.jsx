@@ -6,6 +6,8 @@ import { ArrowRight, ShieldCheck, Users2, ClipboardList } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "./lib/useCollectionData";
 import ServiceIcon from "./components/ServiceIcon";
+import ServiceVisual from "./components/ServiceVisual";
+import AboutVisual from "./components/AboutVisual";
 
 // 🔄 DYNAMIC: الصفحة بقت client component وبتجيب محتواها من كولكشنين:
 // "home" (نصوص الهيرو/الأقسام) و"services" (كروت المعاينة أسفل الصفحة،
@@ -76,25 +78,35 @@ export default function HomePage() {
 
   const servicesDoc = services.data;
   const servicesItems = servicesDoc?.items || [];
-  const servicesT = pickTranslation(servicesDoc, language)?.items || {};
+  const servicesTr = pickTranslation(servicesDoc, language) || {};
+  const servicesT = servicesTr.items || {};
 
   return (
     <div>
       {/* Hero */}
-      <section className="bg-navy text-offwhite">
-        <div className="container-content grid items-center gap-12 py-24 md:grid-cols-2 md:py-32">
+      <section className="relative overflow-hidden bg-gradient-to-br from-navy via-navy to-[#15406E] text-offwhite">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "22px 22px" }}
+        />
+        <div aria-hidden className="pointer-events-none absolute -top-32 end-[-5rem] h-96 w-96 rounded-full bg-sky/20 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute bottom-[-7rem] start-[-4rem] h-80 w-80 rounded-full bg-gold/15 blur-3xl" />
+
+        <div className="container-content relative grid items-center gap-14 py-20 md:grid-cols-2 md:py-32">
           <div>
-            <span className="inline-block rounded-full border border-gold/40 px-3 py-1 text-xs font-medium text-gold">
+            <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-gold">
+              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
               {t.badge}
             </span>
-            <h1 className="mt-6 font-display text-4xl font-semibold leading-tight md:text-5xl">
+            <h1 className="mt-6 font-display text-4xl font-bold leading-tight md:text-6xl">
               {t.heroTitle}
             </h1>
-            <p className="mt-6 max-w-lg text-offwhite/75">{t.heroSummary}</p>
+            <p className="mt-6 max-w-lg leading-relaxed text-offwhite/75">{t.heroSummary}</p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="/services" className="btn-primary">
+              <Link href="/services" className="btn-primary group">
                 {t.exploreServices}
-                <ArrowRight size={16} />
+                <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
               </Link>
               <Link href="/careers" className="btn-secondary">
                 {t.joinTeam}
@@ -108,76 +120,181 @@ export default function HomePage() {
               return (
                 <div
                   key={iconKey}
-                  className={`rounded-lg bg-white/5 p-6 ${i % 2 === 1 ? "mt-6 sm:mt-12" : ""}`}
+                  style={{ animationDelay: `${i * 120}ms` }}
+                  className={`svc-rise group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky/50 hover:bg-white/10 ${
+                    i % 2 === 1 ? "mt-6 sm:mt-12" : ""
+                  }`}
                 >
-                  <Icon className="text-sky" size={28} />
-                  <p className="mt-4 text-sm text-offwhite/80">{t.cards?.[iconKey]}</p>
+                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky/15 text-sky transition-colors duration-300 group-hover:bg-sky group-hover:text-navy">
+                    <Icon size={24} />
+                  </span>
+                  <p className="mt-4 text-sm leading-relaxed text-offwhite/85">{t.cards?.[iconKey]}</p>
                 </div>
               );
             })}
-            <div className="mt-6 rounded-lg border border-gold/30 bg-gold/10 p-6 sm:mt-12">
-              <p className="font-display text-2xl font-semibold text-gold">{t.uspLabel}</p>
-              <p className="mt-2 text-sm text-offwhite/80">{t.uspText}</p>
+            <div
+              style={{ animationDelay: `${cardIcons.length * 120}ms` }}
+              className="svc-rise mt-6 rounded-2xl border border-gold/40 bg-gradient-to-br from-gold/25 to-gold/5 p-6 sm:mt-12"
+            >
+              <p className="font-display text-2xl font-bold text-gold">{t.uspLabel}</p>
+              <p className="mt-2 text-sm leading-relaxed text-offwhite/85">{t.uspText}</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Who we are */}
-      <section className="border-b border-charcoal/10 bg-white">
-        <div className="container-content grid gap-10 py-20 md:grid-cols-3">
+      <section className="relative overflow-hidden bg-white py-20 md:py-28">
+        <div aria-hidden className="pointer-events-none absolute -top-20 start-[-5rem] h-72 w-72 rounded-full bg-sky/10 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute bottom-[-4rem] end-[-3rem] h-64 w-64 rounded-full bg-gold/10 blur-3xl" />
+
+        <div className="container-content relative grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
           <div>
-            <h2 className="font-display text-2xl font-semibold text-navy">{t.whoWeAreTitle}</h2>
+            <span className="inline-block rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-navy">
+              {t.badge}
+            </span>
+            <h2 className="mt-4 font-display text-3xl font-bold text-navy md:text-4xl">
+              {t.whoWeAreTitle}
+            </h2>
+            <span className="mt-4 block h-1 w-14 rounded-full bg-gold" />
+
+            <p className="mt-6 text-base leading-loose text-charcoal/80 md:text-lg">
+              {t.heroSummary}
+            </p>
+
+            <ul className="mt-8 space-y-4">
+              {cardIcons.map((iconKey) => {
+                const Icon = CARD_ICON_COMPONENTS[iconKey] || ShieldCheck;
+                return (
+                  <li
+                    key={iconKey}
+                    className="group flex items-center gap-4 rounded-2xl border border-charcoal/10 bg-offwhite/60 p-4 transition-all duration-300 hover:border-sky/40 hover:bg-white hover:shadow-lg hover:shadow-navy/10"
+                  >
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-navy text-gold transition-colors duration-300 group-hover:bg-gold group-hover:text-navy">
+                      <Icon size={22} />
+                    </span>
+                    <span className="text-sm font-medium leading-relaxed text-navy">
+                      {t.cards?.[iconKey]}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
-          <div className="md:col-span-2">
-            <p className="text-charcoal/80 leading-relaxed">{t.heroSummary}</p>
+
+          <div className="relative mb-8 lg:mb-0">
+            <div aria-hidden className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-gold/30 to-sky/30 blur-xl" />
+            <div className="relative aspect-[5/4] overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-navy/25">
+              <AboutVisual alt={t.whoWeAreTitle} className="h-full w-full" />
+            </div>
+
+            <div className="absolute -bottom-6 start-4 max-w-[16rem] rounded-2xl border border-gold/40 bg-white p-4 shadow-xl sm:start-8">
+              <p className="font-display text-sm font-bold uppercase tracking-wide text-gold">
+                {t.uspLabel}
+              </p>
+              <p className="mt-1 text-sm font-medium leading-snug text-navy">{t.uspText}</p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Services preview */}
-      <section className="container-content py-20">
-        <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
-          <h2 className="font-display text-2xl font-semibold text-navy">{t.whatWeDoTitle}</h2>
-          <Link href="/services" className="text-sm font-medium text-sky hover:text-navy">
-            {t.viewAllServices}
-          </Link>
-        </div>
+      <section className="relative overflow-hidden bg-gradient-to-b from-offwhite to-white py-20 md:py-24">
+        <div aria-hidden className="pointer-events-none absolute -top-24 end-0 h-72 w-72 rounded-full bg-sky/10 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute bottom-0 start-0 h-64 w-64 rounded-full bg-gold/10 blur-3xl" />
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {servicesItems.map((service) => {
-            const st = servicesT[service.slug] || {};
-            return (
-              <Link
-                key={service.slug}
-                href={`/services/${service.slug}`}
-                className="group flex flex-col rounded-lg border border-charcoal/10 bg-white p-6 transition-colors hover:border-sky"
-              >
-                <div className="flex h-11 w-11 items-center justify-center rounded bg-navy text-gold">
-                  <ServiceIcon name={service.icon} />
-                </div>
-                <h3 className="mt-5 font-display text-lg font-semibold text-navy">{st.title}</h3>
-                <p className="mt-2 flex-1 text-sm text-charcoal/70">{st.short}</p>
-                <span className="mt-4 text-sm font-medium text-sky group-hover:text-navy">
-                  {t.learnMore}
+        <div className="container-content relative">
+          <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
+            <div>
+              {servicesTr.pageBadge && (
+                <span className="inline-block rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-navy">
+                  {servicesTr.pageBadge}
                 </span>
-              </Link>
-            );
-          })}
+              )}
+              <h2 className="mt-3 font-display text-3xl font-bold text-navy md:text-4xl">
+                {t.whatWeDoTitle}
+              </h2>
+              <span className="mt-4 block h-1 w-14 rounded-full bg-gold" />
+            </div>
+            <Link
+              href="/services"
+              className="group inline-flex items-center gap-2 text-sm font-semibold text-sky transition-colors hover:text-navy"
+            >
+              {t.viewAllServices?.replace(/\s*[→←]\s*$/, "")}
+              <ArrowRight
+                size={16}
+                className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"
+              />
+            </Link>
+          </div>
+
+          <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
+            {servicesItems.map((service, i) => {
+              const st = servicesT[service.slug] || {};
+              return (
+                <Link
+                  key={service.slug}
+                  href={`/services/${service.slug}`}
+                  style={{ animationDelay: `${i * 90}ms` }}
+                  className="svc-rise group relative flex flex-col overflow-hidden rounded-2xl border border-charcoal/10 bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-sky/40 hover:shadow-2xl hover:shadow-navy/15"
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden bg-navy">
+                    <ServiceVisual
+                      slug={service.slug}
+                      image={service.image}
+                      alt={st.title}
+                      className="h-full w-full transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy/50 via-transparent to-transparent" />
+                    <span className="absolute start-4 top-4 rounded-full bg-gold px-3 py-1 text-xs font-bold text-navy">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+
+                  <div className="relative flex flex-1 flex-col p-6 pt-9">
+                    <div className="absolute -top-6 end-5 flex h-12 w-12 items-center justify-center rounded-xl bg-white text-navy shadow-lg ring-4 ring-white transition-colors duration-300 group-hover:bg-gold">
+                      <ServiceIcon name={service.icon} size={22} />
+                    </div>
+                    <h3 className="font-display text-xl font-semibold text-navy">{st.title}</h3>
+                    <p className="mt-2 line-clamp-4 flex-1 text-sm leading-relaxed text-charcoal/70">
+                      {st.short}
+                    </p>
+                    <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-sky transition-colors group-hover:text-navy">
+                      {t.learnMore?.replace(/\s*[→←]\s*$/, "")}
+                      <ArrowRight
+                        size={16}
+                        className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"
+                      />
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="bg-sky/10">
-        <div className="container-content flex flex-col items-start justify-between gap-6 py-16 md:flex-row md:items-center">
-          <div>
-            <h2 className="font-display text-2xl font-semibold text-navy">{t.ctaTitle}</h2>
-            <p className="mt-2 text-charcoal/70">{t.ctaSubtitle}</p>
+      <section className="container-content py-16 md:py-20">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy via-navy to-[#15406E] px-8 py-14 text-offwhite shadow-2xl shadow-navy/20 md:px-14">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-[0.07]"
+            style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "22px 22px" }}
+          />
+          <div aria-hidden className="pointer-events-none absolute -top-20 end-[-3rem] h-64 w-64 rounded-full bg-sky/25 blur-3xl" />
+          <div aria-hidden className="pointer-events-none absolute bottom-[-5rem] start-[-2rem] h-56 w-56 rounded-full bg-gold/20 blur-3xl" />
+
+          <div className="relative flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
+            <div className="max-w-xl">
+              <h2 className="font-display text-3xl font-bold leading-tight md:text-4xl">{t.ctaTitle}</h2>
+              <p className="mt-3 leading-relaxed text-offwhite/75">{t.ctaSubtitle}</p>
+            </div>
+            <Link href="/services" className="btn-primary group shrink-0">
+              {t.ctaButton}
+              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
+            </Link>
           </div>
-          <Link href="/services" className="btn-primary">
-            {t.ctaButton}
-            <ArrowRight size={16} />
-          </Link>
         </div>
       </section>
     </div>

@@ -17,6 +17,7 @@
 //  9) كل حدث أمني مهم بيتسجل في audit_logs.
 
 import CredentialsProvider from "next-auth/providers/credentials";
+import { decode as defaultDecode } from "next-auth/jwt";
 import { connectToMongo, getAuthModel } from "./mongodb";
 import { checkRateLimit, getClientIp } from "./rateLimit";
 import { logAudit } from "./auditLog";
@@ -200,6 +201,20 @@ export const authOptions = {
 
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
 
+  // 🐛 JWEDecryptionFailed: كوكي الجلسة القديم (اتعمل بـ NEXTAUTH_SECRET مختلف،
+  // أو من مشروع تاني على نفس localhost:3000) مينفعش يتفك. بدل ما كل request
+  // يطلّع stack trace ضخم ويكسر الـ layout، بنعتبر الجلسة دي "مفيش جلسة" (null)
+  // والمستخدم ببساطة يسجّل دخول من جديد.
+  jwt: {
+    async decode(params) {
+      try {
+        return await defaultDecode(params);
+      } catch {
+        return null;
+      }
+    },
+  },
+
   pages: {
     signIn: "/login",
     error: "/login",
@@ -280,7 +295,15 @@ export const authOptions = {
     },
   },
 
-  debug: process.env.NODE_ENV === "development",
+  // الـ debug مقفول افتراضيًا (كان بيطبع DEBUG_ENABLED + stack traces على كل طلب).
+  // لو عايزه: NEXTAUTH_DEBUG=true في .env.local
+  debug: process.env.NEXTAUTH_DEBUG === "true",
 };
+
+if (!authOptions.secret && process.env.NODE_ENV !== "production") {
+  console.warn(
+    "[auth] NEXTAUTH_SECRET مش متظبط في .env.local — الجلسات مش هتفضل شغالة بعد إعادة التشغيل."
+  );
+}
 
 export default authOptions;

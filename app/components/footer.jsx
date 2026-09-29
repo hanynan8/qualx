@@ -51,29 +51,36 @@ export default function Footer() {
   const contact = footer.contact || FALLBACK_FOOTER.contact;
   const year = new Date().getFullYear();
 
+  const isAr = language === "ar";
+  const rights = isAr ? "جميع الحقوق محفوظة." : "All rights reserved.";
+
   return (
-    <footer className="bg-navy text-offwhite/80">
-      <div className="container-content grid gap-10 py-14 md:grid-cols-4">
+    <footer className="relative overflow-hidden bg-navy text-offwhite/80">
+      <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/70 to-transparent" />
+      <div aria-hidden className="pointer-events-none absolute -top-24 end-[-4rem] h-64 w-64 rounded-full bg-sky/10 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute bottom-[-5rem] start-[-3rem] h-56 w-56 rounded-full bg-gold/10 blur-3xl" />
+
+      <div className="container-content relative grid gap-12 py-16 md:grid-cols-4">
         <div className="md:col-span-2">
-          <div className="flex items-center gap-2 font-display text-xl font-semibold text-offwhite">
-            <span className="flex h-8 w-8 items-center justify-center rounded bg-gold text-navy">
+          <div className="flex items-center gap-2.5 font-display text-xl font-bold text-offwhite">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-gold to-[#E0BC3E] text-navy shadow-lg shadow-gold/25">
               {footer.brandLetter || FALLBACK_FOOTER.brandLetter}
             </span>
             {t.brand}
           </div>
-          <p className="mt-4 max-w-sm text-sm leading-relaxed text-offwhite/70">
-            {t.description}
-          </p>
+          <p className="mt-5 max-w-sm text-sm leading-loose text-offwhite/70">{t.description}</p>
         </div>
 
         <div>
-          <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gold">
-            {t.companyTitle}
-          </h3>
-          <ul className="space-y-2 text-sm">
+          <h3 className="mb-5 font-display text-base font-semibold text-gold">{t.companyTitle}</h3>
+          <span className="mb-5 block h-0.5 w-8 rounded-full bg-gold/60" />
+          <ul className="space-y-3 text-sm">
             {links.map((link) => (
               <li key={link.id}>
-                <Link href={link.href} className="hover:text-gold">
+                <Link
+                  href={link.href}
+                  className="inline-block transition-all duration-200 hover:translate-x-1 hover:text-gold rtl:hover:-translate-x-1"
+                >
                   {t.links?.[link.id] || link.id}
                 </Link>
               </li>
@@ -82,29 +89,41 @@ export default function Footer() {
         </div>
 
         <div>
-          <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gold">
-            {t.contactTitle}
-          </h3>
-          <ul className="space-y-3 text-sm">
-            <li className="flex items-center gap-2">
-              <Mail size={16} className="text-sky" />
-              {contact.email}
+          <h3 className="mb-5 font-display text-base font-semibold text-gold">{t.contactTitle}</h3>
+          <span className="mb-5 block h-0.5 w-8 rounded-full bg-gold/60" />
+          <ul className="space-y-4 text-sm">
+            <li>
+              <a href={`mailto:${contact.email}`} className="group flex items-center gap-3 hover:text-gold">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-sky transition-colors group-hover:bg-gold group-hover:text-navy">
+                  <Mail size={16} />
+                </span>
+                <span dir="ltr">{contact.email}</span>
+              </a>
             </li>
-            <li className="flex items-center gap-2">
-              <Phone size={16} className="text-sky" />
-              {contact.phone}
+            <li>
+              <a
+                href={`tel:${String(contact.phone || "").replace(/\s+/g, "")}`}
+                className="group flex items-center gap-3 hover:text-gold"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-sky transition-colors group-hover:bg-gold group-hover:text-navy">
+                  <Phone size={16} />
+                </span>
+                <span dir="ltr">{contact.phone}</span>
+              </a>
             </li>
-            <li className="flex items-center gap-2">
-              <MapPin size={16} className="text-sky" />
+            <li className="flex items-center gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-sky">
+                <MapPin size={16} />
+              </span>
               {contact.location}
             </li>
           </ul>
         </div>
       </div>
 
-      <div className="border-t border-offwhite/10 py-6">
+      <div className="relative border-t border-white/10 py-6">
         <p className="container-content text-center text-xs text-offwhite/50">
-          © {year} {t.brand}. All rights reserved.
+          © {year} {t.brand}. {rights}
         </p>
       </div>
     </footer>

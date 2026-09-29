@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X, Globe, LogOut, User } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
@@ -35,6 +36,7 @@ const FALLBACK_NAVBAR = {
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
   const { language, changeLanguage } = useLanguage();
   const { data } = useCollectionData("navbar");
   const { data: session, status } = useSession();
@@ -44,27 +46,41 @@ export default function Navbar() {
   const links = navbar.links || FALLBACK_NAVBAR.links;
   const authText = AUTH_TEXT[language] || AUTH_TEXT.en;
 
+  const isActive = (href) => (href === "/" ? pathname === "/" : pathname?.startsWith(href));
+
   return (
-    <header className="sticky top-0 z-50 bg-navy text-offwhite">
-      <div className="container-content flex h-16 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 font-display text-xl font-semibold tracking-wide">
-          <span className="flex h-8 w-8 items-center justify-center rounded bg-gold text-navy">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-navy/90 text-offwhite backdrop-blur-md">
+      <div className="container-content flex h-16 items-center justify-between md:h-[4.5rem]">
+        <Link href="/" className="flex items-center gap-2.5 font-display text-xl font-bold tracking-wide">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-gold to-[#E0BC3E] text-navy shadow-lg shadow-gold/25">
             {navbar.brandLetter || FALLBACK_NAVBAR.brandLetter}
           </span>
           {t.brand}
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          {links.map((link) => (
-            <Link
-              key={link.id}
-              href={link.href}
-              className="text-sm font-medium text-offwhite/85 transition-colors hover:text-gold"
-            >
-              {t.links?.[link.id] || link.id}
-            </Link>
-          ))}
-          <Link href="/services" className="btn-primary text-sm">
+          {links.map((link) => {
+            const active = isActive(link.href);
+            return (
+              <Link
+                key={link.id}
+                href={link.href}
+                aria-current={active ? "page" : undefined}
+                className={`group relative py-2 text-sm font-medium transition-colors ${
+                  active ? "text-gold" : "text-offwhite/85 hover:text-gold"
+                }`}
+              >
+                {t.links?.[link.id] || link.id}
+                <span
+                  aria-hidden
+                  className={`absolute inset-x-0 -bottom-0.5 h-0.5 origin-center rounded-full bg-gold transition-transform duration-300 ${
+                    active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                  }`}
+                />
+              </Link>
+            );
+          })}
+          <Link href="/services" className="btn-primary !px-4 !py-2 text-sm">
             {t.quote}
           </Link>
           <LangSwitcher language={language} onChange={changeLanguage} />
@@ -75,35 +91,41 @@ export default function Navbar() {
           <LangSwitcher language={language} onChange={changeLanguage} compact />
           <button
             aria-label={open ? "Close menu" : "Open menu"}
-            className="text-offwhite"
+            aria-expanded={open}
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 text-offwhite transition-colors hover:border-gold hover:text-gold"
             onClick={() => setOpen((v) => !v)}
           >
-            {open ? <X size={24} /> : <Menu size={24} />}
+            {open ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
       </div>
 
       {open && (
-        <div className="border-t border-offwhite/10 bg-navy md:hidden">
-          <div className="container-content flex flex-col gap-1 py-3">
-            {links.map((link) => (
-              <Link
-                key={link.id}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="rounded px-2 py-2 text-sm font-medium text-offwhite/90 hover:bg-offwhite/5"
-              >
-                {t.links?.[link.id] || link.id}
-              </Link>
-            ))}
+        <div className="svc-rise border-t border-white/10 bg-navy/95 backdrop-blur-md md:hidden">
+          <div className="container-content flex flex-col gap-1 py-4">
+            {links.map((link) => {
+              const active = isActive(link.href);
+              return (
+                <Link
+                  key={link.id}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className={`rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                    active ? "bg-gold/10 text-gold" : "text-offwhite/90 hover:bg-white/5"
+                  }`}
+                >
+                  {t.links?.[link.id] || link.id}
+                </Link>
+              );
+            })}
             <Link
               href="/services"
               onClick={() => setOpen(false)}
-              className="mt-2 inline-block rounded bg-gold px-4 py-2 text-center text-sm font-semibold text-navy"
+              className="btn-primary mt-3 justify-center text-sm"
             >
               {t.quote}
             </Link>
-            <div className="mt-2 border-t border-offwhite/10 pt-2">
+            <div className="mt-3 border-t border-white/10 pt-3">
               <AuthControl
                 status={status}
                 session={session}
@@ -125,7 +147,7 @@ function LangSwitcher({ language, onChange, compact = false }) {
   return (
     <button
       onClick={() => onChange(other)}
-      className="flex items-center gap-1.5 rounded border border-offwhite/25 px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-offwhite/85 transition-colors hover:border-gold hover:text-gold"
+      className="flex items-center gap-1.5 rounded-xl border border-white/20 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-offwhite/85 transition-colors hover:border-gold hover:text-gold"
       aria-label="Switch language"
     >
       <Globe size={14} />
@@ -179,7 +201,7 @@ function AuthControl({ status, session, authText, mobile = false, onNavigate }) 
         onClick={onNavigate}
         className={
           mobile
-            ? "block rounded px-2 py-2 text-sm font-medium text-offwhite/90 hover:bg-offwhite/5"
+            ? "block rounded-xl px-3 py-2.5 text-sm font-medium text-offwhite/90 hover:bg-white/5"
             : "text-sm font-medium text-offwhite/85 transition-colors hover:text-gold"
         }
       >
@@ -190,8 +212,8 @@ function AuthControl({ status, session, authText, mobile = false, onNavigate }) 
         onClick={onNavigate}
         className={
           mobile
-            ? "block rounded px-2 py-2 text-sm font-medium text-gold hover:bg-offwhite/5"
-            : "rounded border border-gold/60 px-3 py-1 text-sm font-medium text-gold transition-colors hover:bg-gold hover:text-navy"
+            ? "block rounded-xl px-3 py-2.5 text-sm font-semibold text-gold hover:bg-white/5"
+            : "rounded-xl border border-gold/60 px-4 py-1.5 text-sm font-semibold text-gold transition-colors hover:bg-gold hover:text-navy"
         }
       >
         {authText.signup}

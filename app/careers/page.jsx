@@ -1,9 +1,10 @@
 // app/careers/page.jsx
 "use client";
 
-import { Briefcase, MapPin, ArrowRight } from "lucide-react";
+import { Briefcase, MapPin, ArrowRight, Clock, Mail } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "../lib/useCollectionData";
+import PageHero from "../components/PageHero";
 
 // 🔄 DYNAMIC: كانت الوظائف Array ثابتة في lib/data.jsx. دلوقتي جايه من
 // كولكشن "careers" (document واحد فيه items[] + i18n لكل وظيفة).
@@ -127,64 +128,77 @@ export default function CareersPage() {
 
   return (
     <div>
-      <section className="bg-navy text-offwhite">
-        <div className="container-content py-20">
-          <span className="inline-block rounded-full border border-gold/40 px-3 py-1 text-xs font-medium text-gold">
-            {t.badge}
-          </span>
-          <h1 className="mt-6 max-w-2xl font-display text-4xl font-semibold leading-tight">
-            {t.heroTitle}
-          </h1>
-          <p className="mt-4 max-w-xl text-offwhite/75">{t.heroText}</p>
+      <PageHero badge={t.badge} title={t.heroTitle} text={t.heroText} />
+
+      <section className="container-content py-16 md:py-24">
+        <div className="flex items-center gap-3">
+          <h2 className="font-display text-3xl font-bold text-navy">{t.openRolesTitle}</h2>
+          <span className="rounded-full bg-gold px-3 py-1 text-xs font-bold text-navy">{items.length}</span>
         </div>
-      </section>
+        <span className="mt-4 block h-1 w-14 rounded-full bg-gold" />
 
-      <section className="container-content py-16">
-        <h2 className="font-display text-xl font-semibold text-navy">{t.openRolesTitle}</h2>
-
-        <div className="mt-8 space-y-4">
-          {items.map((role) => {
+        <div className="mt-10 space-y-5">
+          {items.map((role, i) => {
             const rt = t.items?.[role.slug] || {};
             return (
-              <div
+              <article
                 key={role.slug}
-                className="flex flex-col gap-4 rounded-lg border border-charcoal/10 bg-white p-6 sm:flex-row sm:items-center sm:justify-between"
+                style={{ animationDelay: `${i * 80}ms` }}
+                className="svc-rise group relative flex flex-col gap-5 overflow-hidden rounded-2xl border border-charcoal/10 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky/40 hover:shadow-xl hover:shadow-navy/10 sm:flex-row sm:items-center sm:justify-between md:p-8"
               >
-                <div>
-                  <h3 className="font-display text-lg font-semibold text-navy">{rt.title}</h3>
-                  <div className="mt-2 flex flex-wrap gap-4 text-sm text-charcoal/60">
-                    <span className="flex items-center gap-1.5">
-                      <Briefcase size={15} className="text-sky" />
-                      {rt.type}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <MapPin size={15} className="text-sky" />
-                      {rt.location}
-                    </span>
+                <span
+                  aria-hidden
+                  className="absolute inset-y-0 start-0 w-1 bg-gradient-to-b from-gold to-sky opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                />
+
+                <div className="flex gap-5">
+                  <span className="hidden h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-navy text-gold transition-colors duration-300 group-hover:bg-gold group-hover:text-navy sm:flex">
+                    <Briefcase size={24} />
+                  </span>
+                  <div>
+                    <h3 className="font-display text-xl font-semibold text-navy">{rt.title}</h3>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-sky/10 px-3 py-1 text-xs font-medium text-navy">
+                        <Clock size={13} className="text-sky" />
+                        {rt.type}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-3 py-1 text-xs font-medium text-navy">
+                        <MapPin size={13} className="text-gold" />
+                        {rt.location}
+                      </span>
+                    </div>
+                    <p className="mt-4 max-w-xl text-sm leading-relaxed text-charcoal/70">{rt.description}</p>
                   </div>
-                  <p className="mt-3 max-w-xl text-sm text-charcoal/70">{rt.description}</p>
                 </div>
 
                 <a
                   href={`mailto:${contactEmail}?subject=${encodeURIComponent(
                     "Application: " + (rt.title || role.slug)
                   )}`}
-                  className="btn-primary shrink-0 self-start sm:self-center"
+                  className="btn-primary group/btn shrink-0 self-start sm:self-center"
                 >
                   {t.applyNow}
-                  <ArrowRight size={16} />
+                  <ArrowRight size={16} className="transition-transform group-hover/btn:translate-x-1 rtl:rotate-180 rtl:group-hover/btn:-translate-x-1" />
                 </a>
-              </div>
+              </article>
             );
           })}
         </div>
 
-        <div className="mt-10 rounded-lg bg-sky/10 p-6 text-sm text-charcoal/70">
-          {t.noRoleText}{" "}
-          <a href={`mailto:${contactEmail}`} className="font-medium text-sky hover:text-navy">
-            {contactEmail}
-          </a>{" "}
-          {t.noRoleTail}
+        <div className="relative mt-12 overflow-hidden rounded-3xl bg-gradient-to-br from-navy via-navy to-[#15406E] p-8 text-offwhite shadow-xl shadow-navy/15 md:p-10">
+          <div aria-hidden className="pointer-events-none absolute -top-16 end-[-2rem] h-52 w-52 rounded-full bg-sky/25 blur-3xl" />
+          <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center">
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gold text-navy">
+              <Mail size={24} />
+            </span>
+            <p className="text-sm leading-relaxed text-offwhite/80 md:text-base">
+              {t.noRoleText}{" "}
+              <a href={`mailto:${contactEmail}`} className="font-semibold text-gold hover:underline" dir="ltr">
+                {contactEmail}
+              </a>{" "}
+              {t.noRoleTail}
+            </p>
+          </div>
         </div>
       </section>
     </div>

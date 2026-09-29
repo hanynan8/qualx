@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Cairo } from "next/font/google";
 // 🐛 كان فيه هنا "./components/Navbar" / "./components/Footer" بحرف
 // كبير، والملفات فعليًا اسمها navbar.jsx / footer.jsx — بيفشل على أي
 // نشر Linux (Vercel). متصلح.
@@ -8,6 +9,15 @@ import { LanguageProvider } from "../contexts/LanguageContext";
 import SessionProviderWrapper from "./components/SessionProviderWrapper";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../app/lib/authOptions";
+
+// 🔤 خط Cairo للموقع كله (عربي + إنجليزي). next/font بينزّله وقت الـ build/dev
+// ويخدمه من نفس الدومين (self-hosted)، فمفيش تغيير مطلوب في الـ CSP (font-src 'self').
+const cairo = Cairo({
+  subsets: ["arabic", "latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-cairo",
+});
 
 export const metadata = {
   title: "Qualx — Quality Assurance & Customer Experience",
@@ -22,8 +32,8 @@ export default async function RootLayout({ children }) {
   const session = await getServerSession(authOptions);
 
   return (
-    <html lang="en">
-      <body className="flex min-h-screen flex-col bg-offwhite text-charcoal antialiased">
+    <html lang="en" className={cairo.variable}>
+      <body className="font-sans flex min-h-screen flex-col bg-offwhite text-charcoal antialiased">
         <SessionProviderWrapper session={session}>
           <LanguageProvider>
             <Navbar />

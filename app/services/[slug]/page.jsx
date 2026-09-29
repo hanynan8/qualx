@@ -7,6 +7,8 @@ import { ArrowRight, ArrowLeft, Check } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "../../lib/useCollectionData";
 import ServiceIcon from "../../components/ServiceIcon";
+import ServiceVisual from "../../components/ServiceVisual";
+import PageHero from "../../components/PageHero";
 
 // 🔄 DYNAMIC: كانت الصفحة دي Server Component بتستخدم generateStaticParams +
 // generateMetadata (SSG). بما إن المحتوى بقى ديناميكي 100% من مونجو وبيتقرا
@@ -31,49 +33,54 @@ export default function ServiceDetailPage() {
 
   return (
     <div>
-      <section className="bg-navy text-offwhite">
-        <div className="container-content py-20">
+      <PageHero
+        back={
           <Link
             href="/services"
-            className="inline-flex items-center gap-2 text-sm text-offwhite/70 hover:text-gold"
+            className="mb-6 inline-flex items-center gap-2 text-sm text-offwhite/70 transition-colors hover:text-gold"
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft size={14} className="rtl:rotate-180" />
             {t.allServices || "All services"}
           </Link>
+        }
+        icon={<ServiceIcon name={service.icon} size={26} />}
+        title={st.title}
+        text={st.short}
+        visual={
+          <>
+            <div aria-hidden className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-gold/30 to-sky/30 blur-xl" />
+            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-black/30">
+              <ServiceVisual slug={service.slug} image={service.image} alt={st.title} className="h-full w-full" />
+            </div>
+          </>
+        }
+      />
 
-          <div className="mt-6 flex h-14 w-14 items-center justify-center rounded bg-gold text-navy">
-            <ServiceIcon name={service.icon} size={26} />
-          </div>
-
-          <h1 className="mt-6 max-w-2xl font-display text-4xl font-semibold leading-tight">
-            {st.title}
-          </h1>
-          <p className="mt-4 max-w-xl text-offwhite/75">{st.short}</p>
-        </div>
-      </section>
-
-      <section className="container-content grid gap-12 py-16 md:grid-cols-3">
+      <section className="container-content grid gap-12 py-16 md:grid-cols-3 md:py-24">
         <div className="md:col-span-2">
-          <h2 className="font-display text-xl font-semibold text-navy">
+          <h2 className="font-display text-3xl font-bold text-navy">
             {t.howItWorks || "How it works"}
           </h2>
-          <p className="mt-4 leading-relaxed text-charcoal/80">{st.description}</p>
+          <span className="mt-4 block h-1 w-14 rounded-full bg-gold" />
+          <p className="mt-6 text-base leading-loose text-charcoal/80 md:text-lg">{st.description}</p>
 
-          <Link href="/services" className="btn-primary mt-8">
+          <Link href="/services" className="btn-primary group mt-8">
             {t.askAboutService || "Ask about this service"}
-            <ArrowRight size={16} />
+            <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
           </Link>
         </div>
 
         <div>
-          <div className="rounded-lg border border-charcoal/10 bg-white p-6">
-            <h3 className="font-display text-base font-semibold text-navy">
+          <div className="rounded-2xl border border-charcoal/10 bg-white p-6 shadow-lg shadow-navy/5 md:sticky md:top-24">
+            <h3 className="font-display text-lg font-semibold text-navy">
               {t.whatsIncluded || "What's included"}
             </h3>
-            <ul className="mt-4 space-y-3">
+            <ul className="mt-5 space-y-4">
               {(st.highlights || []).map((item) => (
-                <li key={item} className="flex items-start gap-3 text-sm text-charcoal/75">
-                  <Check size={16} className="mt-0.5 shrink-0 text-sky" />
+                <li key={item} className="flex items-start gap-3 text-sm leading-relaxed text-charcoal/80">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sky/15 text-sky">
+                    <Check size={12} strokeWidth={3} />
+                  </span>
                   {item}
                 </li>
               ))}
@@ -82,29 +89,40 @@ export default function ServiceDetailPage() {
         </div>
       </section>
 
-      <section className="border-t border-charcoal/10 bg-white">
-        <div className="container-content py-16">
-          <h2 className="font-display text-xl font-semibold text-navy">
+      <section className="border-t border-charcoal/10 bg-gradient-to-b from-white to-offwhite">
+        <div className="container-content py-16 md:py-20">
+          <h2 className="font-display text-3xl font-bold text-navy">
             {t.otherServices || "Other services"}
           </h2>
-          <div className="mt-6 grid gap-6 sm:grid-cols-3">
-            {otherServices.map((s) => {
-              const ost = t.items?.[s.slug] || {};
+          <span className="mt-4 block h-1 w-14 rounded-full bg-gold" />
+
+          <div className="mt-10 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+            {otherServices.map((s2, i) => {
+              const ost = t.items?.[s2.slug] || {};
               return (
                 <Link
-                  key={s.slug}
-                  href={`/services/${s.slug}`}
-                  className="group rounded-lg border border-charcoal/10 p-5 transition-colors hover:border-sky"
+                  key={s2.slug}
+                  href={`/services/${s2.slug}`}
+                  style={{ animationDelay: `${i * 90}ms` }}
+                  className="svc-rise group overflow-hidden rounded-2xl border border-charcoal/10 bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-sky/40 hover:shadow-2xl hover:shadow-navy/15"
                 >
-                  <div className="flex h-9 w-9 items-center justify-center rounded bg-navy text-gold">
-                    <ServiceIcon name={s.icon} size={18} />
+                  <div className="relative aspect-[16/9] overflow-hidden bg-navy">
+                    <ServiceVisual
+                      slug={s2.slug}
+                      image={s2.image}
+                      alt={ost.title}
+                      className="h-full w-full transition-transform duration-700 group-hover:scale-110"
+                    />
                   </div>
-                  <h3 className="mt-4 font-display text-base font-semibold text-navy">
-                    {ost.title}
-                  </h3>
-                  <span className="mt-2 inline-block text-sm font-medium text-sky group-hover:text-navy">
-                    {t.learnMore || "Learn more →"}
-                  </span>
+                  <div className="flex items-center justify-between gap-3 p-5">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-navy text-gold transition-colors duration-300 group-hover:bg-gold group-hover:text-navy">
+                        <ServiceIcon name={s2.icon} size={18} />
+                      </span>
+                      <h3 className="font-display text-base font-semibold text-navy">{ost.title}</h3>
+                    </div>
+                    <ArrowRight size={18} className="shrink-0 text-sky transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
+                  </div>
                 </Link>
               );
             })}

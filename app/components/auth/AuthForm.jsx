@@ -16,10 +16,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession, useSession } from "next-auth/react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
+import AboutVisual from "../AboutVisual";
 import { useLanguage } from "../../../contexts/LanguageContext";
 
 const TEXT = {
   en: {
+    panelBadge: "Mystery Shopping · Auditing · CX",
+    panelTitle: "See your business the way your customers actually see it.",
     loginTitle: "Sign in",
     loginSubtitle: "Access your Qualx account.",
     registerTitle: "Create account",
@@ -69,6 +72,8 @@ const TEXT = {
     registeredPleaseLogin: "Account created. Please sign in.",
   },
   ar: {
+    panelBadge: "تسوق سري · تدقيق · تجربة عملاء",
+    panelTitle: "شوف شركتك بعين عملائك فعليًا.",
     loginTitle: "تسجيل الدخول",
     loginSubtitle: "ادخل إلى حسابك في Qualx.",
     registerTitle: "إنشاء حساب",
@@ -134,7 +139,7 @@ const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 const isValidPhone = (v) => /^\+?[0-9\s-]{7,20}$/.test(v);
 
 const inputClass =
-  "mt-1 w-full rounded border border-charcoal/20 px-3 py-2 text-sm outline-none focus:border-sky";
+  "mt-1.5 w-full rounded-xl border border-charcoal/15 bg-offwhite/50 px-4 py-2.5 text-sm outline-none transition focus:border-sky focus:bg-white focus:ring-4 focus:ring-sky/15";
 
 export default function AuthForm({ mode }) {
   const isLogin = mode === "login";
@@ -344,14 +349,31 @@ export default function AuthForm({ mode }) {
   );
 
   return (
-    <div className="container-content flex min-h-[70vh] items-center justify-center py-16">
+    <div className="relative overflow-hidden bg-gradient-to-b from-offwhite to-white">
+      <div aria-hidden className="pointer-events-none absolute -top-24 start-[-4rem] h-72 w-72 rounded-full bg-sky/10 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute bottom-[-4rem] end-[-3rem] h-64 w-64 rounded-full bg-gold/10 blur-3xl" />
+
+      <div className="container-content relative flex min-h-[80vh] items-center justify-center py-12 md:py-16">
+        <div className="grid w-full max-w-4xl overflow-hidden rounded-3xl border border-charcoal/10 bg-white shadow-2xl shadow-navy/15 lg:grid-cols-2">
+          <aside className="relative hidden min-h-[520px] lg:block">
+            <AboutVisual className="absolute inset-0 h-full w-full" />
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy via-navy/80 to-transparent p-8 pt-24 text-offwhite">
+              <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-gold">
+                <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+                {t.panelBadge}
+              </span>
+              <p className="mt-4 font-display text-2xl font-bold leading-snug">{t.panelTitle}</p>
+            </div>
+          </aside>
+
       <form
         onSubmit={isLogin ? handleLogin : handleRegister}
         noValidate={!isLogin}
-        className="w-full max-w-sm rounded-lg border border-charcoal/10 bg-white p-8 shadow-sm"
+        className="flex w-full flex-col justify-center p-8 sm:p-12"
       >
-        <h1 className="font-display text-2xl font-semibold text-navy">{title}</h1>
-        <p className="mt-1 text-sm text-charcoal/70">{subtitle}</p>
+        <h1 className="font-display text-3xl font-bold text-navy">{title}</h1>
+        <span className="mt-3 block h-1 w-12 rounded-full bg-gold" />
+        <p className="mt-3 text-sm text-charcoal/70">{subtitle}</p>
 
         {isLogin && !inMfa && (
           <>
@@ -437,7 +459,7 @@ export default function AuthForm({ mode }) {
         )}
 
         {error && (
-          <p role="alert" className="mt-3 text-sm text-red-600">
+          <p role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
             {error}
           </p>
         )}
@@ -479,6 +501,8 @@ export default function AuthForm({ mode }) {
           </>
         )}
       </form>
+        </div>
+      </div>
     </div>
   );
 }

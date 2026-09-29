@@ -2,10 +2,12 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "../lib/useCollectionData";
 import ServiceIcon from "../components/ServiceIcon";
+import ServiceVisual from "../components/ServiceVisual";
+import PageHero from "../components/PageHero";
 
 // 🔄 DYNAMIC: كانت الميتاداتا (title/description) static export من السيرفر —
 // دلوقتي الصفحة client component، فمفيش export const metadata هنا (Next
@@ -84,43 +86,85 @@ export default function ServicesPage() {
 
   return (
     <div>
-      <section className="bg-navy text-offwhite">
-        <div className="container-content py-20">
-          <span className="inline-block rounded-full border border-gold/40 px-3 py-1 text-xs font-medium text-gold">
-            {t.pageBadge}
-          </span>
-          <h1 className="mt-6 max-w-2xl font-display text-4xl font-semibold leading-tight">
-            {t.pageTitle}
-          </h1>
-          <p className="mt-4 max-w-xl text-offwhite/75">{t.pageIntro}</p>
+      <PageHero badge={t.pageBadge} title={t.pageTitle} text={t.pageIntro}>
+        {/* أيقونات الخدمات كـ pills سريعة */}
+        <div className="mt-8 flex flex-wrap gap-3">
+          {items.map((service) => (
+            <a
+              key={service.slug}
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-offwhite/85 transition-colors hover:border-gold/60 hover:text-gold"
+            >
+              <ServiceIcon name={service.icon} size={16} />
+              {t.items?.[service.slug]?.title}
+            </a>
+          ))}
         </div>
-      </section>
+      </PageHero>
 
-      <section className="container-content py-16">
-        <div className="grid gap-8 md:grid-cols-2">
-          {items.map((service) => {
-            const st = t.items?.[service.slug] || {};
-            return (
-              <div
-                key={service.slug}
-                className="flex flex-col rounded-lg border border-charcoal/10 bg-white p-8"
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded bg-navy text-gold">
-                  <ServiceIcon name={service.icon} size={24} />
+      {/* Services: صف لكل خدمة (صورة + شرح) بالتبادل */}
+      <section className="container-content space-y-20 py-16 md:space-y-28 md:py-24">
+        {items.map((service, i) => {
+          const st = t.items?.[service.slug] || {};
+          const reversed = i % 2 === 1;
+          const highlights = (st.highlights || []).slice(0, 3);
+
+          return (
+            <article
+              key={service.slug}
+              id={service.slug}
+              className="svc-rise grid scroll-mt-24 items-center gap-10 md:grid-cols-2 md:gap-16"
+            >
+              <div className={`relative ${reversed ? "md:order-2" : ""}`}>
+                <div
+                  aria-hidden
+                  className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-gold/30 to-sky/30 blur-xl"
+                />
+                <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-navy/25">
+                  <ServiceVisual
+                    slug={service.slug}
+                    image={service.image}
+                    alt={st.title}
+                    className="h-full w-full"
+                  />
                 </div>
-                <h2 className="mt-6 font-display text-xl font-semibold text-navy">{st.title}</h2>
-                <p className="mt-3 flex-1 text-sm leading-relaxed text-charcoal/70">{st.short}</p>
-                <Link
-                  href={`/services/${service.slug}`}
-                  className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-sky hover:text-navy"
-                >
+                <span className="absolute -bottom-5 start-6 flex h-12 w-12 items-center justify-center rounded-xl bg-gold text-navy shadow-lg">
+                  <ServiceIcon name={service.icon} size={22} />
+                </span>
+              </div>
+
+              <div className={reversed ? "md:order-1" : ""}>
+                <span className="font-display text-6xl font-bold leading-none text-navy/10">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h2 className="mt-3 font-display text-2xl font-semibold text-navy md:text-3xl">
+                  {st.title}
+                </h2>
+                <p className="mt-3 leading-relaxed text-charcoal/75">{st.short}</p>
+
+                {highlights.length > 0 && (
+                  <ul className="mt-6 space-y-2.5">
+                    {highlights.map((item) => (
+                      <li key={item} className="flex items-start gap-3 text-sm text-charcoal/80">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sky/15 text-sky">
+                          <Check size={12} strokeWidth={3} />
+                        </span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                <Link href={`/services/${service.slug}`} className="btn-primary group mt-8">
                   {t.seeHowItWorks}
-                  <ArrowRight size={16} />
+                  <ArrowRight
+                    size={16}
+                    className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"
+                  />
                 </Link>
               </div>
-            );
-          })}
-        </div>
+            </article>
+          );
+        })}
       </section>
     </div>
   );
