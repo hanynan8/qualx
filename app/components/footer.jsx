@@ -16,13 +16,13 @@ const FALLBACK_FOOTER = {
     { id: "careers", href: "/careers" },
   ],
   contact: {
-    email: "hello@qualx.com",
+    email: "hello@merlix.com",
     phone: "+20 100 000 0000",
     location: "Cairo, Egypt",
   },
   i18n: {
     en: {
-      brand: "Qualx",
+      brand: "Merlix",
       description:
         "Quality Assurance & Customer Experience for businesses and branches across Egypt — Mystery Shopping, Auditing, Managed Services, and CX.",
       companyTitle: "Company",
@@ -30,7 +30,7 @@ const FALLBACK_FOOTER = {
       links: { home: "Home", services: "Services", careers: "Careers" },
     },
     ar: {
-      brand: "Qualx",
+      brand: "Merlix",
       description:
         "ضمان جودة وتجربة عملاء للشركات والفروع في مصر — تسوق سري، زيارات تدقيق، خدمات مُدارة، وتجربة عملاء.",
       companyTitle: "الشركة",

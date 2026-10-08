@@ -10,7 +10,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Qualx brand palette — Palette 1 (Navy + Sky Blue + Gold)
+        // merlix brand palette — Palette 1 (Navy + Sky Blue + Gold)
         navy: "#0B1F3A",
         sky: "#1E9BC6",
         gold: "#C9A227",

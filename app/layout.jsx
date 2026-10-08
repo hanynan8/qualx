@@ -1,3 +1,4 @@
+// app/layout.jsx
 import "./globals.css";
 import { Cairo } from "next/font/google";
 // 🐛 كان فيه هنا "./components/Navbar" / "./components/Footer" بحرف
@@ -7,6 +8,7 @@ import Navbar from "./components/navbar";
 import Footer from "./components/footer";
 import { LanguageProvider } from "../contexts/LanguageContext";
 import SessionProviderWrapper from "./components/SessionProviderWrapper";
+import ScrollReveal from "./components/ScrollReveal";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../app/lib/authOptions";
 
@@ -20,9 +22,9 @@ const cairo = Cairo({
 });
 
 export const metadata = {
-  title: "Qualx — Quality Assurance & Customer Experience",
+  title: "merlix — Quality Assurance & Customer Experience",
   description:
-    "Qualx evaluates customer experience and quality control for businesses across Egypt through Mystery Shopping, Auditing, Managed Services, and CX consulting.",
+    "merlix evaluates customer experience and quality control for businesses across Egypt through Mystery Shopping, Auditing, Managed Services, and CX consulting.",
 };
 
 // 🔐 نظام تسجيل الدخول: بنجيب الجلسة على السيرفر (مرة واحدة لكل طلب صفحة)
@@ -39,6 +41,7 @@ export default async function RootLayout({ children }) {
             <Navbar />
             <main className="flex-1">{children}</main>
             <Footer />
+            <ScrollReveal />
           </LanguageProvider>
         </SessionProviderWrapper>
       </body>

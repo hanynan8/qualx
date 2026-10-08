@@ -1,3 +1,4 @@
+/* app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -108,5 +109,79 @@ body {
   .svc-float,
   .svc-rise {
     animation: none;
+  }
+}
+
+/* ───────── Scroll Reveal: ظهور عند الوقوف على العنصر واختفاء عند الابتعاد ─────────
+   - بنستخدم الخصائص المستقلة translate / scale (مش transform) عشان متتعارضش مع
+     hover:-translate-y / hover:scale الموجودة في الكروت.
+   - الـ transition بيشمل خصائص الـ hover الشائعة بمدة قصيرة، فتأثيرات الـ hover
+     فضلت سريعة وبس الظهور هو اللي بطيء وسلس.
+   - ScrollReveal.jsx هو اللي بيحط data-reveal / data-in. */
+[data-reveal] {
+  --rv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --rv-dur: 1.15s;
+  opacity: 0;
+  translate: 0 70px;
+  scale: 0.92;
+  transition-property: opacity, translate, scale, transform, box-shadow, background-color, border-color, color;
+  transition-duration: var(--rv-dur), var(--rv-dur), var(--rv-dur), 0.3s, 0.3s, 0.3s, 0.3s, 0.3s;
+  transition-timing-function: var(--rv-ease), var(--rv-ease), var(--rv-ease), ease, ease, ease, ease, ease;
+  transition-delay: var(--rv-d, 0ms), var(--rv-d, 0ms), var(--rv-d, 0ms), 0s, 0s, 0s, 0s, 0s;
+}
+
+[data-reveal][data-in] {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+}
+
+/* الأقسام الكاملة: fade + حركة خفيفة */
+[data-reveal="section"] {
+  translate: 0 48px;
+  scale: 1;
+  --rv-dur: 1.3s;
+  transition-delay: 0s;
+}
+[data-reveal="section"][data-in] {
+  translate: 0 0;
+}
+
+/* عناصر داخل عناصر: حركة أخف عشان متتجمعش */
+[data-reveal="soft"] {
+  translate: 0 40px;
+  scale: 0.95;
+}
+
+[data-reveal="zoom"] {
+  translate: 0 0;
+  scale: 0.8;
+}
+
+/* خط الزينة تحت العناوين: بيتمدد من بداية السطر (يمين في العربي / شمال في الإنجليزي) */
+[data-reveal="line"] {
+  translate: 0 0;
+  scale: 0 1;
+  transform-origin: left center;
+}
+:dir(rtl) [data-reveal="line"] {
+  transform-origin: right center;
+}
+[data-reveal="line"][data-in] {
+  scale: 1 1;
+}
+
+/* الكروت القديمة كان ليها animation دخول خاص؛ ScrollReveal بيحل محلها */
+[data-reveal].svc-rise {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal][data-in] {
+    opacity: 1;
+    translate: none;
+    scale: none;
+    transition: none;
   }
 }

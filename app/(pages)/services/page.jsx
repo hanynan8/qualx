@@ -142,7 +142,7 @@ const PAGE = {
   en: {
     heroTitle: "Our Services",
     heroCta: "Get a quote",
-    introTitle: "Qualx delivers a full range of quality services to help businesses reach their true potential.",
+    introTitle: "Merlix delivers a full range of quality services to help businesses reach their true potential.",
     introText:
       "Through a comprehensive approach, we help our clients evaluate the customer experience, keep quality standards consistent across every branch, and turn documented findings into real improvements, building customer loyalty while growing sales and profits.",
     videoTitle: "Contact us today!",
@@ -187,7 +187,7 @@ const PAGE = {
       { icon: "search", label: "Auditing" },
       { icon: "line", label: "Reporting & Tracking" },
     ],
-    platformTitle: "Qualx Reporting",
+    platformTitle: "Merlix Reporting",
     platformSub: "PLATFORM",
     platformText:
       "Every service feeds into one clear, documented reporting flow, so you always see where each branch stands and what to fix first.",

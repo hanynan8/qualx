@@ -37,7 +37,7 @@ const homeDoc = {
       badge: "Mystery Shopping · Auditing · CX",
       heroTitle: "See your business the way your customers actually see it.",
       heroSummary:
-        "Qualx is a company specialized in evaluating customer experience and quality control (Mystery Shopping & QA) for businesses and branches across Egypt, through confidential evaluation visits and documented reports. We also provide fully equipped quality staff for your location and deliver real, actionable solutions to help your business grow.",
+        "Merlix is a company specialized in evaluating customer experience and quality control (Mystery Shopping & QA) for businesses and branches across Egypt, through confidential evaluation visits and documented reports. We also provide fully equipped quality staff for your location and deliver real, actionable solutions to help your business grow.",
       exploreServices: "Explore our services",
       joinTeam: "Join our team",
       cards: {
@@ -220,7 +220,7 @@ const servicesDoc = {
 
 // ──────────────────────────── careers ───────────────────────────
 const careersDoc = {
-  contactEmail: "hello@qualx.com",
+  contactEmail: "hello@merlix.com",
   items: [{ slug: "mystery-shopper" }, { slug: "quality-auditor" }, { slug: "cx-analyst" }],
   i18n: {
     en: {
@@ -301,8 +301,8 @@ const navbarDoc = {
     { id: "careers", href: "/careers" },
   ],
   i18n: {
-    en: { brand: "Qualx", links: { home: "Home", services: "Services", careers: "Careers" }, quote: "Get a quote" },
-    ar: { brand: "Qualx", links: { home: "الرئيسية", services: "خدماتنا", careers: "وظائف" }, quote: "اطلب عرض سعر" },
+    en: { brand: "Merlix", links: { home: "Home", services: "Services", careers: "Careers" }, quote: "Get a quote" },
+    ar: { brand: "Merlix", links: { home: "الرئيسية", services: "خدماتنا", careers: "وظائف" }, quote: "اطلب عرض سعر" },
   },
 };
 
@@ -315,13 +315,13 @@ const footerDoc = {
     { id: "careers", href: "/careers" },
   ],
   contact: {
-    email: "hello@qualx.com",
+    email: "hello@merlix.com",
     phone: "+20 100 000 0000",
     location: "Cairo, Egypt",
   },
   i18n: {
     en: {
-      brand: "Qualx",
+      brand: "Merlix",
       description:
         "Quality Assurance & Customer Experience for businesses and branches across Egypt — Mystery Shopping, Auditing, Managed Services, and CX.",
       companyTitle: "Company",
@@ -329,7 +329,7 @@ const footerDoc = {
       links: { home: "Home", services: "Services", careers: "Careers" },
     },
     ar: {
-      brand: "Qualx",
+      brand: "Merlix",
       description:
         "ضمان جودة وتجربة عملاء للشركات والفروع في مصر — تسوق سري، زيارات تدقيق، خدمات مُدارة، وتجربة عملاء.",
       companyTitle: "الشركة",

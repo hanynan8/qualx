@@ -28,10 +28,10 @@ const FALLBACK_NAVBAR = {
     { id: "careers", href: "/careers" },
   ],
   i18n: {
-    en: { brand: "Qualx", links: { home: "Home", services: "Services", careers: "Careers" }, quote: "Get a quote" },
-    ar: { brand: "Qualx", links: { home: "الرئيسية", services: "خدماتنا", careers: "وظائف" }, quote: "اطلب عرض سعر" },
+    en: { brand: "Merlix", links: { home: "Home", services: "Services", careers: "Careers" }, quote: "Get a quote" },
+    ar: { brand: "Merlix", links: { home: "الرئيسية", services: "خدماتنا", careers: "وظائف" }, quote: "اطلب عرض سعر" },
   },
-};
+};  
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -160,7 +160,7 @@ export default function Navbar() {
 
 // زرار بسيط للتبديل بين EN/AR. مش محتاجين dropdown معقد لغتين بس دلوقتي.
 function LangSwitcher({ language, onChange, compact = false }) {
-  const other = language === "en" ? "ar" : "en";
+  const other = language === "en" ? "ع" : "en";
   return (
     <button
       onClick={() => onChange(other)}

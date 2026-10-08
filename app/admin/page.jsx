@@ -10,7 +10,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../lib/authOptions";
 import { connectToMongo, getAuthModel } from "../lib/mongodb";
 
-export const metadata = { title: "Admin — Qualx", robots: { index: false, follow: false } };
+export const metadata = { title: "Admin — Merlix", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {

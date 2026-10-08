@@ -104,7 +104,7 @@ const PAGE = {
 };
 
 const FALLBACK_CAREERS = {
-  contactEmail: "hello@qualx.com",
+  contactEmail: "hello@merlix.com",
   items: [
     { slug: "marketing" },
     { slug: "mystery-shopper" },
@@ -128,7 +128,7 @@ const FALLBACK_CAREERS = {
           type: "Full-time",
           location: "Cairo, Egypt",
           description:
-            "Plan and run marketing campaigns across digital and offline channels, grow Qualx's brand presence, and generate qualified leads for our services.",
+            "Plan and run marketing campaigns across digital and offline channels, grow Merlix's brand presence, and generate qualified leads for our services.",
         },
         "mystery-shopper": {
           title: "Mystery Shopper (MS)",
@@ -175,7 +175,7 @@ const FALLBACK_CAREERS = {
           type: "دوام كامل",
           location: "القاهرة، مصر",
           description:
-            "تخطيط وتنفيذ حملات تسويقية على القنوات الرقمية والتقليدية، تنمية حضور براند Qualx، وجلب عملاء محتملين لخدماتنا.",
+            "تخطيط وتنفيذ حملات تسويقية على القنوات الرقمية والتقليدية، تنمية حضور براند Merlix وجلب عملاء محتملين لخدماتنا.",
         },
         "mystery-shopper": {
           title: "متسوق سري (MS)",

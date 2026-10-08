@@ -15,7 +15,7 @@ const LanguageContext = createContext({
   changeLanguage: () => {},
 });
 
-const STORAGE_KEY = "qualx_lang";
+const STORAGE_KEY = "Merlix";
 const SUPPORTED_LANGUAGES = ["en", "ar"];
 
 function getInitialLanguage() {

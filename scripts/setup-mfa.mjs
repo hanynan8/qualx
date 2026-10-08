@@ -3,8 +3,8 @@
 // تفعيل التحقق بخطوتين (TOTP) لحساب أدمن — شغّال مع Google Authenticator /
 // Microsoft Authenticator / Authy / 1Password.
 //
-//   node scripts/setup-mfa.mjs admin@qualx.com            # تفعيل
-//   node scripts/setup-mfa.mjs admin@qualx.com --disable  # إلغاء (لو ضاع الموبايل والأكواد الاحتياطية)
+//   node scripts/setup-mfa.mjs admin@merlix.com            # تفعيل
+//   node scripts/setup-mfa.mjs admin@merlix.com --disable  # إلغاء (لو ضاع الموبايل والأكواد الاحتياطية)
 //
 // التفعيل: بيعرض QR في التيرمينال، وما بيحفظش حاجة إلا بعد ما تدخل كود صحيح
 // من التطبيق (عشان ما تقفلش على نفسك بسكرت غلط). بعدها بيطبع 8 أكواد احتياطية
@@ -56,7 +56,7 @@ async function main() {
   const base32 = new Secret({ size: 20 }).base32;
   // نفس إعدادات التحقق في app/lib/authSecurity.js (6 أرقام / 30 ثانية / SHA1).
   const totp = new TOTP({
-    issuer: "Qualx",
+    issuer: "Merlix",
     label: email,
     secret: Secret.fromBase32(base32),
     digits: 6,

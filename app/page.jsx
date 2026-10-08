@@ -20,7 +20,7 @@ const FALLBACK_HOME = {
       badge: "Mystery Shopping · Auditing · CX",
       heroTitle: "See your business the way your customers actually see it.",
       heroSummary:
-        "Qualx is a company specialized in evaluating customer experience and quality control (Mystery Shopping & QA) for businesses and branches across Egypt, through confidential evaluation visits and documented reports. We also provide fully equipped quality staff for your location and deliver real, actionable solutions to help your business grow.",
+        "Merlix is a company specialized in evaluating customer experience and quality control (Mystery Shopping & QA) for businesses and branches across Egypt, through confidential evaluation visits and documented reports. We also provide fully equipped quality staff for your location and deliver real, actionable solutions to help your business grow.",
       exploreServices: "Explore our services",
       joinTeam: "Join our team",
       cards: {
