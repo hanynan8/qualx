@@ -2,71 +2,77 @@
 
 // app/admin/CollectionManager.jsx
 //
-// بيحمّل documents كولكشن من /api/admin/content ويعرضها:
-//   - singleton: document واحد (محتوى صفحة) → محرر مباشرة.
-//   - list: عدة documents (رسائل الزوار، أو أي كولكشن في تاب "كولكشنز أخرى")
-//     → قائمة قابلة للفتح، مع إضافة وحذف.
+// بيحمّل document الصفحة (singleton) من /api/admin/content ويعرضه في DocEditor.
+// بيوصّل أزرار هيدر البانل (Refresh / Save All) عن طريق onControls.
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Plus, ChevronDown, ChevronRight, RefreshCw } from "lucide-react";
+import { Loader, Plus } from "lucide-react";
 import DocEditor from "./DocEditor";
-import { api, splitMeta } from "./adminUtils";
+import { api } from "./adminUtils";
 
 const SKELETON = { i18n: { en: {}, ar: {} } };
 
-function summarize(doc, keys) {
-  const { body } = splitMeta(doc);
-  const pick = (keys?.length ? keys : Object.keys(body))
-    .map((k) => body[k])
-    .filter((v) => typeof v === "string" && v.trim());
-  return pick.slice(0, 3).join(" · ").slice(0, 110) || String(doc._id);
-}
-
-export default function CollectionManager({ tab, collection, mode, onDirtyChange }) {
-  const [docs, setDocs] = useState(null);
+export default function CollectionManager({ tab, collection, onDirtyChange, onControls }) {
+  const [doc, setDoc] = useState(undefined); // undefined = بيحمّل، null = مفيش document
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [openId, setOpenId] = useState(null);
-  const [dirtyMap, setDirtyMap] = useState({});
+  const [dirty, setDirty] = useState(false);
+  const [editorControls, setEditorControls] = useState(null);
 
   const load = useCallback(async () => {
-    setDocs(null);
+    setDoc(undefined);
     setError("");
     try {
       const data = await api(`/api/admin/content?collection=${encodeURIComponent(collection)}`);
-      let list = data.docs || [];
-      if (tab?.newestFirst) list = [...list].reverse();
-      setDocs(list);
+      setDoc((data.docs || [])[0] ?? null);
     } catch (err) {
       setError(err.message);
+      setDoc(null);
     }
-  }, [collection, tab?.newestFirst]);
+  }, [collection]);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  // الأب محتاج يعرف لو أي document هنا فيه تعديلات غير محفوظة.
-  const dirtyCb = useRef(onDirtyChange);
-  dirtyCb.current = onDirtyChange;
+  const handleDirty = useCallback(
+    (v) => {
+      setDirty(v);
+      onDirtyChange?.(v);
+    },
+    [onDirtyChange]
+  );
+  useEffect(() => () => onDirtyChange?.(false), [onDirtyChange]);
+
+  const registerControls = useCallback((c) => setEditorControls(c), []);
+
+  // Refresh بيرمي أي تعديل غير محفوظ — بنسأل الأول (زي تحذير التنقل بين التابات).
+  const refresh = useCallback(() => {
+    if (dirty && !window.confirm("فيه تعديلات غير محفوظة هتضيع لو حدّثت. تكمّل؟")) return;
+    load();
+  }, [dirty, load]);
+
+  // الهيدر بيستقبل الدوال دي من الأب (PagePanel).
   useEffect(() => {
-    dirtyCb.current?.(Object.values(dirtyMap).some(Boolean));
-  }, [dirtyMap]);
-  useEffect(() => () => dirtyCb.current?.(false), []);
+    onControls?.({
+      refresh,
+      loading: doc === undefined,
+      save: editorControls?.save,
+      saving: !!editorControls?.saving,
+      canSave: !!editorControls,
+    });
+  }, [onControls, refresh, doc, editorControls]);
+  useEffect(() => () => onControls?.(null), [onControls]);
 
-  const markDirty = (id) => (isDirty) =>
-    setDirtyMap((m) => (m[id] === isDirty ? m : { ...m, [id]: isDirty }));
-
-  async function create(initial) {
+  async function createEmpty() {
     setBusy(true);
     setError("");
     try {
       const created = await api(`/api/admin/content?collection=${encodeURIComponent(collection)}`, {
         method: "POST",
-        body: JSON.stringify(initial),
+        body: JSON.stringify(SKELETON),
       });
-      setDocs((prev) => (tab?.newestFirst ? [created, ...(prev || [])] : [...(prev || []), created]));
-      setOpenId(String(created._id));
+      setDoc(created);
     } catch (err) {
       setError(`فشل الإنشاء: ${err.message}`);
     } finally {
@@ -74,119 +80,50 @@ export default function CollectionManager({ tab, collection, mode, onDirtyChange
     }
   }
 
-  const replaceDoc = (saved) =>
-    setDocs((prev) => prev.map((d) => (String(d._id) === String(saved._id) ? saved : d)));
-  const removeDoc = (id) => {
-    setDocs((prev) => prev.filter((d) => String(d._id) !== String(id)));
-    setDirtyMap((m) => ({ ...m, [id]: false }));
-  };
-
-  if (error && !docs) {
+  if (doc === undefined) {
     return (
-      <div className="rounded-2xl bg-red-50 p-5 text-sm text-red-700">
-        تعذّر تحميل البيانات: {error}{" "}
-        <button type="button" onClick={load} className="font-semibold underline">
-          إعادة المحاولة
-        </button>
-      </div>
-    );
-  }
-  if (!docs) return <p className="py-10 text-center text-sm text-gray-400">جاري التحميل...</p>;
-
-  // ── singleton ──
-  if (mode === "singleton") {
-    if (docs.length === 0) {
-      return (
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center">
-          <p className="text-sm text-gray-600">
-            مفيش document للكولكشن <code dir="ltr">{collection}</code> لسه، فالموقع بيستخدم النصوص الافتراضية اللي في الكود.
-          </p>
-          <p className="mt-1 text-xs text-gray-400">
-            الأفضل تشغّل <code dir="ltr">node scripts/seed.mjs</code> مرة عشان تتحمّل المحتوى الحالي كامل، أو أنشئ document فاضي هنا وابدأ تكتب.
-          </p>
-          {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => create(SKELETON)}
-            className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-600/90 disabled:opacity-40"
-          >
-            <Plus size={15} /> إنشاء document فاضي
-          </button>
-        </div>
-      );
-    }
-
-    const doc = docs[0];
-    return (
-      <div className="space-y-4">
-        {docs.length > 1 && (
-          <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            تنبيه: الكولكشن فيه {docs.length} documents، والموقع بيقرا الأول بس. بتعدّل الأول هنا — الباقي تقدر تمسحه من تاب «كولكشنز أخرى».
-          </p>
-        )}
-        <DocEditor
-          key={String(doc._id)}
-          collection={collection}
-          doc={doc}
-          tab={tab}
-          onSaved={replaceDoc}
-          onDirtyChange={markDirty(String(doc._id))}
-        />
+      <div className="p-12 text-center">
+        <Loader className="animate-spin mx-auto" size={48} />
       </div>
     );
   }
 
-  // ── list ──
-  return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <p className="text-sm text-gray-600">{docs.length} عنصر</p>
-        <button type="button" onClick={load} className="flex items-center gap-1 text-sm text-blue-600 hover:underline">
-          <RefreshCw size={13} /> تحديث
-        </button>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => create({})}
-          className="ms-auto flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-40"
-        >
-          <Plus size={14} /> إضافة document
-        </button>
-      </div>
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
-
-      {docs.length === 0 && <p className="rounded-2xl bg-white p-8 text-center text-sm text-gray-400">الكولكشن فاضي.</p>}
-
-      {docs.map((doc) => {
-        const id = String(doc._id);
-        const isOpen = openId === id;
-        return (
-          <div key={id} className="rounded-2xl border border-gray-200 bg-white">
-            <button type="button" onClick={() => setOpenId(isOpen ? null : id)} className="flex w-full items-center gap-2 px-4 py-3 text-start">
-              {isOpen ? <ChevronDown size={16} className="shrink-0" /> : <ChevronRight size={16} className="shrink-0 rtl:rotate-180" />}
-              <span dir="auto" className="flex-1 truncate text-sm font-medium text-blue-900">
-                {summarize(doc, tab?.summaryKeys)}
-              </span>
-              {dirtyMap[id] && <span className="text-xs text-amber-700">● غير محفوظ</span>}
-              {doc.createdAt && <span className="hidden text-xs text-gray-400 sm:block">{new Date(doc.createdAt).toLocaleDateString("ar-EG")}</span>}
+  if (doc === null) {
+    return (
+      <div className="rounded-xl border-2 border-dashed border-gray-300 bg-white p-8 text-center">
+        {error ? (
+          <p className="text-sm text-red-600">تعذّر تحميل البيانات: {error}</p>
+        ) : (
+          <>
+            <p className="text-sm text-gray-600">
+              مفيش document للكولكشن <code dir="ltr">{collection}</code> لسه، فالموقع بيستخدم النصوص الافتراضية اللي في الكود.
+            </p>
+            <p className="mt-1 text-xs text-gray-400">
+              الأفضل تشغّل <code dir="ltr">node scripts/seed.mjs</code> مرة عشان تتحمّل المحتوى الحالي كامل، أو أنشئ document فاضي وابدأ تكتب.
+            </p>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={createEmpty}
+              className="mt-4 inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            >
+              <Plus size={18} /> إنشاء document فاضي
             </button>
-            {isOpen && (
-              <div className="border-t border-gray-200 p-4">
-                <DocEditor
-                  collection={collection}
-                  doc={doc}
-                  tab={null}
-                  allowDelete
-                  onSaved={replaceDoc}
-                  onDeleted={removeDoc}
-                  onDirtyChange={markDirty(id)}
-                />
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <DocEditor
+      key={String(doc._id)}
+      collection={collection}
+      doc={doc}
+      tab={tab}
+      onSaved={setDoc}
+      onDirtyChange={handleDirty}
+      registerControls={registerControls}
+    />
   );
 }

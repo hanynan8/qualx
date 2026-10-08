@@ -12,25 +12,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  Database, Settings, Home, Navigation, Info, Layers, Briefcase, PanelBottom, Users, Inbox,
-  FileText, BarChart3, ChevronDown, ArrowLeft, Loader, ScrollText, ShieldCheck, FolderOpen,
+  Database, Settings, Home, Navigation, Info, Layers, Briefcase, PanelBottom, Users,
+  FileText, ChevronDown, ArrowLeft, Loader,
 } from "lucide-react";
 
 import { TABS } from "./tabsConfig";
 import { api } from "./adminUtils";
 import AccountCard from "./components/accountCard";
 import PagePanel from "./components/pagePanel";
-import OverviewPanel from "./components/overviewPanel";
 import UsersPanel from "./components/usersPanel";
-import FormsPanel from "./components/formsPanel";
-import AuditLogsPanel from "./components/auditLogsPanel";
-import CollectionsPanel from "./components/collectionsPanel";
-import SecurityPanel from "./components/securityPanel";
 
 // عناصر السايدبار. tabId = بانل صفحة بيتبني من TABS (tabsConfig.js)؛ component
 // = بانل مخصص بيستقبل { user, mfaEnabled, onDirtyChange }.
 const SIDEBAR_GROUPS = [
-  { id: "overview", type: "single", name: "Overview", icon: BarChart3, component: OverviewPanel },
   {
     id: "pages",
     type: "group",
@@ -52,18 +46,6 @@ const SIDEBAR_GROUPS = [
     icon: Users,
     items: [
       { id: "users", name: "Users", icon: Users, component: UsersPanel },
-      { id: "messages", name: "Form Submissions", icon: Inbox, component: FormsPanel },
-      { id: "audit", name: "Audit Logs", icon: ScrollText, component: AuditLogsPanel },
-    ],
-  },
-  {
-    id: "system",
-    type: "group",
-    name: "System",
-    icon: Settings,
-    items: [
-      { id: "collections", name: "Other Collections", icon: FolderOpen, component: CollectionsPanel },
-      { id: "security", name: "Account & Security", icon: ShieldCheck, component: SecurityPanel },
     ],
   },
 ];
@@ -76,8 +58,8 @@ function findGroupIdForTab(tabId) {
 }
 
 export default function AdminDashboard({ user, mfaEnabled }) {
-  const [activeTab, setActiveTab] = useState("overview");
-  const [openGroups, setOpenGroups] = useState({});
+  const [activeTab, setActiveTab] = useState("home");
+  const [openGroups, setOpenGroups] = useState({ pages: true });
   const [exporting, setExporting] = useState(false);
   const [dirty, setDirty] = useState(false);
   const dirtyRef = useRef(false);
@@ -176,7 +158,7 @@ export default function AdminDashboard({ user, mfaEnabled }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-5 flex-wrap gap-4">
             <div className="flex flex-col gap-1.5">
-              <Link href="/" title="الرجوع للموقع" className="text-white/70 hover:text-white transition-colors w-fit">
+              <Link href="/" title="الرجوع للموقع" className="text-white/70 hover:text-white w-fit">
                 <ArrowLeft size={32} strokeWidth={1.25} />
               </Link>
               <h1 className="text-2xl font-semibold text-white flex items-center gap-3">
@@ -188,7 +170,7 @@ export default function AdminDashboard({ user, mfaEnabled }) {
             <button
               onClick={handleExportAllData}
               disabled={exporting}
-              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 disabled:opacity-60 text-white font-semibold px-4 py-2 rounded-xl transition-colors border border-white/30"
+              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 disabled:opacity-60 text-white font-semibold px-4 py-2 rounded-xl border border-white/30"
             >
               {exporting ? <Loader size={18} className="animate-spin" /> : <Database size={18} />}
               {exporting ? "Exporting..." : "Export All Site Data (JSON)"}
@@ -216,7 +198,7 @@ export default function AdminDashboard({ user, mfaEnabled }) {
                       <button
                         key={group.id}
                         onClick={() => selectTab(group.id)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-left font-medium ${
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-medium ${
                           isActive
                             ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md scale-[1.02]"
                             : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
@@ -236,7 +218,7 @@ export default function AdminDashboard({ user, mfaEnabled }) {
                     <div key={group.id}>
                       <button
                         onClick={() => toggleGroup(group.id)}
-                        className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl transition-all text-left font-medium ${
+                        className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-left font-medium ${
                           hasActiveChild ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                         }`}
                       >
@@ -244,7 +226,7 @@ export default function AdminDashboard({ user, mfaEnabled }) {
                           <GroupIcon size={18} />
                           <span>{group.name}</span>
                         </span>
-                        <ChevronDown size={16} className={`shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+                        <ChevronDown size={16} className={`shrink-0 ${isOpen ? "rotate-180" : ""}`} />
                       </button>
 
                       {isOpen && (
@@ -256,7 +238,7 @@ export default function AdminDashboard({ user, mfaEnabled }) {
                               <button
                                 key={tab.id}
                                 onClick={() => selectTab(tab.id)}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left text-sm font-medium ${
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm font-medium ${
                                   isActive
                                     ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md"
                                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"

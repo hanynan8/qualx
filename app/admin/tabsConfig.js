@@ -4,12 +4,10 @@
 // الكولكشن اللي بيغذّيها في الداتابيز:
 //
 //   collection : اسم الكولكشن في مونجو.
-//   mode       : "singleton" (document واحد فيه محتوى الصفحة) | "list" (عدة
-//                documents زي رسائل الزوار).
-//   href       : رابط الصفحة على الموقع (زرار "فتح الصفحة").
+//   mode       : "singleton" (document واحد فيه محتوى الصفحة).
+//   href       : رابط الصفحة على الموقع.
 //   visible    : أنماط للحقول اللي بتظهر في التاب ("*" = أي مفتاح). لو مفيش،
-//                كل الحقول بتظهر. زرار "عرض كل الحقول" بيتخطّاها دايمًا، فمفيش
-//                حاجة في الداتابيز بتبقى بعيدة عن الأدمن.
+//                كل الحقول بتظهر.
 //   items      : مدير عناصر مخصص (إضافة/حذف/ترتيب/إعادة تسمية) بيحافظ على
 //                التزامن بين القائمة وترجماتها في كل لغة.
 //   pageKey    : مفتاح قالب نصوص الصفحة الافتراضية (pageDefaults.js).
@@ -123,21 +121,7 @@ export const TABS = [
       titleOf: (lang) => (typeof lang === "string" ? lang : null),
     },
   },
-  {
-    id: "messages",
-    label: "رسائل الزوار",
-    hint: "رسائل فورم التواصل (كولكشن form)",
-    collection: "form",
-    mode: "list",
-    newestFirst: true,
-    summaryKeys: ["name", "email", "phone", "service", "message"],
-  },
-  { id: "collections", label: "كولكشنز أخرى", hint: "أي كولكشن تاني في الداتابيز", mode: "explorer" },
-  { id: "security", label: "الحساب والأمان", mode: "security" },
 ];
-
-// كولكشنز ليها تاب مخصص — بنخفيها من تاب "كولكشنز أخرى" عشان ما تتكررش.
-export const DEDICATED_COLLECTIONS = new Set(TABS.map((t) => t.collection).filter(Boolean));
 
 // ───────────────────── visibility patterns ─────────────────────
 // المسار ظاهر لو هو أب لنمط (عشان نوصل للحقل) أو تابع ليه (جوه الحقل).

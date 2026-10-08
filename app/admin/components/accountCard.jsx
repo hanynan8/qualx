@@ -28,7 +28,7 @@ export default function AccountCard({ user, mfaEnabled }) {
       <button
         type="button"
         onClick={() => signOut({ callbackUrl: "/" })}
-        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900"
       >
         <LogOut size={16} /> Sign out
       </button>

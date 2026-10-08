@@ -154,15 +154,13 @@ function isProtectedCollection(name) {
   return PROTECTED_COLLECTIONS.has(String(name));
 }
 
-// ✅ الكولكشنز الوحيدة المسموح فيها بالكتابة (POST) من غير تسجيل دخول admin —
-// بيانات جايه من زوار الموقع نفسهم (فورم التواصل)، مش محتوى الموقع.
-// كل باقي الكولكشنز (home, navbar, footer, services, careers) بتتغير من
-// لوحة الأدمن بس.
-const PUBLIC_WRITE_COLLECTIONS = new Set(["form"]);
+// الكولكشنز المسموح فيها بالكتابة (POST) من غير تسجيل دخول admin. فاضية
+// حاليًا: الموقع مفيهوش فورم تواصل، فكل الكتابة (home, navbar, footer,
+// services, careers) بتتم من لوحة الأدمن بس.
+const PUBLIC_WRITE_COLLECTIONS = new Set();
 
-// ⚠️ "form" فيها رسائل زوار الموقع (اسم/إيميل/رقم تليفون) — الكتابة عامة
-// (عشان فورم التواصل يشتغل) لكن القراءة admin بس.
-const ADMIN_READ_COLLECTIONS = new Set(["form"]);
+// كولكشنز القراءة فيها admin-only (فاضية حاليًا، لنفس السبب).
+const ADMIN_READ_COLLECTIONS = new Set();
 
 function isAdminReadCollection(name) {
   return ADMIN_READ_COLLECTIONS.has(String(name));
@@ -180,7 +178,6 @@ const PUBLIC_READ_COLLECTIONS = new Set([
   // الوظائف + ترجمات en/ar) بدل الـ array الثابتة اللي كانت في lib/data.jsx.
   // نفس فلسفة "services" بالظبط: قراءة عامة، كتابة admin-only.
   "careers",
-  "form", // القراءة هنا لسه بتتفحص admin-only في isAdminReadCollection تحت
 ]);
 
 function isPublicReadCollection(name) {

@@ -2,40 +2,17 @@
 
 // app/admin/TreeEditor.jsx
 //
-// محرر عام لأي JSON: نصوص، أرقام، true/false، قوائم، وobjects متداخلة —
-// إضافة/حذف/تعديل لأي حاجة. بيشتغل على أي كولكشن مهما كان شكل الـ document،
-// فمفيش حاجة في الداتابيز برّه نطاق الأدمن.
+// محرر الحقول بنفس شكل تابات Edumaster الداخلية: أقسام قابلة للطي (كارت
+// رمادي/أبيض بحدود سميكة)، جواها كروت العناصر (حد بنفسجي فاتح)، وحقول
+// بـ label فوق الـ input، ومعاينة للصور، وزر "Add" / "Remove" بسيطين للقوائم.
+// بيشتغل على أي JSON، فمفيش حاجة في الـ document برّه نطاق الأدمن.
 
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { clone, humanize, isPlainObject } from "./adminUtils";
 import { isPathVisible } from "./tabsConfig";
 
-const NEW_FIELD_TYPES = [
-  { id: "text", label: "نص" },
-  { id: "longtext", label: "نص طويل" },
-  { id: "number", label: "رقم" },
-  { id: "boolean", label: "نعم/لا" },
-  { id: "list", label: "قائمة" },
-  { id: "object", label: "مجموعة حقول" },
-];
-
-function blankFor(type) {
-  switch (type) {
-    case "number":
-      return 0;
-    case "boolean":
-      return false;
-    case "list":
-      return [];
-    case "object":
-      return {};
-    default:
-      return "";
-  }
-}
-
-// بيبني عنصر جديد للقائمة بنفس شكل آخر عنصر (مفاتيح فاضية) عشان الأدمن ما يبدأش من الصفر.
+// بيبني عنصر جديد للقائمة بنفس شكل آخر عنصر (مفاتيح فاضية).
 function blankLike(sample) {
   if (typeof sample === "string") return "";
   if (typeof sample === "number") return 0;
@@ -49,202 +26,172 @@ function blankLike(sample) {
   return "";
 }
 
-const inputClass =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-200";
+const IMAGE_KEY = /(image|img|logo|avatar|favicon|background|photo|banner)/i;
+const COLOR_KEY = /color/i;
 
-function IconBtn({ title, onClick, children, danger = false, disabled = false }) {
+const looksLikeUrl = (v) => typeof v === "string" && /^(https?:\/\/|\/)/.test(v.trim());
+
+function inputClass(deep) {
+  return deep
+    ? "w-full px-3 py-2 border rounded-lg text-sm outline-none focus:border-blue-500"
+    : "w-full px-4 py-2 border-2 border-gray-300 rounded-lg outline-none focus:border-blue-500";
+}
+
+function labelClass(deep) {
+  return deep
+    ? "block text-xs font-semibold text-gray-500 mb-1"
+    : "block text-sm font-semibold mb-2";
+}
+
+function Preview({ src, deep }) {
+  if (!looksLikeUrl(src)) return null;
   return (
-    <button
-      type="button"
-      title={title}
-      aria-label={title}
-      disabled={disabled}
-      onClick={onClick}
-      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-colors disabled:opacity-30 ${
-        danger
-          ? "border-red-200 text-red-600 hover:bg-red-50"
-          : "border-gray-300 text-gray-600 hover:border-blue-500 hover:text-blue-600"
-      }`}
-    >
-      {children}
-    </button>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt="Preview"
+      onError={(e) => {
+        e.currentTarget.style.display = "none";
+      }}
+      className={`w-full ${deep ? "h-32" : "h-40"} object-cover rounded-lg border-2 border-gray-200`}
+    />
   );
 }
 
-function Leaf({ value, onChange }) {
+function Field({ name, value, onChange, deep }) {
+  const label = <label className={`${labelClass(deep)} capitalize`}>{humanize(name)}</label>;
+
   if (typeof value === "boolean") {
     return (
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={value} onChange={(e) => onChange(e.target.checked)} className="h-4 w-4 accent-blue-600" />
-        {value ? "نعم" : "لا"}
-      </label>
-    );
-  }
-  if (typeof value === "number") {
-    return (
-      <input
-        type="number"
-        value={Number.isFinite(value) ? value : 0}
-        onChange={(e) => onChange(e.target.value === "" ? 0 : Number(e.target.value))}
-        className={inputClass}
-      />
-    );
-  }
-  if (value === null) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-600">
-        <span>(فاضي)</span>
-        <button type="button" className="text-blue-600 underline" onClick={() => onChange("")}>
-          اكتب نص
-        </button>
+      <div>
+        {label}
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={value} onChange={(e) => onChange(e.target.checked)} className="h-4 w-4 accent-blue-600" />
+          {value ? "Yes" : "No"}
+        </label>
       </div>
     );
   }
-  const text = String(value ?? "");
-  const long = text.length > 70 || text.includes("\n");
-  return long ? (
-    <textarea
-      dir="auto"
-      rows={Math.min(10, Math.max(3, Math.ceil(text.length / 70) + text.split("\n").length - 1))}
-      value={text}
-      onChange={(e) => onChange(e.target.value)}
-      className={`${inputClass} leading-relaxed`}
-    />
-  ) : (
-    <input dir="auto" type="text" value={text} onChange={(e) => onChange(e.target.value)} className={inputClass} />
-  );
-}
 
-function AddField({ onAdd, existing }) {
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [type, setType] = useState("text");
-  const [err, setErr] = useState("");
-
-  function submit() {
-    const key = name.trim();
-    if (!key) return setErr("اكتب اسم الحقل");
-    if (/^\$|\.|^__proto__$|^constructor$|^prototype$/.test(key)) return setErr("اسم الحقل غير مسموح (بدون نقطة أو $ في الأول)");
-    if (existing.includes(key)) return setErr("الحقل موجود بالفعل");
-    onAdd(key, blankFor(type));
-    setName("");
-    setType("text");
-    setErr("");
-    setOpen(false);
+  if (typeof value === "number") {
+    return (
+      <div>
+        {label}
+        <input
+          type="number"
+          value={Number.isFinite(value) ? value : 0}
+          onChange={(e) => onChange(e.target.value === "" ? 0 : Number(e.target.value))}
+          className={inputClass(deep)}
+        />
+      </div>
+    );
   }
 
-  if (!open) {
+  const text = value === null || value === undefined ? "" : String(value);
+
+  if (COLOR_KEY.test(name) && /^#[0-9a-f]{6}$/i.test(text)) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline">
-        <Plus size={14} /> إضافة حقل
-      </button>
+      <div>
+        {label}
+        <div className="flex items-center gap-2">
+          <input type="color" value={text} onChange={(e) => onChange(e.target.value)} className="h-10 w-10 border-0 p-1 rounded-lg cursor-pointer" />
+          <span className="text-sm text-gray-500">{text}</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (IMAGE_KEY.test(name)) {
+    return (
+      <div className="md:col-span-2">
+        {label}
+        <div className="flex flex-col gap-3">
+          <input dir="ltr" type="text" value={text} onChange={(e) => onChange(e.target.value)} className={inputClass(deep)} placeholder="https://..." />
+          <Preview src={text} deep={deep} />
+        </div>
+      </div>
+    );
+  }
+
+  const long = text.length > 70 || text.includes("\n");
+  if (long) {
+    return (
+      <div className="md:col-span-2">
+        {label}
+        <textarea dir="auto" value={text} onChange={(e) => onChange(e.target.value)} className={`${inputClass(deep)} min-h-24`} rows={Math.min(10, Math.max(3, Math.ceil(text.length / 70)))} />
+      </div>
     );
   }
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-xl bg-blue-50 p-2">
-      <input
-        dir="ltr"
-        autoFocus
-        placeholder="اسم الحقل (إنجليزي)"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && submit()}
-        className={`${inputClass} !w-48`}
-      />
-      <select value={type} onChange={(e) => setType(e.target.value)} className={`${inputClass} !w-36`}>
-        {NEW_FIELD_TYPES.map((t) => (
-          <option key={t.id} value={t.id}>
-            {t.label}
-          </option>
-        ))}
-      </select>
-      <button type="button" onClick={submit} className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700">
-        إضافة
-      </button>
-      <button type="button" onClick={() => setOpen(false)} className="px-2 text-sm text-gray-600 hover:text-gray-900">
-        إلغاء
-      </button>
-      {err && <span className="w-full text-xs text-red-600">{err}</span>}
+    <div>
+      {label}
+      <input dir="auto" type="text" value={text} onChange={(e) => onChange(e.target.value)} className={inputClass(deep)} />
     </div>
   );
 }
 
-function Collapsible({ title, subtitle, defaultOpen, actions, children }) {
+// قسم قابل للطي: depth 0 = قسم رئيسي (Edumaster section card)، أعمق = كارت عنصر.
+function Section({ title, count, defaultOpen, depth, actions, children }) {
   const [open, setOpen] = useState(defaultOpen);
+  const isSection = depth === 0;
   return (
-    <div className="rounded-xl border border-gray-200 bg-white">
-      <div className="flex items-center gap-2 px-3 py-2">
-        <button type="button" onClick={() => setOpen((v) => !v)} className="flex flex-1 items-center gap-2 text-start">
-          {open ? <ChevronDown size={16} className="shrink-0 text-gray-400" /> : <ChevronRight size={16} className="shrink-0 text-gray-400 rtl:rotate-180" />}
-          <span className="text-sm font-semibold text-blue-900">{title}</span>
-          {subtitle && <span className="truncate text-xs text-gray-400">{subtitle}</span>}
+    <div
+      className={
+        isSection
+          ? "md:col-span-2 bg-gradient-to-br from-gray-50 to-white p-6 rounded-xl border-2 border-gray-200"
+          : "md:col-span-2 p-4 bg-white border-2 border-purple-100 rounded-xl"
+      }
+    >
+      <div className="flex justify-between items-center gap-3">
+        <button type="button" onClick={() => setOpen((v) => !v)} className="flex flex-1 items-center justify-between text-left">
+          <h3 className={`${isSection ? "text-xl text-gray-800" : "text-base text-gray-700"} font-semibold flex items-center gap-2 capitalize`}>
+            {title}
+            {count !== undefined && <span className="text-sm bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{count}</span>}
+          </h3>
+          {open ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </button>
         {actions}
       </div>
-      {open && <div className="space-y-3 border-t border-gray-200 p-3">{children}</div>}
+      {open && <div className="mt-4">{children}</div>}
     </div>
   );
 }
 
-function previewOf(value) {
-  if (typeof value === "string") return value.slice(0, 50);
-  if (Array.isArray(value)) return `${value.length} عنصر`;
-  if (isPlainObject(value)) return `${Object.keys(value).length} حقل`;
-  return "";
+function titleOfItem(item, i) {
+  if (isPlainObject(item)) {
+    const t = item.title ?? item.label ?? item.name;
+    if (typeof t === "string" && t.trim()) return `#${i + 1} — ${t.slice(0, 40)}`;
+  }
+  return `#${i + 1}`;
 }
 
-// ───────────────────────── main recursive node ─────────────────────────
-export default function TreeEditor({ value, onChange, path = [], patterns = null, depth = 0, lockedKeys = [] }) {
+export default function TreeEditor({ value, onChange, path = [], patterns = null, depth = 0 }) {
+  const deep = depth >= 2;
+
   // ── object ──
   if (isPlainObject(value)) {
     const keys = Object.keys(value).filter((k) => isPathVisible(patterns, [...path, k]));
-    const hiddenCount = Object.keys(value).length - keys.length;
     return (
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {keys.map((key) => {
           const child = value[key];
-          const childPath = [...path, key];
-          const isContainer = child !== null && typeof child === "object";
-          const label = (
-            <span className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-blue-900">{humanize(key)}</span>
-              <code dir="ltr" className="text-[11px] text-gray-400">
-                {key}
-              </code>
-            </span>
-          );
-          const remove = lockedKeys.includes(key) ? null : (
-            <IconBtn title="حذف الحقل" danger onClick={() => onChange(Object.fromEntries(Object.entries(value).filter(([k]) => k !== key)))}>
-              <Trash2 size={14} />
-            </IconBtn>
-          );
           const set = (v) => onChange({ ...value, [key]: v });
-
-          if (isContainer) {
+          if (child !== null && typeof child === "object") {
+            const count = Array.isArray(child) ? child.length : undefined;
             return (
-              <Collapsible
+              <Section
                 key={key}
-                title={label}
-                subtitle={previewOf(child)}
+                title={humanize(key)}
+                count={count}
+                depth={depth}
                 defaultOpen={depth < 1 || (depth === 1 && path[path.length - 1] === "i18n")}
-                actions={remove}
               >
-                <TreeEditor value={child} onChange={set} path={childPath} patterns={patterns} depth={depth + 1} />
-              </Collapsible>
+                <TreeEditor value={child} onChange={set} path={[...path, key]} patterns={patterns} depth={depth + 1} />
+              </Section>
             );
           }
-          return (
-            <div key={key} className="grid gap-1.5 sm:grid-cols-[minmax(0,180px)_1fr_auto] sm:items-start sm:gap-3">
-              <div className="pt-2">{label}</div>
-              <Leaf value={child} onChange={set} />
-              <div className="pt-0.5">{remove}</div>
-            </div>
-          );
+          return <Field key={key} name={key} value={child} onChange={set} deep={deep} />;
         })}
-        {hiddenCount > 0 && (
-          <p className="text-xs text-gray-400">+ {hiddenCount} حقل مخفي في التاب ده (فعّل «عرض كل الحقول» لإظهارها)</p>
-        )}
-        <AddField existing={Object.keys(value)} onAdd={(k, v) => onChange({ ...value, [k]: v })} />
       </div>
     );
   }
@@ -258,51 +205,47 @@ export default function TreeEditor({ value, onChange, path = [], patterns = null
       [next[i], next[j]] = [next[j], next[i]];
       onChange(next);
     };
+    const setAt = (i, v) => onChange(value.map((x, idx) => (idx === i ? v : x)));
+    const controls = (i) => (
+      <div className="flex items-center gap-1 shrink-0">
+        <button type="button" title="Move up" disabled={i === 0} onClick={() => move(i, -1)} className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 disabled:opacity-30">
+          <ArrowUp size={16} />
+        </button>
+        <button type="button" title="Move down" disabled={i === value.length - 1} onClick={() => move(i, 1)} className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 disabled:opacity-30">
+          <ArrowDown size={16} />
+        </button>
+        <button type="button" onClick={() => onChange(value.filter((_, idx) => idx !== i))} className="text-red-500 hover:text-red-700 flex items-center gap-1 text-sm ms-1">
+          <Trash2 size={16} /> Remove
+        </button>
+      </div>
+    );
+
     return (
-      <div className="space-y-3">
-        {value.map((item, i) => {
-          const itemPath = [...path, i];
-          const controls = (
-            <div className="flex gap-1">
-              <IconBtn title="أعلى" disabled={i === 0} onClick={() => move(i, -1)}>
-                <ArrowUp size={14} />
-              </IconBtn>
-              <IconBtn title="أسفل" disabled={i === value.length - 1} onClick={() => move(i, 1)}>
-                <ArrowDown size={14} />
-              </IconBtn>
-              <IconBtn title="حذف العنصر" danger onClick={() => onChange(value.filter((_, idx) => idx !== i))}>
-                <Trash2 size={14} />
-              </IconBtn>
-            </div>
-          );
-          if (item !== null && typeof item === "object") {
-            return (
-              <Collapsible key={i} title={`#${i + 1}`} subtitle={previewOf(item.title ?? item.label ?? item.name ?? item)} defaultOpen={false} actions={controls}>
-                <TreeEditor value={item} onChange={(v) => onChange(value.map((x, idx) => (idx === i ? v : x)))} path={itemPath} patterns={patterns} depth={depth + 1} />
-              </Collapsible>
-            );
-          }
-          return (
-            <div key={i} className="flex items-start gap-2">
-              <span className="w-6 shrink-0 pt-2 text-center text-xs text-gray-400">{i + 1}</span>
+      <div className="space-y-4">
+        {value.map((item, i) =>
+          item !== null && typeof item === "object" ? (
+            <Section key={i} title={titleOfItem(item, i)} depth={Math.max(depth, 1)} defaultOpen={false} actions={controls(i)}>
+              <TreeEditor value={item} onChange={(v) => setAt(i, v)} path={[...path, i]} patterns={patterns} depth={depth + 1} />
+            </Section>
+          ) : (
+            <div key={i} className="flex items-end gap-2">
               <div className="flex-1">
-                <Leaf value={item} onChange={(v) => onChange(value.map((x, idx) => (idx === i ? v : x)))} />
+                <Field name={`#${i + 1}`} value={item} onChange={(v) => setAt(i, v)} deep />
               </div>
-              {controls}
+              {controls(i)}
             </div>
-          );
-        })}
+          )
+        )}
         <button
           type="button"
           onClick={() => onChange([...value, value.length ? blankLike(clone(value[value.length - 1])) : ""])}
-          className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline"
+          className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
         >
-          <Plus size={14} /> إضافة عنصر
+          <Plus size={18} /> Add Item
         </button>
       </div>
     );
   }
 
-  // ── leaf at root (rare) ──
-  return <Leaf value={value} onChange={onChange} />;
+  return <Field name="value" value={value} onChange={onChange} deep={deep} />;
 }

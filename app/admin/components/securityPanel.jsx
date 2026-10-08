@@ -26,7 +26,7 @@ export default function SecurityPanel({ user, mfaEnabled }) {
             شغّل <code dir="ltr">node scripts/setup-mfa.mjs your@email.com</code> لتفعيلها.
           </p>
         )}
-        <p className="mt-5 text-xs text-gray-400">كل تعديل بتعمله من اللوحة بيتسجّل في Audit Logs (إنشاء/تعديل/حذف + الكولكشن + الـ IP).</p>
+        <p className="mt-5 text-xs text-gray-400">كل تعديل بتعمله من اللوحة بيتسجّل (إنشاء/تعديل/حذف + الكولكشن + الـ IP).</p>
       </div>
     </PanelFrame>
   );

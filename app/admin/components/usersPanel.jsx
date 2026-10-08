@@ -2,232 +2,200 @@
 
 // app/admin/components/usersPanel.jsx
 //
-// إدارة الحسابات (نفس منطق usersPanel في Edumaster): بحث وفلاتر، تغيير الـ
-// role، إيقاف/تفعيل، حذف بتأكيد. كل الإجراءات بتمر على /api/admin/users
-// (admin-only + audit log + حماية آخر أدمن).
+// Users — نفس شكل وترتيب usersPanel في Edumaster: كارت "Registered Users" بجدول
+// (#، الاسم، الإيميل، التليفون، الـ role، الإجراءات) + نافذة تأكيد الحذف، وتحته
+// بانل الـ MFA. كل الإجراءات بتمر على /api/admin/users (admin-only + audit log
+// + حماية آخر أدمن).
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Users, Search, RefreshCw, Trash2, ShieldCheck, ShieldOff, UserCheck, UserX, Lock } from "lucide-react";
-import PanelFrame, { Banner, Spinner } from "./PanelFrame";
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { Users, Loader, AlertCircle, Trash2, UserCheck, UserX } from "lucide-react";
+import MfaPanel from "./mfaPanel";
 import { api } from "../adminUtils";
 
 const ERRORS = {
-  last_admin_protection: "ماينفعش — ده آخر أدمن شغّال في النظام.",
-  cannot_delete_self: "ماتقدرش تحذف حسابك من هنا.",
-  invalid_role: "role غير صالح.",
-  invalid_status: "status غير صالح.",
-  not_found: "الحساب مش موجود.",
+  last_admin_protection: "Can't change or remove the last remaining admin.",
+  cannot_delete_self: "You can't delete your own account from here.",
 };
 
-function fmt(date) {
-  if (!date) return "—";
-  const d = new Date(date);
-  return isNaN(d.getTime()) ? "—" : d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
-}
-
-export default function UsersPanel() {
+export default function UsersPanel({ mfaEnabled }) {
+  const { data: session } = useSession();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
-  const [query, setQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [busyId, setBusyId] = useState(null);
-  const [confirmTarget, setConfirmTarget] = useState(null);
+  const [actionError, setActionError] = useState("");
+  const [savingId, setSavingId] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      setUsers(await api("/api/admin/users"));
-    } catch (err) {
-      setError(`تعذّر تحميل المستخدمين: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const myId = session?.user?.id;
 
   useEffect(() => {
-    load();
-  }, [load]);
+    api("/api/admin/users")
+      .then((data) => setUsers(Array.isArray(data) ? data : []))
+      .catch(() => setError("Error fetching users"))
+      .finally(() => setLoading(false));
+  }, []);
 
-  const flash = (msg) => {
-    setNotice(msg);
-    setTimeout(() => setNotice(""), 3500);
-  };
-
-  async function patchUser(user, body, okMsg) {
-    setBusyId(user._id);
-    setError("");
+  async function patchUser(user, body, failMsg) {
+    setActionError("");
+    setSavingId(user._id);
     try {
       const res = await api(`/api/admin/users/${user._id}`, { method: "PATCH", body: JSON.stringify(body) });
       setUsers((prev) => prev.map((u) => (u._id === user._id ? { ...u, role: res.role ?? u.role, status: res.status ?? u.status } : u)));
-      flash(okMsg);
     } catch (err) {
-      setError(ERRORS[err.message] || `فشل التعديل: ${err.message}`);
+      setActionError(ERRORS[err.message] || failMsg);
     } finally {
-      setBusyId(null);
+      setSavingId(null);
     }
   }
 
-  async function deleteUser(user) {
-    setConfirmTarget(null);
-    setBusyId(user._id);
-    setError("");
+  async function handleDelete(userId) {
+    setConfirmDelete(null);
+    setActionError("");
+    setSavingId(userId);
     try {
-      await api(`/api/admin/users/${user._id}`, { method: "DELETE" });
-      setUsers((prev) => prev.filter((u) => u._id !== user._id));
-      flash("اتحذف الحساب.");
+      await api(`/api/admin/users/${userId}`, { method: "DELETE" });
+      setUsers((prev) => prev.filter((u) => u._id !== userId));
     } catch (err) {
-      setError(ERRORS[err.message] || `فشل الحذف: ${err.message}`);
+      setActionError(ERRORS[err.message] || "Failed to delete user, please try again.");
     } finally {
-      setBusyId(null);
+      setSavingId(null);
     }
   }
 
-  const rows = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return users.filter((u) => {
-      if (roleFilter !== "all" && u.role !== roleFilter) return false;
-      if (statusFilter !== "all" && u.status !== statusFilter) return false;
-      if (!q) return true;
-      return [u.name, u.email, u.phone].some((v) => String(v || "").toLowerCase().includes(q));
-    });
-  }, [users, query, roleFilter, statusFilter]);
+  if (loading) {
+    return (
+      <div className="bg-white rounded-2xl shadow-2xl p-12 text-center">
+        <Loader className="animate-spin mx-auto" size={48} />
+      </div>
+    );
+  }
 
   return (
-    <PanelFrame
-      icon={Users}
-      title="Users"
-      subtitle="الحسابات المسجّلة — الصلاحيات والإيقاف والحذف"
-      actions={
-        <button onClick={load} disabled={loading} className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition disabled:opacity-60">
-          <RefreshCw size={18} className={loading ? "animate-spin" : ""} /> Refresh
-        </button>
-      }
-    >
-      {error && <Banner type="error">{error}</Banner>}
-      {notice && <Banner type="success">{notice}</Banner>}
-
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[220px]">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search name, email, phone..." className="w-full pl-9 pr-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 outline-none" />
+    <div className="flex flex-col gap-6">
+      <div className="bg-white rounded-2xl shadow-2xl border-2 border-blue-100">
+        <div className="p-6 border-b-2 border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
+          <h2 className="text-2xl font-semibold flex items-center gap-3 text-blue-900">
+            <Users size={28} /> Registered Users
+            <span className="text-sm bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{users.length}</span>
+          </h2>
         </div>
-        <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className="px-4 py-3 border border-gray-300 rounded-xl bg-white">
-          <option value="all">All roles</option>
-          <option value="admin">Admin</option>
-          <option value="user">User</option>
-        </select>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-4 py-3 border border-gray-300 rounded-xl bg-white">
-          <option value="all">All statuses</option>
-          <option value="active">Active</option>
-          <option value="suspended">Suspended</option>
-        </select>
-        <span className="text-sm text-gray-500">{rows.length} / {users.length}</span>
+
+        {error && (
+          <div className="mx-6 mt-4 px-6 py-4 rounded-xl bg-red-500 text-white flex items-center gap-3">
+            <AlertCircle size={20} /> {error}
+          </div>
+        )}
+        {actionError && (
+          <div className="mx-6 mt-4 px-6 py-4 rounded-xl bg-amber-50 border-2 border-amber-200 text-amber-800 flex items-center gap-3">
+            <AlertCircle size={20} /> {actionError}
+          </div>
+        )}
+
+        <div className="p-6">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b-2 border-gray-100">
+                  <th className="text-left py-3 px-4 font-semibold text-gray-500">#</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-500">Name</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-500">Email</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-500">Phone</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-500">Role</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-500">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user, idx) => {
+                  const suspended = user.status === "suspended";
+                  const isMe = user._id === myId;
+                  return (
+                    <tr key={user._id} className="border-b border-gray-50 hover:bg-gray-50">
+                      <td className="py-3 px-4 text-gray-400">{idx + 1}</td>
+                      <td className="py-3 px-4 font-medium text-gray-800">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center shrink-0">
+                            {user.name?.charAt(0)?.toUpperCase() || "U"}
+                          </div>
+                          <span dir="auto">{user.name || "—"}</span>
+                          {suspended && (
+                            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-600">Suspended</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-blue-600" dir="ltr">{user.email || "—"}</td>
+                      <td className="py-3 px-4 text-gray-600" dir="ltr">{user.phone || "—"}</td>
+                      <td className="py-3 px-4">
+                        <select
+                          value={user.role}
+                          disabled={savingId === user._id}
+                          onChange={(e) => e.target.value !== user.role && patchUser(user, { role: e.target.value }, "Failed to update role, please try again.")}
+                          className={`px-2 py-1 rounded-lg text-xs font-semibold border-2 outline-none disabled:opacity-50 ${
+                            user.role === "admin" ? "bg-purple-50 text-purple-700 border-purple-200" : "bg-gray-50 text-gray-600 border-gray-200"
+                          }`}
+                        >
+                          <option value="user">user</option>
+                          <option value="admin">admin</option>
+                        </select>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => patchUser(user, { status: suspended ? "active" : "suspended" }, "Failed to update status, please try again.")}
+                            disabled={savingId === user._id || isMe}
+                            title={isMe ? "You can't suspend your own account" : suspended ? "Activate account" : "Suspend account"}
+                            className={`p-2 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed ${
+                              suspended ? "text-green-600 hover:bg-green-50" : "text-amber-600 hover:bg-amber-50"
+                            }`}
+                          >
+                            {suspended ? <UserCheck size={16} /> : <UserX size={16} />}
+                          </button>
+                          <button
+                            onClick={() => setConfirmDelete(user)}
+                            disabled={savingId === user._id || isMe}
+                            title={isMe ? "You can't delete your own account" : "Delete user"}
+                            className="p-2 rounded-lg text-red-500 hover:bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {users.length === 0 && <div className="text-center py-12 text-gray-400">No users registered yet</div>}
+          </div>
+        </div>
       </div>
 
-      {loading && users.length === 0 ? (
-        <Spinner />
-      ) : rows.length === 0 ? (
-        <div className="py-16 text-center text-gray-400">
-          <Users size={44} className="mx-auto mb-3 opacity-50" />
-          <p>لا يوجد مستخدمون مطابقون.</p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto rounded-2xl border border-gray-200">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
-              <tr>
-                <th className="px-4 py-3">User</th>
-                <th className="px-4 py-3">Phone</th>
-                <th className="px-4 py-3">Role</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">MFA</th>
-                <th className="px-4 py-3">Joined</th>
-                <th className="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {rows.map((u) => {
-                const busy = busyId === u._id;
-                const suspended = u.status === "suspended";
-                const locked = u.lockedUntil && new Date(u.lockedUntil) > new Date();
-                return (
-                  <tr key={u._id} className="hover:bg-blue-50/40 transition-colors">
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-gray-800" dir="auto">{u.name || "—"}</p>
-                      <p className="text-xs text-gray-500" dir="ltr">{u.email || "no email"}</p>
-                    </td>
-                    <td className="px-4 py-3 text-gray-600" dir="ltr">{u.phone || "—"}</td>
-                    <td className="px-4 py-3">
-                      <select
-                        value={u.role}
-                        disabled={busy}
-                        onChange={(e) => patchUser(u, { role: e.target.value }, `اتغيّر الـ role لـ ${e.target.value}.`)}
-                        className={`px-3 py-1.5 rounded-lg border text-xs font-semibold ${u.role === "admin" ? "bg-purple-50 border-purple-200 text-purple-700" : "bg-gray-50 border-gray-200 text-gray-600"}`}
-                      >
-                        <option value="user">user</option>
-                        <option value="admin">admin</option>
-                      </select>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${suspended ? "bg-red-50 text-red-600" : "bg-emerald-50 text-emerald-700"}`}>
-                        {suspended ? <UserX size={12} /> : <UserCheck size={12} />}
-                        {suspended ? "Suspended" : "Active"}
-                      </span>
-                      {locked && (
-                        <span className="ms-2 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
-                          <Lock size={12} /> Locked
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      {u.mfaEnabled ? (
-                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700"><ShieldCheck size={14} /> On</span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-gray-400"><ShieldOff size={14} /> Off</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{fmt(u.createdAt)}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          disabled={busy}
-                          onClick={() => patchUser(u, { status: suspended ? "active" : "suspended" }, suspended ? "اتفعّل الحساب." : "اتوقف الحساب.")}
-                          className={`px-3 py-2 rounded-lg text-xs font-semibold disabled:opacity-50 ${suspended ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100" : "bg-amber-50 text-amber-700 hover:bg-amber-100"}`}
-                        >
-                          {suspended ? "Activate" : "Suspend"}
-                        </button>
-                        <button title="Delete" disabled={busy} onClick={() => setConfirmTarget(u)} className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-50">
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <MfaPanel mfaEnabled={mfaEnabled} />
 
-      {confirmTarget && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4" onClick={() => setConfirmTarget(null)}>
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-600"><Trash2 size={26} /></div>
-            <h3 className="text-center text-lg font-semibold text-gray-800">Delete this account?</h3>
-            <p className="mt-2 text-center text-sm text-gray-500">
-              حساب <strong dir="auto">{confirmTarget.name || confirmTarget.email}</strong> هيتمسح نهائيًا ومفيش تراجع.
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Delete this user?</h3>
+            <p className="text-sm text-gray-500 mb-6">
+              <span className="font-semibold">{confirmDelete.name}</span> ({confirmDelete.email}) will be permanently deleted. This action is logged and cannot be undone.
             </p>
-            <div className="mt-6 flex gap-3">
-              <button onClick={() => setConfirmTarget(null)} className="flex-1 rounded-xl border border-gray-300 px-4 py-2.5 font-medium text-gray-600 hover:bg-gray-50">Cancel</button>
-              <button onClick={() => deleteUser(confirmTarget)} className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 font-medium text-white hover:bg-red-700">Delete</button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmDelete(null)}
+                className="flex-1 py-2.5 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(confirmDelete._id)}
+                className="flex-1 py-2.5 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600"
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>
       )}
-    </PanelFrame>
+    </div>
   );
 }
