@@ -12,6 +12,7 @@ import { useCollectionData, pickTranslation } from "../lib/useCollectionData";
 const FALLBACK_FOOTER = {
   links: [
     { id: "home", href: "/" },
+    { id: "about", href: "/about" },
     { id: "services", href: "/services" },
     { id: "careers", href: "/careers" },
   ],
@@ -27,7 +28,7 @@ const FALLBACK_FOOTER = {
         "Quality Assurance & Customer Experience for businesses and branches across Egypt — Mystery Shopping, Auditing, Managed Services, and CX.",
       companyTitle: "Company",
       contactTitle: "Contact",
-      links: { home: "Home", services: "Services", careers: "Careers" },
+      links: { home: "Home", about: "About us", services: "Services", careers: "Careers" },
     },
     ar: {
       brand: "Merlix",
@@ -35,7 +36,7 @@ const FALLBACK_FOOTER = {
         "ضمان جودة وتجربة عملاء للشركات والفروع في مصر — تسوق سري، زيارات تدقيق، خدمات مُدارة، وتجربة عملاء.",
       companyTitle: "الشركة",
       contactTitle: "تواصل",
-      links: { home: "الرئيسية", services: "خدماتنا", careers: "وظائف" },
+      links: { home: "الرئيسية", about: "من نحن", services: "خدماتنا", careers: "وظائف" },
     },
   },
 };
@@ -46,7 +47,11 @@ export default function Footer() {
 
   const footer = data || FALLBACK_FOOTER;
   const t = pickTranslation(footer, language) || FALLBACK_FOOTER.i18n.en;
-  const links = footer.links || FALLBACK_FOOTER.links;
+  const baseLinks = footer.links || FALLBACK_FOOTER.links;
+  const links = baseLinks.some((l) => l.id === "about" || l.href === "/about")
+    ? baseLinks
+    : [baseLinks[0], { id: "about", href: "/about" }, ...baseLinks.slice(1)].filter(Boolean);
+  const ABOUT_LABEL = { en: "About us", ar: "من نحن" };
   const contact = footer.contact || FALLBACK_FOOTER.contact;
   const year = new Date().getFullYear();
 
@@ -77,7 +82,7 @@ export default function Footer() {
                   href={link.href}
                   className="inline-block transition-all duration-200 hover:translate-x-1 hover:text-gold rtl:hover:-translate-x-1"
                 >
-                  {t.links?.[link.id] || link.id}
+                  {t.links?.[link.id] || (link.id === "about" ? ABOUT_LABEL[language] || ABOUT_LABEL.en : link.id)}
                 </Link>
               </li>
             ))}

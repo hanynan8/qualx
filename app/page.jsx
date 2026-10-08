@@ -2,12 +2,11 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ShieldCheck, Users2, ClipboardList } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "./lib/useCollectionData";
 import ServiceIcon from "./components/ServiceIcon";
 import ServiceVisual from "./components/ServiceVisual";
-import AboutVisual from "./components/AboutVisual";
 
 // 🔄 DYNAMIC: الصفحة بقت client component وبتجيب محتواها من كولكشنين:
 // "home" (نصوص الهيرو/الأقسام) و"services" (كروت المعاينة أسفل الصفحة،
@@ -63,8 +62,6 @@ const FALLBACK_HOME = {
   },
 };
 
-const CARD_ICON_COMPONENTS = { shield: ShieldCheck, users: Users2, clipboard: ClipboardList };
-
 export default function HomePage() {
   const { language } = useLanguage();
   const home = useCollectionData("home");
@@ -74,7 +71,6 @@ export default function HomePage() {
 
   const homeDoc = home.data || FALLBACK_HOME;
   const t = pickTranslation(homeDoc, language) || FALLBACK_HOME.i18n.en;
-  const cardIcons = homeDoc.cardIcons || FALLBACK_HOME.cardIcons;
 
   const servicesDoc = services.data;
   const servicesItems = servicesDoc?.items || [];
@@ -111,7 +107,7 @@ export default function HomePage() {
         </div>
 
         {/* أيقونة السكرول */}
-        <a href="#intro" aria-label="Scroll down" className="absolute bottom-10 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1">
+        <a href="#services-preview" aria-label="Scroll down" className="absolute bottom-10 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1">
           <span className="h-6 w-px bg-white/60" />
           <span className="flex h-11 w-6 justify-center rounded-full border-2 border-white/80 pt-2">
             <span className="hero-scroll-dot h-1.5 w-1.5 rounded-full bg-white" />
@@ -122,63 +118,8 @@ export default function HomePage() {
         <div aria-hidden className="absolute inset-x-0 bottom-0 h-2 bg-gradient-to-r from-gold via-gold to-sky" />
       </section>
 
-      {/* Who we are */}
-      <section id="intro" className="relative scroll-mt-24 overflow-hidden bg-navy py-20 text-offwhite md:py-28">
-        <div aria-hidden className="pointer-events-none absolute -top-20 start-[-5rem] h-72 w-72 rounded-full bg-sky/10 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute bottom-[-4rem] end-[-3rem] h-64 w-64 rounded-full bg-gold/10 blur-3xl" />
-
-        <div className="container-content relative grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
-          <div>
-            <span className="inline-block rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-gold">
-              {t.badge}
-            </span>
-            <h2 className="mt-4 font-display text-3xl font-bold text-offwhite md:text-4xl">
-              {t.whoWeAreTitle}
-            </h2>
-            <span className="mt-4 block h-1 w-14 rounded-full bg-gold" />
-
-            <p className="mt-6 text-base leading-loose text-offwhite/80 md:text-lg">
-              {t.heroSummary}
-            </p>
-
-            <ul className="mt-8 space-y-4">
-              {cardIcons.map((iconKey) => {
-                const Icon = CARD_ICON_COMPONENTS[iconKey] || ShieldCheck;
-                return (
-                  <li
-                    key={iconKey}
-                    className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 transition-all duration-300 hover:border-sky/50 hover:bg-white/10"
-                  >
-                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gold/15 text-gold transition-colors duration-300 group-hover:bg-gold group-hover:text-navy">
-                      <Icon size={22} />
-                    </span>
-                    <span className="text-sm font-medium leading-relaxed text-offwhite">
-                      {t.cards?.[iconKey]}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-
-          <div className="relative mb-8 lg:mb-0">
-            <div aria-hidden className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-gold/30 to-sky/30 blur-xl" />
-            <div className="relative aspect-[5/4] overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-navy/25">
-              <AboutVisual alt={t.whoWeAreTitle} className="h-full w-full" />
-            </div>
-
-            <div className="absolute -bottom-6 start-4 max-w-[16rem] rounded-2xl border border-gold/40 bg-white p-4 shadow-xl sm:start-8">
-              <p className="font-display text-sm font-bold uppercase tracking-wide text-gold">
-                {t.uspLabel}
-              </p>
-              <p className="mt-1 text-sm font-medium leading-snug text-navy">{t.uspText}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Services preview */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-offwhite to-white py-20 md:py-24">
+      <section id="services-preview" className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-offwhite to-white py-20 md:py-24">
         <div aria-hidden className="pointer-events-none absolute -top-24 end-0 h-72 w-72 rounded-full bg-sky/10 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute bottom-0 start-0 h-64 w-64 rounded-full bg-gold/10 blur-3xl" />
 

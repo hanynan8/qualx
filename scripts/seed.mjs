@@ -221,7 +221,13 @@ const servicesDoc = {
 // ──────────────────────────── careers ───────────────────────────
 const careersDoc = {
   contactEmail: "hello@merlix.com",
-  items: [{ slug: "mystery-shopper" }, { slug: "quality-auditor" }, { slug: "cx-analyst" }],
+  items: [
+    { slug: "marketing" },
+    { slug: "mystery-shopper" },
+    { slug: "auditor" },
+    { slug: "advisor" },
+    { slug: "quality-validation" },
+  ],
   i18n: {
     en: {
       badge: "Careers",
@@ -233,26 +239,40 @@ const careersDoc = {
       noRoleText: "Don't see a role that fits? Send your CV to",
       noRoleTail: "and tell us where you'd add the most value.",
       items: {
+        "marketing": {
+          title: "Marketing Specialist",
+          type: "Full-time",
+          location: "Cairo, Egypt",
+          description:
+            "Plan and run marketing campaigns across digital and offline channels, grow Merlix's brand presence, and generate qualified leads for our services.",
+        },
         "mystery-shopper": {
-          title: "Mystery Shopper",
+          title: "Mystery Shopper (MS)",
           type: "Freelance / Part-time",
           location: "Cairo & branches across Egypt",
           description:
             "Visit assigned locations as a regular customer, evaluate the experience against a structured checklist, and submit a detailed, honest report after every visit.",
         },
-        "quality-auditor": {
-          title: "Quality Auditor",
+        "auditor": {
+          title: "Auditor",
           type: "Full-time",
           location: "Cairo, Egypt",
           description:
             "Carry out authorized facility and product inspections, verify compliance with quality standards, and document findings clearly for our clients.",
         },
-        "cx-analyst": {
-          title: "Customer Experience Analyst",
+        "advisor": {
+          title: "Advisor",
           type: "Full-time",
           location: "Cairo, Egypt",
           description:
-            "Analyze customer journey data and visit reports, identify patterns, and help turn raw findings into practical recommendations for our clients.",
+            "Turn audit and visit findings into practical recommendations, and advise clients on improving service quality, processes, and customer experience.",
+        },
+        "quality-validation": {
+          title: "Quality Validation Specialist",
+          type: "Full-time",
+          location: "Cairo, Egypt",
+          description:
+            "Review and validate field reports and collected data for accuracy and consistency, and make sure every deliverable meets our quality standards before it reaches the client.",
         },
       },
     },
@@ -266,26 +286,40 @@ const careersDoc = {
       noRoleText: "مش لاقي وظيفة تناسبك؟ ابعت السيرة الذاتية على",
       noRoleTail: "وقولنا فين ممكن تضيف قيمة أكتر.",
       items: {
+        "marketing": {
+          title: "أخصائي تسويق",
+          type: "دوام كامل",
+          location: "القاهرة، مصر",
+          description:
+            "تخطيط وتنفيذ حملات تسويقية على القنوات الرقمية والتقليدية، تنمية حضور براند Merlix وجلب عملاء محتملين لخدماتنا.",
+        },
         "mystery-shopper": {
-          title: "متسوق سري",
+          title: "متسوق سري (MS)",
           type: "فريلانس / بارت تايم",
           location: "القاهرة وفروع في كل مصر",
           description:
             "زيارة الأماكن المحددة كعميل عادي، تقييم التجربة حسب checklist منظم، وتسليم تقرير تفصيلي وصادق بعد كل زيارة.",
         },
-        "quality-auditor": {
-          title: "مدقق جودة",
+        "auditor": {
+          title: "مدقق (Auditor)",
           type: "دوام كامل",
           location: "القاهرة، مصر",
           description:
             "تنفيذ تفتيش مصرّح به للمنشآت والمنتجات، التأكد من الالتزام بمعايير الجودة، وتوثيق النتائج بوضوح لعملائنا.",
         },
-        "cx-analyst": {
-          title: "محلل تجربة عملاء",
+        "advisor": {
+          title: "مستشار (Advisor)",
           type: "دوام كامل",
           location: "القاهرة، مصر",
           description:
-            "تحليل بيانات رحلة العميل وتقارير الزيارات، اكتشاف الأنماط، والمساعدة في تحويل النتائج الخام لتوصيات عملية لعملائنا.",
+            "تحويل نتائج التدقيق والزيارات لتوصيات عملية، ونصح العملاء في تحسين جودة الخدمة والإجراءات وتجربة العملاء.",
+        },
+        "quality-validation": {
+          title: "أخصائي مراجعة الجودة (Quality Validation)",
+          type: "دوام كامل",
+          location: "القاهرة، مصر",
+          description:
+            "مراجعة تقارير الزيارات والبيانات المُجمّعة والتأكد من دقتها وتناسقها، وضمان مطابقة كل تسليمة لمعايير الجودة قبل وصولها للعميل.",
         },
       },
     },

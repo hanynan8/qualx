@@ -25,7 +25,6 @@ import {
 } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "../../lib/useCollectionData";
-import ServiceIcon from "../../components/ServiceIcon";
 import ServiceVisual from "../../components/ServiceVisual";
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -103,11 +102,13 @@ const SUB_ICONS = {
   heart: HeartHandshake,
 };
 
-// ترتيب الكروت الثلاثة (Suites) + الخدمة المُدارة كبلوك مستقل
+// ترتيب الكروت الأربعة (كلهم جنب بعض في صف واحد)
+const MANAGED_SLUG = "managed-Solutions";
 const SUITES = [
   { slug: "mystery-shopping", tone: "gold", Icon: Eye },
   { slug: "auditing-visits", tone: "navy", Icon: ClipboardCheck },
   { slug: "customer-experience", tone: "sky", Icon: HeartHandshake },
+  { slug: MANAGED_SLUG, tone: "slate", Icon: Users },
 ];
 
 // ألوان كل عمود (بنفس فكرة البرتقالي/البني/التركواز في الأصل → ذهبي/كحلي/سماوي)
@@ -135,6 +136,14 @@ const TONES = {
     tagline: "text-[#137A9E]",
     btn: "bg-sky text-white hover:bg-[#1787AD]",
     subIcon: "text-sky",
+  },
+  slate: {
+    card: "bg-charcoal/[0.06]",
+    iconBg: "bg-charcoal text-white",
+    title: "text-charcoal",
+    tagline: "text-charcoal",
+    btn: "bg-charcoal text-offwhite hover:bg-charcoal/85",
+    subIcon: "text-charcoal",
   },
 };
 
@@ -271,12 +280,10 @@ export default function SolutionsPage() {
   if (loading || home.loading) return <PageLoading />;
 
   const doc = data || FALLBACK_Solutions;
-  const items = doc.items || [];
   const dbT = pickTranslation(doc, language) || FALLBACK_Solutions.i18n.en;
   const fbT = FALLBACK_Solutions.i18n[language] || FALLBACK_Solutions.i18n.en;
   const p = PAGE[language] || PAGE.en;
 
-  const iconOf = (slug) => items.find((s) => s.slug === slug)?.icon;
   const titleOf = (slug) => dbT.items?.[slug]?.title || fbT.items?.[slug]?.title || "";
   const shortOf = (slug) => dbT.items?.[slug]?.short || fbT.items?.[slug]?.short || "";
   const heroImage = home.data?.heroImage || "/hero-bg.jpg";
@@ -371,15 +378,18 @@ export default function SolutionsPage() {
         </div>
       </section>
 
-      {/* ═════════ 3) الـ Suites: ٣ أعمدة (كارت رئيسي + كارت خدمات فرعية) ═════════ */}
+      {/* ═════════ 3) الخدمات: ٤ كروت جنب بعض في صف واحد ═════════ */}
       <section className="container-content py-16 md:py-20">
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {SUITES.map(({ slug, tone, Icon }, i) => {
             const c = TONES[tone];
-            const s = p.suites[slug];
+            const s =
+              slug === MANAGED_SLUG
+                ? { name: titleOf(slug) || p.managedTitle, tagline: p.managedTagline, subs: p.managedSubs }
+                : p.suites[slug];
             return (
               <div key={slug} style={{ animationDelay: `${i * 90}ms` }} className="svc-rise flex">
-                <div className={`flex w-full flex-col items-center rounded-sm px-7 py-8 text-center ${c.card}`}>
+                <div className={`flex w-full flex-col items-center rounded-sm px-6 py-8 text-center ${c.card}`}>
                   <span className={`flex h-16 w-16 items-center justify-center rounded-full ${c.iconBg} shadow-lg`}>
                     <Icon size={30} />
                   </span>
@@ -395,7 +405,7 @@ export default function SolutionsPage() {
                   <p className="mt-4 flex-1 text-sm leading-relaxed text-charcoal/70">{shortOf(slug)}</p>
 
                   {/* الخدمات الفرعية جوه الكارت */}
-                  <ul className="mt-6 w-full space-y-3 border-y border-charcoal/10 py-5 ps-[18%] text-start">
+                  <ul className="mt-6 w-full space-y-3 border-y border-charcoal/10 py-5 ps-[12%] text-start">
                     {s.subs.map((sub) => {
                       const SubIcon = SUB_ICONS[sub.icon] || Check;
                       return (
@@ -421,46 +431,11 @@ export default function SolutionsPage() {
         </div>
       </section>
 
-      {/* ═════════ 4) خطوط التدفق + بلوك الخدمات المُدارة ═════════ */}
+      {/* ═════════ 4) المنصة ═════════ */}
       <section className="relative overflow-hidden bg-gradient-to-b from-charcoal/[0.06] to-offwhite py-16 md:py-20">
         <div className="container-content">
-          <FlowTop />
-
-          <div className="mt-6 grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-16">
-            <div className="text-center">
-              <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-navy text-gold shadow-lg">
-                <ServiceIcon name={iconOf("managed-Solutions") || "users"} size={30} />
-              </span>
-              <h3 className="mt-4 font-display text-2xl font-bold text-navy">{titleOf("managed-Solutions") || p.managedTitle}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-charcoal/70">{shortOf("managed-Solutions")}</p>
-              <p className="mt-4 text-sm font-bold text-[#9A7B14]">{p.managedTagline}</p>
-              <Link
-                href="/Solutions/managed-Solutions"
-                className="mt-5 inline-flex items-center gap-2 rounded-sm bg-navy px-5 py-3 text-sm font-semibold uppercase tracking-wide text-offwhite transition-colors hover:bg-[#15406E]"
-              >
-                {p.viewSuite}
-                <ArrowRight size={16} className="rtl:rotate-180" />
-              </Link>
-            </div>
-
-            <ul className="grid grid-cols-2 gap-8 sm:grid-cols-4">
-              {p.managedSubs.map((sub, i) => {
-                const SubIcon = SUB_ICONS[sub.icon] || Check;
-                const color = ["text-gold", "text-sky", "text-navy", "text-[#9A7B14]"][i % 4];
-                return (
-                  <li key={sub.label} className="flex flex-col items-center gap-3 text-center">
-                    <SubIcon size={40} strokeWidth={1.6} className={color} />
-                    <span className="text-sm leading-snug text-charcoal/70">{sub.label}</span>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-
-          <FlowBottom />
-
           {/* ═════════ 5) المنصة ═════════ */}
-          <div className="mt-14 text-center md:mt-2">
+          <div className="text-center">
             <div className="inline-flex items-center gap-3">
               <span className="flex items-end gap-1" aria-hidden>
                 <span className="h-5 w-2.5 rounded-sm bg-sky" />
@@ -494,42 +469,6 @@ export default function SolutionsPage() {
         </div>
       </section>
     </div>
-  );
-}
-
-/* ───────────── خطوط التدفق المنحنية بين الأقسام (SVG بدون تمطيط، وبتتعكس في RTL) ─────────────
-   x=207 من 1100 ≈ مركز عمود "الخدمات المُدارة"، و x=550 = مركز شعار المنصة. */
-function FlowTop() {
-  return (
-    <svg viewBox="0 0 1100 120" className="mb-2 hidden h-auto w-full md:block rtl:-scale-x-100" fill="none" aria-hidden>
-      <path
-        d="M10 4 C10 28 30 40 70 40 L1000 40 C1080 40 1080 84 1000 84 L257 84 C227 84 207 96 207 108 L207 114"
-        stroke="#C9A227"
-        strokeWidth="6"
-        strokeLinecap="round"
-      />
-      <path d="M198 104 L207 116 L216 104" stroke="#C9A227" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
-      {[300, 560, 830].map((x) => (
-        <path key={x} d={`M${x - 5} 33 L${x + 6} 40 L${x - 5} 47`} stroke="#C9A227" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-      ))}
-    </svg>
-  );
-}
-
-function FlowBottom() {
-  return (
-    <svg viewBox="0 0 1100 130" className="my-4 hidden h-auto w-full md:block rtl:-scale-x-100" fill="none" aria-hidden>
-      <path
-        d="M207 0 L207 20 C207 46 227 58 257 58 L1000 58 C1090 58 1090 98 1000 98 L590 98 C560 98 550 106 550 118 L550 124"
-        stroke="#C9A227"
-        strokeWidth="6"
-        strokeLinecap="round"
-      />
-      <path d="M541 114 L550 126 L559 114" stroke="#C9A227" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
-      {[420, 760].map((x) => (
-        <path key={x} d={`M${x - 5} 51 L${x + 6} 58 L${x - 5} 65`} stroke="#C9A227" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-      ))}
-    </svg>
   );
 }
 

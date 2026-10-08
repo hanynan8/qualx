@@ -24,12 +24,13 @@ const AUTH_TEXT = {
 const FALLBACK_NAVBAR = {
   links: [
     { id: "home", href: "/" },
+    { id: "about", href: "/about" },
     { id: "solutions", href: "/solutions" },
     { id: "careers", href: "/careers" },
   ],
   i18n: {
-    en: { brand: "Merlix", links: { home: "Home", solutions: "Solutions", careers: "Careers" }, quote: "Get a quote" },
-    ar: { brand: "Merlix", links: { home: "الرئيسية", solutions: "خدماتنا", careers: "وظائف" }, quote: "اطلب عرض سعر" },
+    en: { brand: "Merlix", links: { home: "Home", about: "About us", solutions: "Solutions", careers: "Careers" }, quote: "Get a quote" },
+    ar: { brand: "Merlix", links: { home: "الرئيسية", about: "من نحن", solutions: "خدماتنا", careers: "وظائف" }, quote: "اطلب عرض سعر" },
   },
 };  
 
@@ -43,7 +44,12 @@ export default function Navbar() {
 
   const navbar = data || FALLBACK_NAVBAR;
   const t = pickTranslation(navbar, language) || FALLBACK_NAVBAR.i18n.en;
-  const links = navbar.links || FALLBACK_NAVBAR.links;
+  // لو الروابط جاية من الداتابيز ومفيهاش About us نضيفها بعد الرئيسية
+  const baseLinks = navbar.links || FALLBACK_NAVBAR.links;
+  const links = baseLinks.some((l) => l.id === "about" || l.href === "/about")
+    ? baseLinks
+    : [baseLinks[0], { id: "about", href: "/about" }, ...baseLinks.slice(1)].filter(Boolean);
+  const ABOUT_LABEL = { en: "About us", ar: "من نحن" };
   const authText = AUTH_TEXT[language] || AUTH_TEXT.en;
 
   const isActive = (href) => (href === "/" ? pathname === "/" : pathname?.startsWith(href));
@@ -83,7 +89,7 @@ export default function Navbar() {
                   active ? "text-gold" : "text-offwhite/85"
                 }`}
               >
-                {t.links?.[link.id] || link.id}
+                {t.links?.[link.id] || (link.id === "about" ? ABOUT_LABEL[language] || ABOUT_LABEL.en : link.id)}
                 <span
                   aria-hidden
                   className={`absolute inset-x-0 -bottom-0.5 h-0.5 origin-center rounded-full bg-gold transition-transform duration-300 ${
@@ -130,7 +136,7 @@ export default function Navbar() {
                     active ? "bg-gold/10 text-gold" : "text-offwhite/90 hover:bg-white/5"
                   }`}
                 >
-                  {t.links?.[link.id] || link.id}
+                  {t.links?.[link.id] || (link.id === "about" ? ABOUT_LABEL[language] || ABOUT_LABEL.en : link.id)}
                 </Link>
               );
             })}
