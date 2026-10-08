@@ -17,6 +17,7 @@
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "./authOptions";
+import { ADMIN_AUTH_DISABLED, DEV_ADMIN_USER } from "./devBypass";
 
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -26,6 +27,8 @@ function jsonResponse(data, status = 200) {
 }
 
 export async function requireSession() {
+  // ⚠️ تطوير فقط (شوف devBypass.js): جلسة أدمن وهمية من غير تسجيل دخول.
+  if (ADMIN_AUTH_DISABLED) return { session: { user: DEV_ADMIN_USER }, response: null };
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return { session: null, response: jsonResponse({ error: "unauthorized" }, 401) };

@@ -22,7 +22,7 @@ import {
   Target,
 } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
-import { useCollectionData, pickTranslation } from "../../lib/useCollectionData";
+import { useCollectionData, pickTranslation, mergePageText } from "../../lib/useCollectionData";
 import ServiceVisual from "../../components/ServiceVisual";
 import { IMAGES, SERVICE_IMAGES } from "../../lib/siteImages";
 
@@ -279,7 +279,7 @@ export default function SolutionsPage() {
   const doc = data || FALLBACK_Solutions;
   const dbT = pickTranslation(doc, language) || FALLBACK_Solutions.i18n.en;
   const fbT = FALLBACK_Solutions.i18n[language] || FALLBACK_Solutions.i18n.en;
-  const p = PAGE[language] || PAGE.en;
+  const p = mergePageText(PAGE[language] || PAGE.en, dbT.page);
 
   const titleOf = (slug) => dbT.items?.[slug]?.title || fbT.items?.[slug]?.title || "";
   const shortOf = (slug) => dbT.items?.[slug]?.short || fbT.items?.[slug]?.short || "";

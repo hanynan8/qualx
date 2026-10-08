@@ -59,3 +59,31 @@ export function pickTranslation(doc, language) {
   if (!doc) return null;
   return doc.i18n?.[language] || doc.i18n?.en || null;
 }
+// 🔄 DYNAMIC page text: النصوص الثابتة في كود الصفحات (PAGE في solutions/
+// careers/about) بتتدمج مع override اختياري جاي من الداتابيز
+// (doc.i18n.<lang>.page) — يعني الأدمن يقدر يغيّر أي نص منها من لوحة التحكم
+// من غير ما حد يعدّل الكود.
+//
+// القواعد: object بيتدمج مفتاح بمفتاح، array بيتدمج بالـ index (عشان الـ icon
+// اللي في الكود يفضل، والنص بس هو اللي يتغير)، وأي قيمة فاضية في الداتابيز
+// بتتجاهل وبيفضل النص الافتراضي. المفاتيح اللي مش موجودة في الكود
+// بتتضاف زي ما هي.
+function isPlainObject(v) {
+  return v !== null && typeof v === "object" && !Array.isArray(v) && Object.getPrototypeOf(v) === Object.prototype;
+}
+
+export function mergePageText(base, override) {
+  if (override === undefined || override === null || override === "") return base;
+  if (Array.isArray(base) && Array.isArray(override)) {
+    const merged = base.map((item, i) => (i < override.length ? mergePageText(item, override[i]) : item));
+    return override.length > base.length ? merged.concat(override.slice(base.length)) : merged;
+  }
+  if (isPlainObject(base) && isPlainObject(override)) {
+    const merged = { ...base };
+    for (const key of Object.keys(override)) merged[key] = mergePageText(base[key], override[key]);
+    return merged;
+  }
+  // base موجود بنوع مختلف (مثلًا component) → سيبه؛ غير كده خد الـ override.
+  if (base !== undefined && typeof base === "function") return base;
+  return override;
+}

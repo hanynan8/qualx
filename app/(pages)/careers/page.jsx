@@ -22,7 +22,7 @@ import {
   Send,
 } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
-import { useCollectionData, pickTranslation } from "../../lib/useCollectionData";
+import { useCollectionData, pickTranslation, mergePageText } from "../../lib/useCollectionData";
 import { IMAGES } from "../../lib/siteImages";
 
 // 🎨 صفحة الوظائف بنفس لغة تصميم صفحة الخدمات: هيرو بصورة الرئيسية، شريط
@@ -220,7 +220,7 @@ export default function CareersPage() {
   const doc = data || FALLBACK_CAREERS;
   const items = doc.items || [];
   const t = pickTranslation(doc, language) || FALLBACK_CAREERS.i18n.en;
-  const p = PAGE[language] || PAGE.en;
+  const p = mergePageText(PAGE[language] || PAGE.en, t.page);
   const contactEmail = doc.contactEmail || FALLBACK_CAREERS.contactEmail;
   const heroImage = IMAGES.careersHero;
 

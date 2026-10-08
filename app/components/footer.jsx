@@ -48,7 +48,7 @@ export default function Footer() {
   const footer = data || FALLBACK_FOOTER;
   const t = pickTranslation(footer, language) || FALLBACK_FOOTER.i18n.en;
   const baseLinks = footer.links || FALLBACK_FOOTER.links;
-  const links = baseLinks.some((l) => l.id === "about" || l.href === "/about")
+  const links = footer.linksManaged || baseLinks.some((l) => l.id === "about" || l.href === "/about")
     ? baseLinks
     : [baseLinks[0], { id: "about", href: "/about" }, ...baseLinks.slice(1)].filter(Boolean);
   const ABOUT_LABEL = { en: "About us", ar: "من نحن" };

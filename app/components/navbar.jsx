@@ -47,7 +47,7 @@ export default function Navbar() {
   const t = pickTranslation(navbar, language) || FALLBACK_NAVBAR.i18n.en;
   // لو الروابط جاية من الداتابيز ومفيهاش About us نضيفها بعد الرئيسية
   const baseLinks = navbar.links || FALLBACK_NAVBAR.links;
-  const links = baseLinks.some((l) => l.id === "about" || l.href === "/about")
+  const links = navbar.linksManaged || baseLinks.some((l) => l.id === "about" || l.href === "/about")
     ? baseLinks
     : [baseLinks[0], { id: "about", href: "/about" }, ...baseLinks.slice(1)].filter(Boolean);
   const ABOUT_LABEL = { en: "About us", ar: "من نحن" };

@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, Users2, ClipboardList } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
-import { useCollectionData, pickTranslation } from "../../lib/useCollectionData";
+import { useCollectionData, pickTranslation, mergePageText } from "../../lib/useCollectionData";
 import { IMAGES } from "../../lib/siteImages";
 
 // صفحة About us: قسم "Who we are" اللي كان في الرئيسية اتنقل هنا.
@@ -70,7 +70,7 @@ export default function AboutPage() {
   const homeDoc = home.data || FALLBACK_HOME;
   const fb = FALLBACK_HOME.i18n[language] || FALLBACK_HOME.i18n.en;
   const t = { ...fb, ...(pickTranslation(homeDoc, language) || {}) };
-  const p = PAGE[language] || PAGE.en;
+  const p = mergePageText(PAGE[language] || PAGE.en, t.page);
   const cardIcons = homeDoc.cardIcons || FALLBACK_HOME.cardIcons;
 
   return (
