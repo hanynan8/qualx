@@ -1,6 +1,8 @@
 // app/layout.jsx
 import "./globals.css";
-import { Cairo } from "next/font/google";
+// 🔤 خط Cairo (عربي + إنجليزي) من حزمة npm بدل next/font/google:
+// بيتخدم من نفس الدومين، ومش بيحتاج اتصال بـ Google وقت الـ build/dev.
+import "@fontsource-variable/cairo";
 // 🐛 كان فيه هنا "./components/Navbar" / "./components/Footer" بحرف
 // كبير، والملفات فعليًا اسمها navbar.jsx / footer.jsx — بيفشل على أي
 // نشر Linux (Vercel). متصلح.
@@ -12,19 +14,10 @@ import ScrollReveal from "./components/ScrollReveal";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../app/lib/authOptions";
 
-// 🔤 خط Cairo للموقع كله (عربي + إنجليزي). next/font بينزّله وقت الـ build/dev
-// ويخدمه من نفس الدومين (self-hosted)، فمفيش تغيير مطلوب في الـ CSP (font-src 'self').
-const cairo = Cairo({
-  subsets: ["arabic", "latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  display: "swap",
-  variable: "--font-cairo",
-});
-
 export const metadata = {
-  title: "merlix — Quality Assurance & Customer Experience",
+  title: "Qualx — Quality Assurance & Customer Experience",
   description:
-    "merlix evaluates customer experience and quality control for businesses across Egypt through Mystery Shopping, Auditing, Managed Services, and CX consulting.",
+    "Qualx evaluates customer experience and quality control for businesses across Egypt through Mystery Shopping, Auditing, Managed Services, and CX consulting.",
 };
 
 // 🔐 نظام تسجيل الدخول: بنجيب الجلسة على السيرفر (مرة واحدة لكل طلب صفحة)
@@ -34,7 +27,7 @@ export default async function RootLayout({ children }) {
   const session = await getServerSession(authOptions);
 
   return (
-    <html lang="en" className={cairo.variable}>
+    <html lang="en">
       <body className="font-sans flex min-h-screen flex-col bg-offwhite text-charcoal antialiased">
         <SessionProviderWrapper session={session}>
           <LanguageProvider>

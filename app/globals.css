@@ -4,9 +4,9 @@
 @tailwind utilities;
 
 :root {
-  /* Cairo متحمّل من app/layout.jsx عن طريق next/font (المتغير --font-cairo). */
-  --font-display: var(--font-cairo), "Cairo", system-ui, sans-serif;
-  --font-body: var(--font-cairo), "Cairo", system-ui, sans-serif;
+  /* Cairo متحمّل من app/layout.jsx عن طريق حزمة @fontsource-variable/cairo. */
+  --font-display: "Cairo Variable", "Cairo", system-ui, sans-serif;
+  --font-body: "Cairo Variable", "Cairo", system-ui, sans-serif;
 }
 
 html {

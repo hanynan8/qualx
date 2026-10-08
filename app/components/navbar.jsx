@@ -24,12 +24,12 @@ const AUTH_TEXT = {
 const FALLBACK_NAVBAR = {
   links: [
     { id: "home", href: "/" },
-    { id: "services", href: "/services" },
+    { id: "solutions", href: "/solutions" },
     { id: "careers", href: "/careers" },
   ],
   i18n: {
-    en: { brand: "Merlix", links: { home: "Home", services: "Services", careers: "Careers" }, quote: "Get a quote" },
-    ar: { brand: "Merlix", links: { home: "الرئيسية", services: "خدماتنا", careers: "وظائف" }, quote: "اطلب عرض سعر" },
+    en: { brand: "Merlix", links: { home: "Home", solutions: "Solutions", careers: "Careers" }, quote: "Get a quote" },
+    ar: { brand: "Merlix", links: { home: "الرئيسية", solutions: "خدماتنا", careers: "وظائف" }, quote: "اطلب عرض سعر" },
   },
 };  
 
@@ -96,7 +96,7 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-4 border-x border-white/10 px-6 xl:flex">
-          <Link href="/services" className="btn-primary !px-4 !py-2 text-sm">
+          <Link href="/solutions" className="btn-primary !px-4 !py-2 text-sm">
             {t.quote}
           </Link>
           <LangSwitcher language={language} onChange={changeLanguage} />
@@ -135,7 +135,7 @@ export default function Navbar() {
               );
             })}
             <Link
-              href="/services"
+              href="/solutions"
               onClick={() => setOpen(false)}
               className="btn-primary mt-3 justify-center text-sm"
             >

@@ -1,4 +1,4 @@
-// app/services/page.jsx
+// app/Solutions/page.jsx
 "use client";
 
 import Link from "next/link";
@@ -29,14 +29,14 @@ import ServiceIcon from "../../components/ServiceIcon";
 import ServiceVisual from "../../components/ServiceVisual";
 
 // ─────────────────────────────────────────────────────────────────────────
-// المحتوى الأساسي للخدمات (العناوين/الوصف القصير) بييجي من كولكشن "services"
+// المحتوى الأساسي للخدمات (العناوين/الوصف القصير) بييجي من كولكشن "Solutions"
 // في مونجو. باقي نصوص الصفحة (الهيرو، الـ Suites، الخدمات الفرعية، قسم
 // المنصة...) محلية هنا في PAGE عشان مش موجودة في الداتابيز.
 // ─────────────────────────────────────────────────────────────────────────
-const FALLBACK_SERVICES = {
+const FALLBACK_Solutions = {
   items: [
     { slug: "mystery-shopping", icon: "eye" },
-    { slug: "managed-services", icon: "users" },
+    { slug: "managed-Solutions", icon: "users" },
     { slug: "auditing-visits", icon: "clipboard-check" },
     { slug: "customer-experience", icon: "heart-handshake" },
   ],
@@ -47,8 +47,8 @@ const FALLBACK_SERVICES = {
           title: "Mystery Shopping Visits",
           short: "Completely confidential visits where we evaluate the customer experience and how staff interact with customers.",
         },
-        "managed-services": {
-          title: "Managed Services",
+        "managed-Solutions": {
+          title: "Managed Solutions",
           short: "A specialized team in Quality Assurance, Mystery Shopping, and Auditing to manage your company's quality operations.",
         },
         "auditing-visits": {
@@ -67,7 +67,7 @@ const FALLBACK_SERVICES = {
           title: "زيارات تسوق سري",
           short: "زيارات سرية بالكامل نقيّم فيها تجربة العميل وطريقة تعامل الموظفين مع العملاء.",
         },
-        "managed-services": {
+        "managed-Solutions": {
           title: "خدمات مُدارة",
           short: "فريق متخصص في ضبط الجودة والتسوق السري والتدقيق لإدارة عمليات الجودة في شركتك.",
         },
@@ -140,13 +140,13 @@ const TONES = {
 
 const PAGE = {
   en: {
-    heroTitle: "Our Services",
+    heroTitle: "Our Solutions",
     heroCta: "Get a quote",
-    introTitle: "Merlix delivers a full range of quality services to help businesses reach their true potential.",
+    introTitle: "Merlix delivers a full range of quality Solutions to help businesses reach their true potential.",
     introText:
       "Through a comprehensive approach, we help our clients evaluate the customer experience, keep quality standards consistent across every branch, and turn documented findings into real improvements, building customer loyalty while growing sales and profits.",
     videoTitle: "Contact us today!",
-    videoText: "We can help you choose the perfect combination of services to maximize your ROI.",
+    videoText: "We can help you choose the perfect combination of Solutions to maximize your ROI.",
     playLabel: "Play video",
     suiteSuffix: "Suite",
     viewSuite: "View service",
@@ -179,7 +179,7 @@ const PAGE = {
         ],
       },
     },
-    managedTitle: "Managed Services",
+    managedTitle: "Managed Solutions",
     managedTagline: "Need a whole quality department? We've got it!",
     managedSubs: [
       { icon: "check", label: "Quality Assurance" },
@@ -193,7 +193,7 @@ const PAGE = {
       "Every service feeds into one clear, documented reporting flow, so you always see where each branch stands and what to fix first.",
     demoTitle: "Let us show you how we generate real value for our clients.",
     demoText:
-      "We can help you choose the perfect combination of services to maximize your ability to raise quality and customer satisfaction across all your branches.",
+      "We can help you choose the perfect combination of Solutions to maximize your ability to raise quality and customer satisfaction across all your branches.",
     demoStrong: "Spend smart, improve more. Win-win!",
     demoCta: "Get a quote",
     dashTitle: "Branch score",
@@ -261,19 +261,19 @@ const PAGE = {
   },
 };
 
-export default function ServicesPage() {
+export default function SolutionsPage() {
   const { language } = useLanguage();
-  const { data, loading } = useCollectionData("services");
+  const { data, loading } = useCollectionData("Solutions");
   // نفس صورة هيرو الصفحة الرئيسية بالظبط (heroImage من كولكشن "home")
   const home = useCollectionData("home");
   const [playing, setPlaying] = useState(false);
 
   if (loading || home.loading) return <PageLoading />;
 
-  const doc = data || FALLBACK_SERVICES;
+  const doc = data || FALLBACK_Solutions;
   const items = doc.items || [];
-  const dbT = pickTranslation(doc, language) || FALLBACK_SERVICES.i18n.en;
-  const fbT = FALLBACK_SERVICES.i18n[language] || FALLBACK_SERVICES.i18n.en;
+  const dbT = pickTranslation(doc, language) || FALLBACK_Solutions.i18n.en;
+  const fbT = FALLBACK_Solutions.i18n[language] || FALLBACK_Solutions.i18n.en;
   const p = PAGE[language] || PAGE.en;
 
   const iconOf = (slug) => items.find((s) => s.slug === slug)?.icon;
@@ -409,7 +409,7 @@ export default function ServicesPage() {
 
                   <p className={`mt-5 flex min-h-[2.75rem] items-center text-sm font-bold leading-snug ${c.tagline}`}>{s.tagline}</p>
                   <Link
-                    href={`/services/${slug}`}
+                    href={`/Solutions/${slug}`}
                     className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-sm px-4 py-3 text-sm font-semibold uppercase tracking-wide transition-colors ${c.btn}`}
                   >
                     {p.viewSuite}
@@ -429,13 +429,13 @@ export default function ServicesPage() {
           <div className="mt-6 grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-16">
             <div className="text-center">
               <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-navy text-gold shadow-lg">
-                <ServiceIcon name={iconOf("managed-services") || "users"} size={30} />
+                <ServiceIcon name={iconOf("managed-Solutions") || "users"} size={30} />
               </span>
-              <h3 className="mt-4 font-display text-2xl font-bold text-navy">{titleOf("managed-services") || p.managedTitle}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-charcoal/70">{shortOf("managed-services")}</p>
+              <h3 className="mt-4 font-display text-2xl font-bold text-navy">{titleOf("managed-Solutions") || p.managedTitle}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-charcoal/70">{shortOf("managed-Solutions")}</p>
               <p className="mt-4 text-sm font-bold text-[#9A7B14]">{p.managedTagline}</p>
               <Link
-                href="/services/managed-services"
+                href="/Solutions/managed-Solutions"
                 className="mt-5 inline-flex items-center gap-2 rounded-sm bg-navy px-5 py-3 text-sm font-semibold uppercase tracking-wide text-offwhite transition-colors hover:bg-[#15406E]"
               >
                 {p.viewSuite}
