@@ -2,165 +2,99 @@
 
 // app/admin/AdminDashboard.jsx
 //
-// لوحة الأدمن: tabs — كل تاب لصفحة من الموقع (الرئيسية، من نحن، الخدمات،
-// الوظائف) أو للناف بار أو الفوتر، + رسائل الزوار + مستكشف لأي كولكشن تاني +
-// الأمان. كل التعديلات بتتحفظ في مونجو عن طريق /api/admin/content والموقع
-// بيقراها مباشرة (من غير إعادة نشر).
+// لوحة الأدمن بنفس شكل ومنطق أدمن Edumaster: هيدر بتدرّج أزرق/بنفسجي، سايدبار
+// بمجموعات قابلة للطي، وبانل لكل قسم. الفحص الأمني بيحصل على السيرفر في
+// page.jsx (getServerSession) وكل العمليات بتمر على /api/admin/* المحمية.
+//
+// الحفاظ على منطق qualx: تحذير التعديلات غير المحفوظة قبل التنقل/الإغلاق،
+// وحفظ القسم النشط في الـ hash (#services).
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  Home,
-  Info,
-  Layers,
-  Briefcase,
-  PanelTop,
-  PanelBottom,
-  Inbox,
-  Database,
-  ShieldCheck,
-  ShieldAlert,
-  ExternalLink,
-  Plus,
+  Database, Settings, Home, Navigation, Info, Layers, Briefcase, PanelBottom, Users, Inbox,
+  FileText, BarChart3, ChevronDown, ArrowLeft, Loader, ScrollText, ShieldCheck, FolderOpen,
 } from "lucide-react";
-import CollectionManager from "./CollectionManager";
+
+import { TABS } from "./tabsConfig";
 import { api } from "./adminUtils";
-import { TABS, DEDICATED_COLLECTIONS } from "./tabsConfig";
+import AccountCard from "./components/accountCard";
+import PagePanel from "./components/pagePanel";
+import OverviewPanel from "./components/overviewPanel";
+import UsersPanel from "./components/usersPanel";
+import FormsPanel from "./components/formsPanel";
+import AuditLogsPanel from "./components/auditLogsPanel";
+import CollectionsPanel from "./components/collectionsPanel";
+import SecurityPanel from "./components/securityPanel";
 
-const ICONS = {
-  home: Home,
-  about: Info,
-  services: Layers,
-  careers: Briefcase,
-  navbar: PanelTop,
-  footer: PanelBottom,
-  messages: Inbox,
-  collections: Database,
-  security: ShieldCheck,
-};
+// عناصر السايدبار. tabId = بانل صفحة بيتبني من TABS (tabsConfig.js)؛ component
+// = بانل مخصص بيستقبل { user, mfaEnabled, onDirtyChange }.
+const SIDEBAR_GROUPS = [
+  { id: "overview", type: "single", name: "Overview", icon: BarChart3, component: OverviewPanel },
+  {
+    id: "pages",
+    type: "group",
+    name: "Pages",
+    icon: FileText,
+    items: [
+      { id: "home", name: "Home", icon: Home, tabId: "home" },
+      { id: "about", name: "About", icon: Info, tabId: "about" },
+      { id: "services", name: "Services", icon: Layers, tabId: "services" },
+      { id: "careers", name: "Careers", icon: Briefcase, tabId: "careers" },
+      { id: "navbar", name: "Navbar", icon: Navigation, tabId: "navbar" },
+      { id: "footer", name: "Footer", icon: PanelBottom, tabId: "footer" },
+    ],
+  },
+  {
+    id: "management",
+    type: "group",
+    name: "Management",
+    icon: Users,
+    items: [
+      { id: "users", name: "Users", icon: Users, component: UsersPanel },
+      { id: "messages", name: "Form Submissions", icon: Inbox, component: FormsPanel },
+      { id: "audit", name: "Audit Logs", icon: ScrollText, component: AuditLogsPanel },
+    ],
+  },
+  {
+    id: "system",
+    type: "group",
+    name: "System",
+    icon: Settings,
+    items: [
+      { id: "collections", name: "Other Collections", icon: FolderOpen, component: CollectionsPanel },
+      { id: "security", name: "Account & Security", icon: ShieldCheck, component: SecurityPanel },
+    ],
+  },
+];
 
-const COLLECTION_NAME_REGEX = /^[a-zA-Z0-9_-]{1,64}$/;
+const FLAT_TABS = SIDEBAR_GROUPS.flatMap((g) => (g.type === "single" ? [g] : g.items));
 
-// ───────────────────────── explorer: أي كولكشن تاني ─────────────────────────
-function Explorer({ onDirtyChange }) {
-  const [collections, setCollections] = useState(null);
-  const [selected, setSelected] = useState("");
-  const [newName, setNewName] = useState("");
-  const [error, setError] = useState("");
-  const [reloadKey, setReloadKey] = useState(0);
-
-  useEffect(() => {
-    let cancelled = false;
-    api("/api/admin/content")
-      .then((data) => {
-        if (cancelled) return;
-        const others = data.collections.filter((c) => !DEDICATED_COLLECTIONS.has(c.name));
-        setCollections(others);
-        setSelected((cur) => cur || others[0]?.name || "");
-      })
-      .catch((err) => !cancelled && setError(err.message));
-    return () => {
-      cancelled = true;
-    };
-  }, [reloadKey]);
-
-  function startNew() {
-    const name = newName.trim();
-    if (!COLLECTION_NAME_REGEX.test(name)) return setError("اسم الكولكشن: حروف إنجليزي/أرقام/شرطة فقط (حتى 64)");
-    if (name === "auth" || name === "audit_logs") return setError("الكولكشن ده محمي");
-    setError("");
-    setCollections((prev) => (prev.some((c) => c.name === name) ? prev : [...prev, { name, count: 0 }]));
-    setSelected(name);
-    setNewName("");
-  }
-
-  if (!collections && !error) return <p className="py-10 text-center text-sm text-charcoal/50">جاري التحميل...</p>;
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-charcoal/10 bg-white p-3">
-        <select
-          value={selected}
-          onChange={(e) => setSelected(e.target.value)}
-          className="rounded-lg border border-charcoal/15 bg-white px-3 py-2 text-sm"
-          dir="ltr"
-        >
-          {(collections || []).length === 0 && <option value="">(مفيش كولكشنز تانية)</option>}
-          {(collections || []).map((c) => (
-            <option key={c.name} value={c.name}>
-              {c.name} ({c.count})
-            </option>
-          ))}
-        </select>
-        <span className="mx-1 hidden h-6 w-px bg-charcoal/10 sm:block" />
-        <input
-          dir="ltr"
-          placeholder="اسم كولكشن جديد"
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && startNew()}
-          className="rounded-lg border border-charcoal/15 px-3 py-2 text-sm"
-        />
-        <button type="button" onClick={startNew} className="flex items-center gap-1.5 rounded-lg bg-navy px-3 py-2 text-sm font-semibold text-offwhite hover:bg-navy/90">
-          <Plus size={14} /> كولكشن جديد
-        </button>
-      </div>
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
-      {selected && (
-        <CollectionManager
-          key={`${selected}:${reloadKey}`}
-          collection={selected}
-          mode="list"
-          tab={{}}
-          onDirtyChange={onDirtyChange}
-        />
-      )}
-    </div>
-  );
+function findGroupIdForTab(tabId) {
+  const group = SIDEBAR_GROUPS.find((g) => g.type === "group" && g.items.some((i) => i.id === tabId));
+  return group?.id || null;
 }
 
-// ───────────────────────── security ─────────────────────────
-function SecurityPanel({ user, mfaEnabled }) {
-  return (
-    <div className="max-w-md rounded-2xl border border-charcoal/10 bg-white p-6 shadow-lg shadow-navy/5">
-      <div className="flex items-center gap-3">
-        <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${mfaEnabled ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
-          {mfaEnabled ? <ShieldCheck size={22} /> : <ShieldAlert size={22} />}
-        </span>
-        <h2 className="font-display text-lg font-semibold text-navy">أمان الحساب</h2>
-      </div>
-      <p className="mt-4 text-sm text-charcoal/70">
-        مسجّل دخول باسم <strong className="text-navy">{user.name}</strong> ({user.email || "بدون إيميل"})
-      </p>
-      <p className="mt-2 text-sm text-charcoal/70">
-        المصادقة الثنائية:{" "}
-        <strong className={mfaEnabled ? "text-green-700" : "text-red-600"}>{mfaEnabled ? "مفعّلة" : "غير مفعّلة"}</strong>
-      </p>
-      {!mfaEnabled && (
-        <p className="mt-3 rounded-xl bg-offwhite px-3 py-2 text-xs text-charcoal/60">
-          شغّل <code dir="ltr">node scripts/setup-mfa.mjs your@email.com</code> لتفعيلها.
-        </p>
-      )}
-      <p className="mt-4 text-xs text-charcoal/50">كل تعديل بتعمله من اللوحة بيتسجّل في audit_logs (إنشاء/تعديل/حذف + الكولكشن + الـ IP).</p>
-    </div>
-  );
-}
-
-// ───────────────────────── dashboard ─────────────────────────
 export default function AdminDashboard({ user, mfaEnabled }) {
-  const [activeId, setActiveId] = useState(TABS[0].id);
-  const dirtyRef = useRef(false);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [openGroups, setOpenGroups] = useState({});
+  const [exporting, setExporting] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const dirtyRef = useRef(false);
 
   const onDirtyChange = useCallback((v) => {
     dirtyRef.current = v;
     setDirty(v);
   }, []);
 
-  // التاب النشط بيتحفظ في الـ hash (#services) عشان refresh/لينك مباشر.
+  // القسم النشط بيتحفظ في الـ hash عشان refresh / لينك مباشر.
   useEffect(() => {
     const fromHash = window.location.hash.replace("#", "");
-    if (TABS.some((t) => t.id === fromHash)) setActiveId(fromHash);
+    if (FLAT_TABS.some((t) => t.id === fromHash)) {
+      setActiveTab(fromHash);
+      const gid = findGroupIdForTab(fromHash);
+      if (gid) setOpenGroups((prev) => ({ ...prev, [gid]: true }));
+    }
   }, []);
 
   // تحذير قبل ما المتصفح يقفل/يعمل refresh والفيه تعديلات غير محفوظة.
@@ -174,96 +108,177 @@ export default function AdminDashboard({ user, mfaEnabled }) {
     return () => window.removeEventListener("beforeunload", handler);
   }, []);
 
-  function selectTab(id) {
-    if (id === activeId) return;
-    if (dirtyRef.current && !window.confirm("فيه تعديلات غير محفوظة في التاب ده. تسيبها وتروح لتاب تاني؟")) return;
+  function toggleGroup(groupId) {
+    setOpenGroups((prev) => ({ ...prev, [groupId]: !prev[groupId] }));
+  }
+
+  function selectTab(tabId) {
+    if (tabId === activeTab) return;
+    if (dirtyRef.current && !window.confirm("فيه تعديلات غير محفوظة في القسم ده. تسيبها وتروح لقسم تاني؟")) return;
     onDirtyChange(false);
-    setActiveId(id);
+    setActiveTab(tabId);
+    const groupId = findGroupIdForTab(tabId);
+    if (groupId) setOpenGroups((prev) => ({ ...prev, [groupId]: true }));
     try {
-      window.history.replaceState(null, "", `#${id}`);
+      window.history.replaceState(null, "", `#${tabId}`);
     } catch {
       /* مش مشكلة */
     }
   }
 
-  const tab = TABS.find((t) => t.id === activeId) || TABS[0];
+  // تصدير كل بيانات الموقع (من غير auth/audit_logs المحميين) كملف JSON.
+  async function handleExportAllData() {
+    setExporting(true);
+    try {
+      const list = await api("/api/admin/content");
+      const names = (list.collections || []).filter((c) => !c.protected).map((c) => c.name);
+      const result = {};
+      await Promise.all(
+        names.map(async (name) => {
+          try {
+            const data = await api(`/api/admin/content?collection=${encodeURIComponent(name)}`);
+            result[name] = data.docs || [];
+          } catch {
+            result[name] = { error: "Failed to fetch" };
+          }
+        })
+      );
+      const blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `site-data-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      window.alert(`فشل التصدير: ${err.message}`);
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  const activeItem = FLAT_TABS.find((t) => t.id === activeTab) || FLAT_TABS[0];
+
+  function renderActive() {
+    if (activeItem.tabId) {
+      const tab = TABS.find((t) => t.id === activeItem.tabId);
+      return <PagePanel tab={tab} icon={activeItem.icon} title={activeItem.name} onDirtyChange={onDirtyChange} />;
+    }
+    const Panel = activeItem.component;
+    return <Panel key={activeItem.id} user={user} mfaEnabled={mfaEnabled} onDirtyChange={onDirtyChange} />;
+  }
 
   return (
-    <div>
-      <section className="relative overflow-hidden bg-gradient-to-br from-navy via-navy to-[#15406E] text-offwhite">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.07]"
-          style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "22px 22px" }}
-        />
-        <div className="container-content relative flex flex-wrap items-center justify-between gap-4 py-10">
-          <div>
-            <h1 className="font-display text-3xl font-bold">لوحة التحكم</h1>
-            <p className="mt-1 text-sm text-offwhite/75">
-              أهلاً <strong className="text-gold">{user.name}</strong> — عدّل محتوى الموقع كله من هنا، والتغييرات بتظهر فورًا.
-            </p>
-          </div>
-          <Link href="/" target="_blank" className="flex items-center gap-1.5 rounded-xl border border-white/25 px-4 py-2 text-sm font-medium text-offwhite hover:border-gold hover:text-gold">
-            <ExternalLink size={15} /> فتح الموقع
-          </Link>
-        </div>
-      </section>
-
-      {/* tabs */}
-      <div className="sticky top-20 z-30 border-b border-charcoal/10 bg-white/95 backdrop-blur xl:top-24">
-        <div className="container-content">
-          <div role="tablist" aria-label="أقسام لوحة التحكم" className="-mb-px flex gap-1 overflow-x-auto">
-            {TABS.map((t) => {
-              const Icon = ICONS[t.id] || Layers;
-              const active = t.id === activeId;
-              return (
-                <button
-                  key={t.id}
-                  role="tab"
-                  aria-selected={active}
-                  type="button"
-                  onClick={() => selectTab(t.id)}
-                  className={`flex shrink-0 items-center gap-2 border-b-2 px-4 py-3.5 text-sm font-semibold transition-colors ${
-                    active ? "border-gold text-navy" : "border-transparent text-charcoal/60 hover:text-navy"
-                  }`}
-                >
-                  <Icon size={16} />
-                  {t.label}
-                  {active && dirty && <span aria-label="تعديلات غير محفوظة" className="h-2 w-2 rounded-full bg-amber-500" />}
-                </button>
-              );
-            })}
+    <div className="min-h-screen bg-gray-50" dir="ltr">
+      <div className="shadow-lg bg-gradient-to-r from-blue-700 to-purple-700 border-b-4 border-blue-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-5 flex-wrap gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Link href="/" title="الرجوع للموقع" className="text-white/70 hover:text-white transition-colors w-fit">
+                <ArrowLeft size={32} strokeWidth={1.25} />
+              </Link>
+              <h1 className="text-2xl font-semibold text-white flex items-center gap-3">
+                <Database size={30} className="animate-pulse" />
+                Qualx Admin Panel
+                {dirty && <span aria-label="تعديلات غير محفوظة" className="h-2.5 w-2.5 rounded-full bg-amber-400" />}
+              </h1>
+            </div>
+            <button
+              onClick={handleExportAllData}
+              disabled={exporting}
+              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 disabled:opacity-60 text-white font-semibold px-4 py-2 rounded-xl transition-colors border border-white/30"
+            >
+              {exporting ? <Loader size={18} className="animate-spin" /> : <Database size={18} />}
+              {exporting ? "Exporting..." : "Export All Site Data (JSON)"}
+            </button>
           </div>
         </div>
       </div>
 
-      <section role="tabpanel" className="container-content py-8">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="font-display text-2xl font-bold text-navy">{tab.label}</h2>
-            {tab.hint && <p className="mt-1 text-sm text-charcoal/60">{tab.hint}</p>}
-          </div>
-          {tab.href && (
-            <Link href={tab.href} target="_blank" className="flex items-center gap-1.5 text-sm font-medium text-sky hover:underline">
-              <ExternalLink size={14} /> فتح الصفحة
-            </Link>
-          )}
-        </div>
+      <div className="max-w-[100rem] mx-auto px-2 sm:px-3 lg:px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
+          <div className="lg:col-span-1">
+            <AccountCard user={user} mfaEnabled={mfaEnabled} />
 
-        {tab.mode === "security" ? (
-          <SecurityPanel user={user} mfaEnabled={mfaEnabled} />
-        ) : tab.mode === "explorer" ? (
-          <Explorer onDirtyChange={onDirtyChange} />
-        ) : (
-          <CollectionManager
-            key={tab.id}
-            tab={tab}
-            collection={tab.collection}
-            mode={tab.mode}
-            onDirtyChange={onDirtyChange}
-          />
-        )}
-      </section>
+            <div className="bg-white rounded-2xl shadow-xl p-5 sticky top-4 border border-gray-200">
+              <h2 className="text-lg font-semibold mb-5 pb-3 border-b flex items-center gap-2 text-gray-700">
+                <Settings size={20} className="text-blue-500" />
+                Sections
+              </h2>
+              <div className="space-y-2">
+                {SIDEBAR_GROUPS.map((group) => {
+                  if (group.type === "single") {
+                    const Icon = group.icon;
+                    const isActive = activeTab === group.id;
+                    return (
+                      <button
+                        key={group.id}
+                        onClick={() => selectTab(group.id)}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-left font-medium ${
+                          isActive
+                            ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md scale-[1.02]"
+                            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                        }`}
+                      >
+                        <Icon size={18} />
+                        <span>{group.name}</span>
+                      </button>
+                    );
+                  }
+
+                  const GroupIcon = group.icon;
+                  const isOpen = !!openGroups[group.id];
+                  const hasActiveChild = group.items.some((i) => i.id === activeTab);
+
+                  return (
+                    <div key={group.id}>
+                      <button
+                        onClick={() => toggleGroup(group.id)}
+                        className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl transition-all text-left font-medium ${
+                          hasActiveChild ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                        }`}
+                      >
+                        <span className="flex items-center gap-3">
+                          <GroupIcon size={18} />
+                          <span>{group.name}</span>
+                        </span>
+                        <ChevronDown size={16} className={`shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+                      </button>
+
+                      {isOpen && (
+                        <div className="mt-1 ms-3 ps-3 border-l-2 border-gray-100 space-y-1">
+                          {group.items.map((tab) => {
+                            const Icon = tab.icon;
+                            const isActive = activeTab === tab.id;
+                            return (
+                              <button
+                                key={tab.id}
+                                onClick={() => selectTab(tab.id)}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left text-sm font-medium ${
+                                  isActive
+                                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md"
+                                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                }`}
+                              >
+                                <Icon size={16} />
+                                <span>{tab.name}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-5 min-w-0">{renderActive()}</div>
+        </div>
+      </div>
     </div>
   );
 }

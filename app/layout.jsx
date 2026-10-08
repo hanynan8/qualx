@@ -11,6 +11,7 @@ import Footer from "./components/footer";
 import { LanguageProvider } from "../contexts/LanguageContext";
 import SessionProviderWrapper from "./components/SessionProviderWrapper";
 import ScrollReveal from "./components/ScrollReveal";
+import SiteChrome from "./components/SiteChrome";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../app/lib/authOptions";
 
@@ -31,9 +32,13 @@ export default async function RootLayout({ children }) {
       <body className="font-sans flex min-h-screen flex-col bg-offwhite text-charcoal antialiased">
         <SessionProviderWrapper session={session}>
           <LanguageProvider>
-            <Navbar />
+            <SiteChrome>
+              <Navbar />
+            </SiteChrome>
             <main className="flex-1">{children}</main>
-            <Footer />
+            <SiteChrome>
+              <Footer />
+            </SiteChrome>
             <ScrollReveal />
           </LanguageProvider>
         </SessionProviderWrapper>

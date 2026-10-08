@@ -14,7 +14,7 @@ import { LANGS } from "./tabsConfig";
 
 const ID_REGEX = /^[a-zA-Z0-9_-]{1,64}$/;
 const inputClass =
-  "w-full rounded-lg border border-charcoal/15 bg-white px-3 py-2 text-sm text-charcoal outline-none transition-colors focus:border-sky focus:ring-2 focus:ring-sky/20";
+  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-200";
 
 const LANG_LABEL = { en: "EN", ar: "AR" };
 
@@ -113,16 +113,16 @@ export default function ItemsManager({ config, draft, setDraft }) {
   }
 
   return (
-    <div className="rounded-2xl border border-gold/40 bg-gold/5 p-4">
+    <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h3 className="font-display text-base font-semibold text-navy">
-          العناصر <span className="text-sm font-normal text-charcoal/50">({list.length})</span>
+        <h3 className="font-display text-base font-semibold text-blue-900">
+          العناصر <span className="text-sm font-normal text-gray-400">({list.length})</span>
         </h3>
         {!adding && (
           <button
             type="button"
             onClick={() => setAdding(true)}
-            className="flex items-center gap-1.5 rounded-lg bg-navy px-3 py-1.5 text-sm font-semibold text-offwhite hover:bg-navy/90"
+            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700"
           >
             <Plus size={14} /> إضافة عنصر جديد
           </button>
@@ -132,8 +132,8 @@ export default function ItemsManager({ config, draft, setDraft }) {
       {error && <p className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       {adding && (
-        <div className="mb-4 space-y-3 rounded-xl border border-charcoal/10 bg-white p-3">
-          <label className="block text-xs font-medium text-charcoal/70">
+        <div className="mb-4 space-y-3 rounded-xl border border-gray-200 bg-white p-3">
+          <label className="block text-xs font-medium text-gray-600">
             {idLabel}
             <input
               dir="ltr"
@@ -144,7 +144,7 @@ export default function ItemsManager({ config, draft, setDraft }) {
             />
           </label>
           {Object.keys(extra).map((key) => (
-            <label key={key} className="block text-xs font-medium text-charcoal/70">
+            <label key={key} className="block text-xs font-medium text-gray-600">
               {key}
               <input
                 dir="ltr"
@@ -156,7 +156,7 @@ export default function ItemsManager({ config, draft, setDraft }) {
           ))}
           <div className="grid gap-3 sm:grid-cols-2">
             {langs.map((lang) => (
-              <label key={lang} className="block text-xs font-medium text-charcoal/70">
+              <label key={lang} className="block text-xs font-medium text-gray-600">
                 العنوان / الاسم ({LANG_LABEL[lang] || lang})
                 <input
                   dir="auto"
@@ -168,23 +168,23 @@ export default function ItemsManager({ config, draft, setDraft }) {
             ))}
           </div>
           <div className="flex gap-2">
-            <button type="button" onClick={add} className="rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-navy hover:bg-gold/90">
+            <button type="button" onClick={add} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-600/90">
               إضافة
             </button>
-            <button type="button" onClick={resetForm} className="px-3 py-2 text-sm text-charcoal/60 hover:text-charcoal">
+            <button type="button" onClick={resetForm} className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900">
               إلغاء
             </button>
           </div>
-          <p className="text-xs text-charcoal/50">باقي تفاصيل العنصر (الوصف، النقاط...) تقدر تكملها من الحقول تحت بعد الإضافة.</p>
+          <p className="text-xs text-gray-400">باقي تفاصيل العنصر (الوصف، النقاط...) تقدر تكملها من الحقول تحت بعد الإضافة.</p>
         </div>
       )}
 
       {list.length === 0 ? (
-        <p className="text-sm text-charcoal/50">مفيش عناصر لسه.</p>
+        <p className="text-sm text-gray-400">مفيش عناصر لسه.</p>
       ) : (
         <ul className="space-y-2">
           {list.map((item, index) => (
-            <li key={`${item[idKey]}-${index}`} className="flex flex-wrap items-center gap-2 rounded-xl border border-charcoal/10 bg-white px-3 py-2">
+            <li key={`${item[idKey]}-${index}`} className="flex flex-wrap items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
               <div className="min-w-0 flex-1">
                 {renaming?.index === index ? (
                   <div className="flex items-center gap-1.5">
@@ -199,16 +199,16 @@ export default function ItemsManager({ config, draft, setDraft }) {
                     <button type="button" title="حفظ الاسم" onClick={commitRename} className="text-green-700">
                       <Check size={16} />
                     </button>
-                    <button type="button" title="إلغاء" onClick={() => setRenaming(null)} className="text-charcoal/50">
+                    <button type="button" title="إلغاء" onClick={() => setRenaming(null)} className="text-gray-400">
                       <X size={16} />
                     </button>
                   </div>
                 ) : (
                   <>
-                    <p className="truncate text-sm font-semibold text-navy">
+                    <p className="truncate text-sm font-semibold text-blue-900">
                       {titleFor(item, "ar") || titleFor(item, "en") || item[idKey]}
                     </p>
-                    <p dir="ltr" className="truncate text-start text-xs text-charcoal/45">
+                    <p dir="ltr" className="truncate text-start text-xs text-gray-400">
                       {item[idKey]}
                       {titleFor(item, "en") ? ` · ${titleFor(item, "en")}` : ""}
                     </p>
@@ -229,13 +229,13 @@ export default function ItemsManager({ config, draft, setDraft }) {
               ))}
 
               <div className="flex gap-1">
-                <button type="button" title="إعادة تسمية الـ id" onClick={() => setRenaming({ index, value: item[idKey] })} className="flex h-8 w-8 items-center justify-center rounded-lg border border-charcoal/15 text-charcoal/70 hover:border-sky hover:text-sky">
+                <button type="button" title="إعادة تسمية الـ id" onClick={() => setRenaming({ index, value: item[idKey] })} className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-300 text-gray-600 hover:border-blue-500 hover:text-blue-600">
                   <Pencil size={14} />
                 </button>
-                <button type="button" title="أعلى" disabled={index === 0} onClick={() => move(index, -1)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-charcoal/15 text-charcoal/70 hover:border-sky hover:text-sky disabled:opacity-30">
+                <button type="button" title="أعلى" disabled={index === 0} onClick={() => move(index, -1)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-300 text-gray-600 hover:border-blue-500 hover:text-blue-600 disabled:opacity-30">
                   <ArrowUp size={14} />
                 </button>
-                <button type="button" title="أسفل" disabled={index === list.length - 1} onClick={() => move(index, 1)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-charcoal/15 text-charcoal/70 hover:border-sky hover:text-sky disabled:opacity-30">
+                <button type="button" title="أسفل" disabled={index === list.length - 1} onClick={() => move(index, 1)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-300 text-gray-600 hover:border-blue-500 hover:text-blue-600 disabled:opacity-30">
                   <ArrowDown size={14} />
                 </button>
                 <button type="button" title="حذف" onClick={() => remove(index)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50">

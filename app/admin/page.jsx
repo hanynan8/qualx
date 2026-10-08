@@ -12,7 +12,7 @@ import { connectToMongo, getAuthModel } from "../lib/mongodb";
 import AdminDashboard from "./AdminDashboard";
 import { ADMIN_AUTH_DISABLED, DEV_ADMIN_USER } from "../lib/devBypass";
 
-export const metadata = { title: "Admin — Merlix", robots: { index: false, follow: false } };
+export const metadata = { title: "Qualx Admin", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {

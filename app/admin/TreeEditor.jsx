@@ -50,7 +50,7 @@ function blankLike(sample) {
 }
 
 const inputClass =
-  "w-full rounded-lg border border-charcoal/15 bg-white px-3 py-2 text-sm text-charcoal outline-none transition-colors focus:border-sky focus:ring-2 focus:ring-sky/20";
+  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-200";
 
 function IconBtn({ title, onClick, children, danger = false, disabled = false }) {
   return (
@@ -63,7 +63,7 @@ function IconBtn({ title, onClick, children, danger = false, disabled = false })
       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-colors disabled:opacity-30 ${
         danger
           ? "border-red-200 text-red-600 hover:bg-red-50"
-          : "border-charcoal/15 text-charcoal/70 hover:border-sky hover:text-sky"
+          : "border-gray-300 text-gray-600 hover:border-blue-500 hover:text-blue-600"
       }`}
     >
       {children}
@@ -75,7 +75,7 @@ function Leaf({ value, onChange }) {
   if (typeof value === "boolean") {
     return (
       <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={value} onChange={(e) => onChange(e.target.checked)} className="h-4 w-4 accent-gold" />
+        <input type="checkbox" checked={value} onChange={(e) => onChange(e.target.checked)} className="h-4 w-4 accent-blue-600" />
         {value ? "نعم" : "لا"}
       </label>
     );
@@ -92,9 +92,9 @@ function Leaf({ value, onChange }) {
   }
   if (value === null) {
     return (
-      <div className="flex items-center gap-2 text-sm text-charcoal/60">
+      <div className="flex items-center gap-2 text-sm text-gray-600">
         <span>(فاضي)</span>
-        <button type="button" className="text-sky underline" onClick={() => onChange("")}>
+        <button type="button" className="text-blue-600 underline" onClick={() => onChange("")}>
           اكتب نص
         </button>
       </div>
@@ -135,13 +135,13 @@ function AddField({ onAdd, existing }) {
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="flex items-center gap-1.5 text-sm font-medium text-sky hover:underline">
+      <button type="button" onClick={() => setOpen(true)} className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline">
         <Plus size={14} /> إضافة حقل
       </button>
     );
   }
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-xl bg-sky/5 p-2">
+    <div className="flex flex-wrap items-center gap-2 rounded-xl bg-blue-50 p-2">
       <input
         dir="ltr"
         autoFocus
@@ -158,10 +158,10 @@ function AddField({ onAdd, existing }) {
           </option>
         ))}
       </select>
-      <button type="button" onClick={submit} className="rounded-lg bg-navy px-3 py-2 text-sm font-semibold text-offwhite hover:bg-navy/90">
+      <button type="button" onClick={submit} className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700">
         إضافة
       </button>
-      <button type="button" onClick={() => setOpen(false)} className="px-2 text-sm text-charcoal/60 hover:text-charcoal">
+      <button type="button" onClick={() => setOpen(false)} className="px-2 text-sm text-gray-600 hover:text-gray-900">
         إلغاء
       </button>
       {err && <span className="w-full text-xs text-red-600">{err}</span>}
@@ -172,16 +172,16 @@ function AddField({ onAdd, existing }) {
 function Collapsible({ title, subtitle, defaultOpen, actions, children }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="rounded-xl border border-charcoal/10 bg-white">
+    <div className="rounded-xl border border-gray-200 bg-white">
       <div className="flex items-center gap-2 px-3 py-2">
         <button type="button" onClick={() => setOpen((v) => !v)} className="flex flex-1 items-center gap-2 text-start">
-          {open ? <ChevronDown size={16} className="shrink-0 text-charcoal/50" /> : <ChevronRight size={16} className="shrink-0 text-charcoal/50 rtl:rotate-180" />}
-          <span className="text-sm font-semibold text-navy">{title}</span>
-          {subtitle && <span className="truncate text-xs text-charcoal/50">{subtitle}</span>}
+          {open ? <ChevronDown size={16} className="shrink-0 text-gray-400" /> : <ChevronRight size={16} className="shrink-0 text-gray-400 rtl:rotate-180" />}
+          <span className="text-sm font-semibold text-blue-900">{title}</span>
+          {subtitle && <span className="truncate text-xs text-gray-400">{subtitle}</span>}
         </button>
         {actions}
       </div>
-      {open && <div className="space-y-3 border-t border-charcoal/10 p-3">{children}</div>}
+      {open && <div className="space-y-3 border-t border-gray-200 p-3">{children}</div>}
     </div>
   );
 }
@@ -207,8 +207,8 @@ export default function TreeEditor({ value, onChange, path = [], patterns = null
           const isContainer = child !== null && typeof child === "object";
           const label = (
             <span className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold text-navy">{humanize(key)}</span>
-              <code dir="ltr" className="text-[11px] text-charcoal/40">
+              <span className="text-sm font-semibold text-blue-900">{humanize(key)}</span>
+              <code dir="ltr" className="text-[11px] text-gray-400">
                 {key}
               </code>
             </span>
@@ -242,7 +242,7 @@ export default function TreeEditor({ value, onChange, path = [], patterns = null
           );
         })}
         {hiddenCount > 0 && (
-          <p className="text-xs text-charcoal/45">+ {hiddenCount} حقل مخفي في التاب ده (فعّل «عرض كل الحقول» لإظهارها)</p>
+          <p className="text-xs text-gray-400">+ {hiddenCount} حقل مخفي في التاب ده (فعّل «عرض كل الحقول» لإظهارها)</p>
         )}
         <AddField existing={Object.keys(value)} onAdd={(k, v) => onChange({ ...value, [k]: v })} />
       </div>
@@ -284,7 +284,7 @@ export default function TreeEditor({ value, onChange, path = [], patterns = null
           }
           return (
             <div key={i} className="flex items-start gap-2">
-              <span className="w-6 shrink-0 pt-2 text-center text-xs text-charcoal/40">{i + 1}</span>
+              <span className="w-6 shrink-0 pt-2 text-center text-xs text-gray-400">{i + 1}</span>
               <div className="flex-1">
                 <Leaf value={item} onChange={(v) => onChange(value.map((x, idx) => (idx === i ? v : x)))} />
               </div>
@@ -295,7 +295,7 @@ export default function TreeEditor({ value, onChange, path = [], patterns = null
         <button
           type="button"
           onClick={() => onChange([...value, value.length ? blankLike(clone(value[value.length - 1])) : ""])}
-          className="flex items-center gap-1.5 text-sm font-medium text-sky hover:underline"
+          className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline"
         >
           <Plus size={14} /> إضافة عنصر
         </button>

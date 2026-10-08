@@ -91,17 +91,17 @@ export default function CollectionManager({ tab, collection, mode, onDirtyChange
       </div>
     );
   }
-  if (!docs) return <p className="py-10 text-center text-sm text-charcoal/50">جاري التحميل...</p>;
+  if (!docs) return <p className="py-10 text-center text-sm text-gray-400">جاري التحميل...</p>;
 
   // ── singleton ──
   if (mode === "singleton") {
     if (docs.length === 0) {
       return (
-        <div className="rounded-2xl border border-dashed border-charcoal/20 bg-white p-8 text-center">
-          <p className="text-sm text-charcoal/70">
+        <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center">
+          <p className="text-sm text-gray-600">
             مفيش document للكولكشن <code dir="ltr">{collection}</code> لسه، فالموقع بيستخدم النصوص الافتراضية اللي في الكود.
           </p>
-          <p className="mt-1 text-xs text-charcoal/50">
+          <p className="mt-1 text-xs text-gray-400">
             الأفضل تشغّل <code dir="ltr">node scripts/seed.mjs</code> مرة عشان تتحمّل المحتوى الحالي كامل، أو أنشئ document فاضي هنا وابدأ تكتب.
           </p>
           {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
@@ -109,7 +109,7 @@ export default function CollectionManager({ tab, collection, mode, onDirtyChange
             type="button"
             disabled={busy}
             onClick={() => create(SKELETON)}
-            className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-navy hover:bg-gold/90 disabled:opacity-40"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-600/90 disabled:opacity-40"
           >
             <Plus size={15} /> إنشاء document فاضي
           </button>
@@ -141,38 +141,38 @@ export default function CollectionManager({ tab, collection, mode, onDirtyChange
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
-        <p className="text-sm text-charcoal/60">{docs.length} عنصر</p>
-        <button type="button" onClick={load} className="flex items-center gap-1 text-sm text-sky hover:underline">
+        <p className="text-sm text-gray-600">{docs.length} عنصر</p>
+        <button type="button" onClick={load} className="flex items-center gap-1 text-sm text-blue-600 hover:underline">
           <RefreshCw size={13} /> تحديث
         </button>
         <button
           type="button"
           disabled={busy}
           onClick={() => create({})}
-          className="ms-auto flex items-center gap-1.5 rounded-lg bg-navy px-3 py-1.5 text-sm font-semibold text-offwhite hover:bg-navy/90 disabled:opacity-40"
+          className="ms-auto flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-40"
         >
           <Plus size={14} /> إضافة document
         </button>
       </div>
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
-      {docs.length === 0 && <p className="rounded-2xl bg-white p-8 text-center text-sm text-charcoal/50">الكولكشن فاضي.</p>}
+      {docs.length === 0 && <p className="rounded-2xl bg-white p-8 text-center text-sm text-gray-400">الكولكشن فاضي.</p>}
 
       {docs.map((doc) => {
         const id = String(doc._id);
         const isOpen = openId === id;
         return (
-          <div key={id} className="rounded-2xl border border-charcoal/10 bg-white">
+          <div key={id} className="rounded-2xl border border-gray-200 bg-white">
             <button type="button" onClick={() => setOpenId(isOpen ? null : id)} className="flex w-full items-center gap-2 px-4 py-3 text-start">
               {isOpen ? <ChevronDown size={16} className="shrink-0" /> : <ChevronRight size={16} className="shrink-0 rtl:rotate-180" />}
-              <span dir="auto" className="flex-1 truncate text-sm font-medium text-navy">
+              <span dir="auto" className="flex-1 truncate text-sm font-medium text-blue-900">
                 {summarize(doc, tab?.summaryKeys)}
               </span>
               {dirtyMap[id] && <span className="text-xs text-amber-700">● غير محفوظ</span>}
-              {doc.createdAt && <span className="hidden text-xs text-charcoal/40 sm:block">{new Date(doc.createdAt).toLocaleDateString("ar-EG")}</span>}
+              {doc.createdAt && <span className="hidden text-xs text-gray-400 sm:block">{new Date(doc.createdAt).toLocaleDateString("ar-EG")}</span>}
             </button>
             {isOpen && (
-              <div className="border-t border-charcoal/10 p-4">
+              <div className="border-t border-gray-200 p-4">
                 <DocEditor
                   collection={collection}
                   doc={doc}

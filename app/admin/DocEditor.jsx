@@ -127,8 +127,8 @@ export default function DocEditor({ collection, doc, tab, onSaved, onDeleted, on
   return (
     <div className="space-y-4">
       {/* شريط الأدوات */}
-      <div className="sticky top-20 z-20 -mx-1 flex flex-wrap items-center gap-2 rounded-2xl border border-charcoal/10 bg-white/95 px-3 py-2 shadow-sm backdrop-blur xl:top-24">
-        <button type="button" onClick={save} disabled={saving || (!dirty && mode === "form")} className={`${btn} bg-gold text-navy hover:bg-gold/90`}>
+      <div className="sticky top-4 z-20 -mx-1 flex flex-wrap items-center gap-2 rounded-2xl border border-gray-200 bg-white/95 px-3 py-2 shadow-sm backdrop-blur">
+        <button type="button" onClick={save} disabled={saving || (!dirty && mode === "form")} className={`${btn} bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:opacity-90`}>
           <Save size={15} /> {saving ? "جاري الحفظ..." : "حفظ"}
         </button>
         <button
@@ -140,27 +140,27 @@ export default function DocEditor({ collection, doc, tab, onSaved, onDeleted, on
             setNotice(null);
           }}
           disabled={saving || !dirty}
-          className={`${btn} border border-charcoal/15 text-charcoal hover:border-sky hover:text-sky`}
+          className={`${btn} border border-gray-300 text-gray-700 hover:border-blue-500 hover:text-blue-600`}
         >
           <RotateCcw size={15} /> تجاهل التعديلات
         </button>
 
-        <div className="mx-1 hidden h-6 w-px bg-charcoal/10 sm:block" />
+        <div className="mx-1 hidden h-6 w-px bg-gray-200 sm:block" />
 
-        <button type="button" onClick={() => switchMode("form")} className={`${btn} ${mode === "form" ? "bg-navy text-offwhite" : "text-charcoal/70 hover:bg-charcoal/5"}`}>
+        <button type="button" onClick={() => switchMode("form")} className={`${btn} ${mode === "form" ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100"}`}>
           <FileText size={15} /> نموذج
         </button>
-        <button type="button" onClick={() => switchMode("json")} className={`${btn} ${mode === "json" ? "bg-navy text-offwhite" : "text-charcoal/70 hover:bg-charcoal/5"}`}>
+        <button type="button" onClick={() => switchMode("json")} className={`${btn} ${mode === "json" ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100"}`}>
           <Braces size={15} /> JSON
         </button>
 
         {mode === "form" && tab?.visible && (
-          <button type="button" onClick={() => setShowAll((v) => !v)} className={`${btn} text-charcoal/70 hover:bg-charcoal/5`}>
+          <button type="button" onClick={() => setShowAll((v) => !v)} className={`${btn} text-gray-600 hover:bg-gray-100`}>
             {showAll ? <EyeOff size={15} /> : <Eye size={15} />} {showAll ? "عرض حقول التاب فقط" : "عرض كل الحقول"}
           </button>
         )}
         {mode === "form" && tab?.pageKey && (
-          <button type="button" onClick={loadPageDefaults} className={`${btn} text-sky hover:bg-sky/10`} title="يضيف حقل page بنصوص الصفحة الافتراضية عشان تعدّلها">
+          <button type="button" onClick={loadPageDefaults} className={`${btn} text-blue-600 hover:bg-blue-50`} title="يضيف حقل page بنصوص الصفحة الافتراضية عشان تعدّلها">
             <Wand2 size={15} /> تحميل نصوص الصفحة
           </button>
         )}
@@ -193,7 +193,7 @@ export default function DocEditor({ collection, doc, tab, onSaved, onDeleted, on
       {mode === "form" && tab?.items && <ItemsManager config={tab.items} draft={draft} setDraft={setDraft} />}
 
       {mode === "form" ? (
-        <div className="rounded-2xl border border-charcoal/10 bg-offwhite/60 p-4">
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
           <TreeEditor value={draft} onChange={setDraft} patterns={patterns} />
         </div>
       ) : (
@@ -206,14 +206,14 @@ export default function DocEditor({ collection, doc, tab, onSaved, onDeleted, on
               setJsonText(e.target.value);
               setJsonError("");
             }}
-            className="h-[60vh] w-full rounded-2xl border border-charcoal/15 bg-white p-4 font-mono text-xs leading-relaxed outline-none focus:border-sky focus:ring-2 focus:ring-sky/20"
+            className="h-[60vh] w-full rounded-2xl border border-gray-300 bg-white p-4 font-mono text-xs leading-relaxed outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
           {jsonError && <p className="mt-2 text-sm text-red-600">{jsonError}</p>}
         </div>
       )}
 
       {meta.updatedAt && (
-        <p className="text-xs text-charcoal/45">
+        <p className="text-xs text-gray-400">
           آخر تعديل: {new Date(meta.updatedAt).toLocaleString("ar-EG")} · id: <code dir="ltr">{String(meta._id)}</code>
         </p>
       )}
