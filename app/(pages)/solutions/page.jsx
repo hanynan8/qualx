@@ -35,7 +35,7 @@ import ServiceVisual from "../../components/ServiceVisual";
 const FALLBACK_Solutions = {
   items: [
     { slug: "mystery-shopping", icon: "eye" },
-    { slug: "managed-Solutions", icon: "users" },
+    { slug: "managed-services", icon: "users" },
     { slug: "auditing-visits", icon: "clipboard-check" },
     { slug: "customer-experience", icon: "heart-handshake" },
   ],
@@ -46,7 +46,7 @@ const FALLBACK_Solutions = {
           title: "Mystery Shopping Visits",
           short: "Completely confidential visits where we evaluate the customer experience and how staff interact with customers.",
         },
-        "managed-Solutions": {
+        "managed-services": {
           title: "Managed Solutions",
           short: "A specialized team in Quality Assurance, Mystery Shopping, and Auditing to manage your company's quality operations.",
         },
@@ -66,7 +66,7 @@ const FALLBACK_Solutions = {
           title: "زيارات تسوق سري",
           short: "زيارات سرية بالكامل نقيّم فيها تجربة العميل وطريقة تعامل الموظفين مع العملاء.",
         },
-        "managed-Solutions": {
+        "managed-services": {
           title: "خدمات مُدارة",
           short: "فريق متخصص في ضبط الجودة والتسوق السري والتدقيق لإدارة عمليات الجودة في شركتك.",
         },
@@ -103,7 +103,7 @@ const SUB_ICONS = {
 };
 
 // ترتيب الكروت الأربعة (كلهم جنب بعض في صف واحد)
-const MANAGED_SLUG = "managed-Solutions";
+const MANAGED_SLUG = "managed-services";
 const SUITES = [
   { slug: "mystery-shopping", tone: "gold", Icon: Eye },
   { slug: "auditing-visits", tone: "navy", Icon: ClipboardCheck },
@@ -272,7 +272,7 @@ const PAGE = {
 
 export default function SolutionsPage() {
   const { language } = useLanguage();
-  const { data, loading } = useCollectionData("Solutions");
+  const { data, loading } = useCollectionData("services");
   // نفس صورة هيرو الصفحة الرئيسية بالظبط (heroImage من كولكشن "home")
   const home = useCollectionData("home");
   const [playing, setPlaying] = useState(false);
@@ -419,7 +419,7 @@ export default function SolutionsPage() {
 
                   <p className={`mt-5 flex min-h-[2.75rem] items-center text-sm font-bold leading-snug ${c.tagline}`}>{s.tagline}</p>
                   <Link
-                    href={`/Solutions/${slug}`}
+                    href={`/solutions/${slug}`}
                     className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-sm px-4 py-3 text-sm font-semibold uppercase tracking-wide transition-colors ${c.btn}`}
                   >
                     {p.viewSuite}

@@ -215,6 +215,21 @@ export const authOptions = {
     },
   },
 
+  // 🐛 JWT_SESSION_ERROR "JWT invalid": next-auth بيعتبر إن decode رجّع null
+  // = خطأ ويطبعه في الكونسول (وبيظهر كـ Console Error في Next dev). ده مش عطل
+  // حقيقي — مجرد كوكي جلسة قديم/من secret مختلف، والمستخدم بيتعامل معاه كـ
+  // "مش مسجل دخول". بنسكّت الرسالة دي بس، وباقي الأخطاء بتتطبع عادي.
+  logger: {
+    error(code, metadata) {
+      if (code === "JWT_SESSION_ERROR") return;
+      console.error(`[next-auth][error][${code}]`, metadata);
+    },
+    warn(code) {
+      console.warn(`[next-auth][warn][${code}]`);
+    },
+    debug() {},
+  },
+
   pages: {
     signIn: "/login",
     error: "/login",
