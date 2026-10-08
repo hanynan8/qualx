@@ -7,6 +7,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "./lib/useCollectionData";
 import ServiceIcon from "./components/ServiceIcon";
 import ServiceVisual from "./components/ServiceVisual";
+import { IMAGES } from "./lib/siteImages";
 
 // 🔄 DYNAMIC: الصفحة بقت client component وبتجيب محتواها من كولكشنين:
 // "home" (نصوص الهيرو/الأقسام) و"services" (كروت المعاينة أسفل الصفحة،
@@ -85,7 +86,7 @@ export default function HomePage() {
         <div
           aria-hidden
           className="absolute inset-0 -z-10 bg-cover bg-center"
-          style={{ backgroundImage: `url(${homeDoc.heroImage || "/hero-bg.jpg"}), url(/hero-bg.svg)` }}
+          style={{ backgroundImage: `url("${IMAGES.homeHero}"), url(/hero-bg.svg)` }}
         />
         <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-navy/55 via-navy/30 to-navy/60" />
         <div

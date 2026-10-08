@@ -2,11 +2,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import {
   ArrowRight,
   Check,
-  Play,
   Eye,
   ClipboardCheck,
   HeartHandshake,
@@ -26,6 +24,7 @@ import {
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "../../lib/useCollectionData";
 import ServiceVisual from "../../components/ServiceVisual";
+import { IMAGES, SERVICE_IMAGES } from "../../lib/siteImages";
 
 // ─────────────────────────────────────────────────────────────────────────
 // المحتوى الأساسي للخدمات (العناوين/الوصف القصير) بييجي من كولكشن "Solutions"
@@ -104,6 +103,7 @@ const SUB_ICONS = {
 
 // ترتيب الكروت الأربعة (كلهم جنب بعض في صف واحد)
 const MANAGED_SLUG = "managed-services";
+
 const SUITES = [
   { slug: "mystery-shopping", tone: "gold", Icon: Eye },
   { slug: "auditing-visits", tone: "navy", Icon: ClipboardCheck },
@@ -273,11 +273,8 @@ const PAGE = {
 export default function SolutionsPage() {
   const { language } = useLanguage();
   const { data, loading } = useCollectionData("services");
-  // نفس صورة هيرو الصفحة الرئيسية بالظبط (heroImage من كولكشن "home")
-  const home = useCollectionData("home");
-  const [playing, setPlaying] = useState(false);
 
-  if (loading || home.loading) return <PageLoading />;
+  if (loading) return <PageLoading />;
 
   const doc = data || FALLBACK_Solutions;
   const dbT = pickTranslation(doc, language) || FALLBACK_Solutions.i18n.en;
@@ -286,8 +283,7 @@ export default function SolutionsPage() {
 
   const titleOf = (slug) => dbT.items?.[slug]?.title || fbT.items?.[slug]?.title || "";
   const shortOf = (slug) => dbT.items?.[slug]?.short || fbT.items?.[slug]?.short || "";
-  const heroImage = home.data?.heroImage || "/hero-bg.jpg";
-  const heroVideo = doc.heroVideo; // اختياري: مسار فيديو محلي من public/ (زي "/intro.mp4")
+  const heroImage = IMAGES.solutionsHero;
 
   return (
     <div>
@@ -296,7 +292,7 @@ export default function SolutionsPage() {
         <div
           aria-hidden
           className="absolute inset-0 -z-10 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroImage}), url(/hero-bg.svg)` }}
+          style={{ backgroundImage: `url("${heroImage}"), url(/hero-bg.svg)` }}
         />
         <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-navy/60 via-navy/35 to-navy/65" />
         <div
@@ -342,37 +338,8 @@ export default function SolutionsPage() {
           <div className="relative">
             <div aria-hidden className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-gold/30 to-sky/30 blur-xl" />
             <div className="relative aspect-video overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-navy/40">
-              {playing && heroVideo ? (
-                <video src={heroVideo} controls autoPlay className="h-full w-full bg-black object-cover" />
-              ) : (
-                <>
-                  <ServiceVisual slug="customer-experience" alt={p.videoTitle} className="absolute inset-0 h-full w-full" />
-                  <div aria-hidden className="absolute inset-0 bg-navy/45" />
-                  <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-transparent" />
-                  {heroVideo ? (
-                    <button
-                      type="button"
-                      onClick={() => setPlaying(true)}
-                      aria-label={p.playLabel}
-                      className="absolute start-1/2 top-[38%] flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-navy shadow-xl transition-transform hover:scale-110 rtl:translate-x-1/2"
-                    >
-                      <Play size={26} className="translate-x-0.5 fill-navy" />
-                    </button>
-                  ) : (
-                    <a
-                      href="#demo"
-                      aria-label={p.heroCta}
-                      className="absolute start-1/2 top-[38%] flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-navy shadow-xl transition-transform hover:scale-110 rtl:translate-x-1/2"
-                    >
-                      <Play size={26} className="translate-x-0.5 fill-navy" />
-                    </a>
-                  )}
-                  <div className="absolute inset-x-0 bottom-0 p-5">
-                    <p className="font-display text-xl font-bold text-white md:text-2xl">{p.videoTitle}</p>
-                    <p className="mt-1 text-sm leading-relaxed text-white/85">{p.videoText}</p>
-                  </div>
-                </>
-              )}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={IMAGES.solutionsIntro} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
             </div>
           </div>
         </div>
@@ -390,17 +357,21 @@ export default function SolutionsPage() {
             return (
               <div key={slug} style={{ animationDelay: `${i * 90}ms` }} className="svc-rise flex">
                 <div className={`flex w-full flex-col items-center rounded-sm px-6 py-8 text-center ${c.card}`}>
-                  <span className={`flex h-16 w-16 items-center justify-center rounded-full ${c.iconBg} shadow-lg`}>
+                  {/* صورة الخدمة: بتغطي عرض الكارت كله من فوق */}
+                  <div className="relative -mx-6 -mt-8 mb-0 aspect-[4/3] w-[calc(100%+3rem)] overflow-hidden rounded-t-sm">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={SERVICE_IMAGES[slug]}
+                      alt={s.name}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+                    />
+                  </div>
+                  <span className={`relative -mt-8 flex h-16 w-16 items-center justify-center rounded-full ${c.iconBg} shadow-lg ring-4 ring-white`}>
                     <Icon size={30} />
                   </span>
                   <h3 className={`mt-4 font-display text-xl font-bold leading-tight ${c.title}`}>
                     {s.name}
-                    {p.suiteSuffix && (
-                      <>
-                        <br />
-                        {p.suiteSuffix}
-                      </>
-                    )}
                   </h3>
                   <p className="mt-4 flex-1 text-sm leading-relaxed text-charcoal/70">{shortOf(slug)}</p>
 
@@ -417,7 +388,6 @@ export default function SolutionsPage() {
                     })}
                   </ul>
 
-                  <p className={`mt-5 flex min-h-[2.75rem] items-center text-sm font-bold leading-snug ${c.tagline}`}>{s.tagline}</p>
                   <Link
                     href={`/solutions/${slug}`}
                     className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-sm px-4 py-3 text-sm font-semibold uppercase tracking-wide transition-colors ${c.btn}`}

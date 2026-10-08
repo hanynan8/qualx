@@ -3,9 +3,19 @@
 // هيرو موحّد لصفحات الموقع الداخلية (الخدمات، تفاصيل الخدمة، الوظائف):
 // خلفية Navy متدرجة + نقاط + هالات ملونة. لو مرّرت `visual` بيتحط في عمود جنب النص.
 
-export default function PageHero({ back, badge, title, text, icon, visual, children }) {
+export default function PageHero({ back, badge, title, text, icon, visual, bgImage, children }) {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-navy via-navy to-[#15406E] text-offwhite">
+      {bgImage && (
+        <>
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url("${bgImage}")` }}
+          />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-navy/60 via-navy/35 to-navy/65" />
+        </>
+      )}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-[0.07]"

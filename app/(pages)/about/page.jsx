@@ -5,8 +5,7 @@ import Link from "next/link";
 import { ArrowRight, ShieldCheck, Users2, ClipboardList } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "../../lib/useCollectionData";
-import PageHero from "../../components/PageHero";
-import AboutVisual from "../../components/AboutVisual";
+import { IMAGES } from "../../lib/siteImages";
 
 // صفحة About us: قسم "Who we are" اللي كان في الرئيسية اتنقل هنا.
 // المحتوى (الملخص، الكروت، الميزة) لسه جاي من كولكشن "home" زي ما كان،
@@ -76,10 +75,44 @@ export default function AboutPage() {
 
   return (
     <div>
-      <PageHero badge={t.badge} title={p.pageTitle} />
+      {/* Hero — نفس هيرو الرئيسية / الخدمات / الوظائف */}
+      <section className="relative isolate flex min-h-[420px] items-center justify-center overflow-hidden bg-gradient-to-br from-navy via-navy to-[#15406E] text-offwhite md:min-h-[520px]">
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-cover bg-center"
+          style={{ backgroundImage: `url("${IMAGES.aboutHero}"), url(/hero-bg.svg)` }}
+        />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-navy/60 via-navy/35 to-navy/65" />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 opacity-[0.07]"
+          style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "22px 22px" }}
+        />
+
+        <div className="container-content relative py-20 text-center md:py-28">
+          <h1 className="mx-auto max-w-5xl font-display text-5xl font-extrabold leading-tight drop-shadow-lg md:text-7xl">
+            {p.pageTitle}
+          </h1>
+          <div className="mt-8 flex justify-center">
+            <Link href="/solutions" className="btn-primary group !px-7 !py-3 text-base uppercase tracking-wide">
+              {p.explore}
+              <ArrowRight size={18} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
+            </Link>
+          </div>
+        </div>
+
+        <a href="#who-we-are" aria-label="Scroll down" className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1">
+          <span className="h-5 w-px bg-white/60" />
+          <span className="flex h-11 w-6 justify-center rounded-full border-2 border-white/80 pt-2">
+            <span className="hero-scroll-dot h-1.5 w-1.5 rounded-full bg-white" />
+          </span>
+        </a>
+
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-2 bg-gradient-to-r from-gold via-gold to-sky" />
+      </section>
 
       {/* Who we are */}
-      <section className="relative overflow-hidden bg-navy py-20 text-offwhite md:py-28">
+      <section id="who-we-are" className="relative scroll-mt-24 overflow-hidden bg-navy py-20 text-offwhite md:py-28">
         <div aria-hidden className="pointer-events-none absolute -top-20 start-[-5rem] h-72 w-72 rounded-full bg-sky/10 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute bottom-[-4rem] end-[-3rem] h-64 w-64 rounded-full bg-gold/10 blur-3xl" />
 
@@ -117,7 +150,8 @@ export default function AboutPage() {
           <div className="relative mb-8 lg:mb-0">
             <div aria-hidden className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-gold/30 to-sky/30 blur-xl" />
             <div className="relative aspect-[5/4] overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-navy/25">
-              <AboutVisual alt={t.whoWeAreTitle} className="h-full w-full" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={IMAGES.aboutWhoWeAre} alt={t.whoWeAreTitle} loading="lazy" className="h-full w-full object-cover" />
             </div>
 
             <div className="absolute -bottom-6 start-4 max-w-[16rem] rounded-2xl border border-gold/40 bg-white p-4 shadow-xl sm:start-8">

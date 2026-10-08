@@ -64,7 +64,7 @@ export async function proxy(request) {
       `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",
-      "img-src 'self' data: blob: https://cdn.jsdelivr.net https://images.unsplash.com",
+      "img-src 'self' data: blob: https://cdn.jsdelivr.net https://images.unsplash.com https://raw.githubusercontent.com/hanynan8/merlix-files/",
       "connect-src 'self'",
       "object-src 'none'",
       "base-uri 'self'",

@@ -8,6 +8,7 @@ import { Menu, X, Globe, LogOut, User } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "../lib/useCollectionData";
+import { IMAGES } from "../lib/siteImages";
 
 // 🔐 نصوص واجهة تسجيل الدخول/الخروج — محلية هنا (مش جايه من كولكشن
 // "navbar" في مونجو) لأنها سلوك ثابت في الموقع مش محتوى بيتغير من لوحة
@@ -74,6 +75,14 @@ export default function Navbar() {
         }`}
       >
         <Link href="/" className="flex items-center gap-3 font-display text-2xl font-bold tracking-wide">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={IMAGES.logo}
+            alt={t.brand}
+            className={`aspect-square rounded-full object-cover ring-2 ring-gold/60 transition-all duration-300 h-12 w-12 ${
+              scrolled ? "xl:h-11 xl:w-11" : "xl:h-16 xl:w-16"
+            }`}
+          />
           <span className="xl:text-2xl">{t.brand}</span>
         </Link>
 

@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "../../lib/useCollectionData";
+import { IMAGES } from "../../lib/siteImages";
 
 // 🎨 صفحة الوظائف بنفس لغة تصميم صفحة الخدمات: هيرو بصورة الرئيسية، شريط
 // Navy تعريفي، كروت ملوّنة (ذهبي / كحلي / سماوي)، خط تدفق ذهبي، وبانر تواصل.
@@ -213,17 +214,15 @@ const FALLBACK_CAREERS = {
 export default function CareersPage() {
   const { language } = useLanguage();
   const { data, loading } = useCollectionData("careers");
-  // نفس صورة هيرو الصفحة الرئيسية (heroImage من كولكشن "home")
-  const home = useCollectionData("home");
 
-  if (loading || home.loading) return <PageLoading />;
+  if (loading) return <PageLoading />;
 
   const doc = data || FALLBACK_CAREERS;
   const items = doc.items || [];
   const t = pickTranslation(doc, language) || FALLBACK_CAREERS.i18n.en;
   const p = PAGE[language] || PAGE.en;
   const contactEmail = doc.contactEmail || FALLBACK_CAREERS.contactEmail;
-  const heroImage = home.data?.heroImage || "/hero-bg.jpg";
+  const heroImage = IMAGES.careersHero;
 
   return (
     <div>
@@ -232,7 +231,7 @@ export default function CareersPage() {
         <div
           aria-hidden
           className="absolute inset-0 -z-10 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroImage}), url(/hero-bg.svg)` }}
+          style={{ backgroundImage: `url("${heroImage}"), url(/hero-bg.svg)` }}
         />
         <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-navy/60 via-navy/35 to-navy/65" />
         <div
