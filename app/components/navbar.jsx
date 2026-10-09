@@ -9,6 +9,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "../lib/useCollectionData";
 import { IMAGES } from "../lib/siteImages";
+import { useContactEmail, mailtoHref } from "../lib/useContactEmail";
 
 // 🔐 نصوص واجهة تسجيل الدخول/الخروج — محلية هنا (مش جايه من كولكشن
 // "navbar" في مونجو) لأنها سلوك ثابت في الموقع مش محتوى بيتغير من لوحة
@@ -35,6 +36,19 @@ const FALLBACK_NAVBAR = {
   },
 };  
 
+// تسمية الرابط: بتدوّر بالـ id زي ما هو، وبعدين lowercase (عشان "Solutions" = "solutions")،
+// وبعدين الاسم البديل (solutions ↔ services)، وبعدين الـ FALLBACK. آخر حاجة الـ id نفسه.
+const LINK_ALIASES = { solutions: ["services"], services: ["solutions"] };
+function linkLabel(link, t, language) {
+  const id = String(link.id || "");
+  const lower = id.toLowerCase();
+  for (const key of [id, lower, ...(LINK_ALIASES[lower] || [])]) {
+    if (t.links?.[key]) return t.links[key];
+  }
+  const fb = (FALLBACK_NAVBAR.i18n[language] || FALLBACK_NAVBAR.i18n.en).links;
+  return fb[lower] || id;
+}
+
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -42,6 +56,8 @@ export default function Navbar() {
   const { language, changeLanguage } = useLanguage();
   const { data } = useCollectionData("navbar");
   const { data: session, status } = useSession();
+  const contactEmail = useContactEmail();
+  const quoteHref = mailtoHref(contactEmail, "quote", language);
 
   const navbar = data || FALLBACK_NAVBAR;
   const t = pickTranslation(navbar, language) || FALLBACK_NAVBAR.i18n.en;
@@ -50,7 +66,6 @@ export default function Navbar() {
   const links = navbar.linksManaged || baseLinks.some((l) => l.id === "about" || l.href === "/about")
     ? baseLinks
     : [baseLinks[0], { id: "about", href: "/about" }, ...baseLinks.slice(1)].filter(Boolean);
-  const ABOUT_LABEL = { en: "About us", ar: "من نحن" };
   const authText = AUTH_TEXT[language] || AUTH_TEXT.en;
 
   const isActive = (href) => (href === "/" ? pathname === "/" : pathname?.startsWith(href));
@@ -98,7 +113,7 @@ export default function Navbar() {
                   active ? "text-gold" : "text-offwhite/85"
                 }`}
               >
-                {t.links?.[link.id] || (link.id === "about" ? ABOUT_LABEL[language] || ABOUT_LABEL.en : link.id)}
+                {linkLabel(link, t, language)}
                 <span
                   aria-hidden
                   className={`absolute inset-x-0 -bottom-0.5 h-0.5 origin-center rounded-full bg-gold transition-transform duration-300 ${
@@ -111,9 +126,9 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-4 border-x border-white/10 px-6 xl:flex">
-          <Link href="/solutions" className="btn-primary !px-4 !py-2 text-sm">
+          <a href={quoteHref} className="btn-primary !px-4 !py-2 text-sm">
             {t.quote}
-          </Link>
+          </a>
           <LangSwitcher language={language} onChange={changeLanguage} />
           <AuthControl status={status} session={session} authText={authText} />
         </div>
@@ -145,17 +160,17 @@ export default function Navbar() {
                     active ? "bg-gold/10 text-gold" : "text-offwhite/90 hover:bg-white/5"
                   }`}
                 >
-                  {t.links?.[link.id] || (link.id === "about" ? ABOUT_LABEL[language] || ABOUT_LABEL.en : link.id)}
+                  {linkLabel(link, t, language)}
                 </Link>
               );
             })}
-            <Link
-              href="/solutions"
+            <a
+              href={quoteHref}
               onClick={() => setOpen(false)}
               className="btn-primary mt-3 justify-center text-sm"
             >
               {t.quote}
-            </Link>
+            </a>
             <div className="mt-3 border-t border-white/10 pt-3">
               <AuthControl
                 status={status}

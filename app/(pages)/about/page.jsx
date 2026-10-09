@@ -6,6 +6,7 @@ import { ArrowRight, ShieldCheck, Users2, ClipboardList } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation, mergePageText } from "../../lib/useCollectionData";
 import { IMAGES } from "../../lib/siteImages";
+import { useContactEmail, mailtoHref } from "../../lib/useContactEmail";
 
 // صفحة About us: قسم "Who we are" اللي كان في الرئيسية اتنقل هنا.
 // المحتوى (الملخص، الكروت، الميزة) لسه جاي من كولكشن "home" زي ما كان،
@@ -64,6 +65,7 @@ const CARD_ICON_COMPONENTS = { shield: ShieldCheck, users: Users2, clipboard: Cl
 export default function AboutPage() {
   const { language } = useLanguage();
   const home = useCollectionData("home");
+  const contactEmail = useContactEmail();
 
   if (home.loading) return <PageLoading />;
 
@@ -172,10 +174,10 @@ export default function AboutPage() {
               <h2 className="font-display text-3xl font-bold leading-tight md:text-4xl">{p.ctaTitle}</h2>
               <p className="mt-3 leading-relaxed text-offwhite/75">{p.ctaSubtitle}</p>
             </div>
-            <Link href="/solutions" className="btn-primary group shrink-0">
+            <a href={mailtoHref(contactEmail, "contact", language)} className="btn-primary group shrink-0">
               {p.contact}
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
-            </Link>
+            </a>
           </div>
         </div>
       </section>

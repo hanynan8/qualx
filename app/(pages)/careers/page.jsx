@@ -105,7 +105,7 @@ const PAGE = {
 };
 
 const FALLBACK_CAREERS = {
-  contactEmail: "hello@merlix.com",
+  contactEmail: "Merilex.Consulting@gmail.com",
   items: [
     { slug: "marketing" },
     { slug: "mystery-shopper" },

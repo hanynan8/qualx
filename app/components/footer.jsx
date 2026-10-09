@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { Mail, Phone, MapPin } from "lucide-react";
+import { FaFacebookF, FaWhatsapp } from "react-icons/fa";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "../lib/useCollectionData";
 
@@ -17,9 +18,11 @@ const FALLBACK_FOOTER = {
     { id: "careers", href: "/careers" },
   ],
   contact: {
-    email: "hello@merlix.com",
+    email: "Merilex.Consulting@gmail.com",
     phone: "+20 100 000 0000",
     location: "Cairo, Egypt",
+    facebook: "https://www.facebook.com/share/1CV676z1E4/",
+    whatsapp: "https://wa.me/201210245637",
   },
   i18n: {
     en: {
@@ -41,6 +44,13 @@ const FALLBACK_FOOTER = {
   },
 };
 
+// "https://wa.me/201210245637" → "+20 121 024 5637"
+function whatsappLabel(url) {
+  const d = String(url || "").replace(/\D/g, "");
+  if (/^20\d{10}$/.test(d)) return `+20 ${d.slice(2, 5)} ${d.slice(5, 8)} ${d.slice(8)}`;
+  return d ? `+${d}` : "";
+}
+
 export default function Footer() {
   const { language } = useLanguage();
   const { data } = useCollectionData("footer");
@@ -52,7 +62,8 @@ export default function Footer() {
     ? baseLinks
     : [baseLinks[0], { id: "about", href: "/about" }, ...baseLinks.slice(1)].filter(Boolean);
   const ABOUT_LABEL = { en: "About us", ar: "من نحن" };
-  const contact = footer.contact || FALLBACK_FOOTER.contact;
+  // الداتابيز بتغلب الافتراضي حقل بحقل (فلو الأدمن فضّى حقل، بيختفي من الفوتر).
+  const contact = { ...FALLBACK_FOOTER.contact, ...(footer.contact || {}) };
   const year = new Date().getFullYear();
 
   const isAr = language === "ar";
@@ -118,6 +129,36 @@ export default function Footer() {
               </span>
               {contact.location}
             </li>
+            {contact.whatsapp && (
+              <li>
+                <a
+                  href={contact.whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-3 hover:text-gold"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-sky transition-colors group-hover:bg-gold group-hover:text-navy">
+                    <FaWhatsapp size={16} />
+                  </span>
+                  <span dir="ltr">{whatsappLabel(contact.whatsapp)}</span>
+                </a>
+              </li>
+            )}
+            {contact.facebook && (
+              <li>
+                <a
+                  href={contact.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-3 hover:text-gold"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-sky transition-colors group-hover:bg-gold group-hover:text-navy">
+                    <FaFacebookF size={15} />
+                  </span>
+                  <span>Facebook</span>
+                </a>
+              </li>
+            )}
           </ul>
         </div>
       </div>

@@ -10,6 +10,8 @@ import ServiceIcon from "../../../components/ServiceIcon";
 import ServiceVisual from "../../../components/ServiceVisual";
 import PageHero from "../../../components/PageHero";
 import { SERVICE_IMAGES } from "../../../lib/siteImages";
+import { FALLBACK_SERVICES } from "../../../lib/servicesFallback";
+import { useContactEmail, mailtoHref } from "../../../lib/useContactEmail";
 
 // 🔄 DYNAMIC: كانت الصفحة دي Server Component بتستخدم generateStaticParams +
 // generateMetadata (SSG). بما إن المحتوى بقى ديناميكي 100% من مونجو وبيتقرا
@@ -19,16 +21,29 @@ export default function ServiceDetailPage() {
   const { slug } = useParams();
   const { language } = useLanguage();
   const { data, loading } = useCollectionData("services");
+  const contactEmail = useContactEmail();
 
   if (loading) return <PageLoading />;
-  if (!data) return <PageLoading />;
 
-  const items = data.items || [];
+  // لو الداتابيز مفيهاش الخدمة (أو وصفها/مميزاتها) بنرجع للمحتوى الافتراضي.
+  const doc = data || FALLBACK_SERVICES;
+  const fbT = FALLBACK_SERVICES.i18n[language] || FALLBACK_SERVICES.i18n.en;
+  const dbT = pickTranslation(doc, language) || {};
+  const mergedItems = {};
+  for (const k of new Set([...Object.keys(fbT.items || {}), ...Object.keys(dbT.items || {})])) {
+    mergedItems[k] = { ...(fbT.items?.[k] || {}), ...(dbT.items?.[k] || {}) };
+  }
+  const t = { ...fbT, ...dbT, items: mergedItems };
+
+  const dbItems = doc.items || [];
+  const items = [
+    ...dbItems,
+    ...FALLBACK_SERVICES.items.filter((f) => !dbItems.some((d) => d.slug === f.slug)),
+  ];
   const service = items.find((s) => s.slug === slug);
-  const t = pickTranslation(data, language) || {};
-  const st = t.items?.[slug];
+  const st = service ? mergedItems[slug] : null;
 
-  if (!service || !st) return <NotFoundState language={language} />;
+  if (!service || !st || !st.title) return <NotFoundState language={language} />;
 
   const otherServices = items.filter((s) => s.slug !== slug);
 
@@ -65,10 +80,10 @@ export default function ServiceDetailPage() {
           <span className="mt-4 block h-1 w-14 rounded-full bg-gold" />
           <p className="mt-6 text-base leading-loose text-charcoal/80 md:text-lg">{st.description}</p>
 
-          <Link href="/services" className="btn-primary group mt-8">
+          <a href={mailtoHref(contactEmail, "service", language, st.title)} className="btn-primary group mt-8">
             {t.askAboutService || "Ask about this service"}
             <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
-          </Link>
+          </a>
         </div>
 
         <div>

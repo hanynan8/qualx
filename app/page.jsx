@@ -5,9 +5,11 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "./lib/useCollectionData";
+import { resolveServices } from "./lib/servicesFallback";
 import ServiceIcon from "./components/ServiceIcon";
 import ServiceVisual from "./components/ServiceVisual";
-import { IMAGES } from "./lib/siteImages";
+import { IMAGES, SERVICE_IMAGES } from "./lib/siteImages";
+import { useContactEmail, mailtoHref } from "./lib/useContactEmail";
 
 // 🔄 DYNAMIC: الصفحة بقت client component وبتجيب محتواها من كولكشنين:
 // "home" (نصوص الهيرو/الأقسام) و"services" (كروت المعاينة أسفل الصفحة،
@@ -67,16 +69,17 @@ export default function HomePage() {
   const { language } = useLanguage();
   const home = useCollectionData("home");
   const services = useCollectionData("services");
+  const contactEmail = useContactEmail();
 
   if (home.loading || services.loading) return <PageLoading />;
 
   const homeDoc = home.data || FALLBACK_HOME;
   const t = pickTranslation(homeDoc, language) || FALLBACK_HOME.i18n.en;
 
-  const servicesDoc = services.data;
-  const servicesItems = servicesDoc?.items || [];
-  const servicesTr = pickTranslation(servicesDoc, language) || {};
-  const servicesT = servicesTr.items || {};
+  // الاسم والوصف: من الداتابيز، ولو ناقصين بنكمّلهم من المحتوى الافتراضي
+  // (بدل ما الكارت يظهر بصورة من غير نص).
+  const { items: servicesItems, tr: servicesTr } = resolveServices(services.data, language);
+  const servicesT = servicesTr.items;
 
   return (
     <div>
@@ -100,7 +103,7 @@ export default function HomePage() {
             {t.heroTitle}
           </h1>
           <div className="mt-10 flex justify-center">
-            <Link href="/services" className="btn-primary group !px-7 !py-3 text-lg uppercase tracking-wide">
+            <Link href="/solutions" className="btn-primary group !px-7 !py-3 text-lg uppercase tracking-wide">
               {t.exploreServices}
               <ArrowRight size={18} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
             </Link>
@@ -138,7 +141,7 @@ export default function HomePage() {
               <span className="mt-4 block h-1 w-14 rounded-full bg-gold" />
             </div>
             <Link
-              href="/services"
+              href="/solutions"
               className="group inline-flex items-center gap-2 text-sm font-semibold text-sky transition-colors hover:text-navy"
             >
               {t.viewAllServices?.replace(/\s*[→←]\s*$/, "")}
@@ -155,14 +158,14 @@ export default function HomePage() {
               return (
                 <Link
                   key={service.slug}
-                  href={`/services/${service.slug}`}
+                  href={`/solutions/${service.slug}`}
                   style={{ animationDelay: `${i * 90}ms` }}
                   className="svc-rise group relative flex flex-col overflow-hidden rounded-2xl border border-charcoal/10 bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-sky/40 hover:shadow-2xl hover:shadow-navy/15"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden bg-navy">
                     <ServiceVisual
                       slug={service.slug}
-                      image={service.image}
+                      image={service.image || SERVICE_IMAGES[service.slug]}
                       alt={st.title}
                       className="h-full w-full transition-transform duration-700 group-hover:scale-110"
                     />
@@ -211,10 +214,10 @@ export default function HomePage() {
               <h2 className="font-display text-3xl font-bold leading-tight md:text-4xl">{t.ctaTitle}</h2>
               <p className="mt-3 leading-relaxed text-offwhite/75">{t.ctaSubtitle}</p>
             </div>
-            <Link href="/services" className="btn-primary group shrink-0">
+            <a href={mailtoHref(contactEmail, "contact", language)} className="btn-primary group shrink-0">
               {t.ctaButton}
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
-            </Link>
+            </a>
           </div>
         </div>
       </section>

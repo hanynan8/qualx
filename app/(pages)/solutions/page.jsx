@@ -25,6 +25,7 @@ import { useLanguage } from "../../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation, mergePageText } from "../../lib/useCollectionData";
 import ServiceVisual from "../../components/ServiceVisual";
 import { IMAGES, SERVICE_IMAGES } from "../../lib/siteImages";
+import { useContactEmail, mailtoHref } from "../../lib/useContactEmail";
 
 // ─────────────────────────────────────────────────────────────────────────
 // المحتوى الأساسي للخدمات (العناوين/الوصف القصير) بييجي من كولكشن "Solutions"
@@ -273,6 +274,7 @@ const PAGE = {
 export default function SolutionsPage() {
   const { language } = useLanguage();
   const { data, loading } = useCollectionData("services");
+  const contactEmail = useContactEmail();
 
   if (loading) return <PageLoading />;
 
@@ -431,10 +433,10 @@ export default function SolutionsPage() {
             <h2 className="font-display text-3xl font-bold leading-snug text-[#137A9E] md:text-4xl">{p.demoTitle}</h2>
             <p className="mt-4 leading-relaxed text-charcoal/70">{p.demoText}</p>
             <p className="mt-4 font-semibold text-navy">{p.demoStrong}</p>
-            <Link href="/login" className="btn-primary group mt-7">
+            <a href={mailtoHref(contactEmail, "quote", language)} className="btn-primary group mt-7">
               {p.demoCta}
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
-            </Link>
+            </a>
           </div>
         </div>
       </section>

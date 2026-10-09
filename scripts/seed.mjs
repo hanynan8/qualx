@@ -220,7 +220,7 @@ const servicesDoc = {
 
 // ──────────────────────────── careers ───────────────────────────
 const careersDoc = {
-  contactEmail: "hello@merlix.com",
+  contactEmail: "Merilex.Consulting@gmail.com",
   items: [
     { slug: "marketing" },
     { slug: "mystery-shopper" },
@@ -349,9 +349,11 @@ const footerDoc = {
     { id: "careers", href: "/careers" },
   ],
   contact: {
-    email: "hello@merlix.com",
+    email: "Merilex.Consulting@gmail.com",
     phone: "+20 100 000 0000",
     location: "Cairo, Egypt",
+    facebook: "https://www.facebook.com/share/1CV676z1E4/",
+    whatsapp: "https://wa.me/201210245637",
   },
   i18n: {
     en: {
