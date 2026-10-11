@@ -37,7 +37,7 @@ const homeDoc = {
       badge: "Mystery Shopping · Auditing · CX",
       heroTitle: "See your business the way your customers actually see it.",
       heroSummary:
-        "Merlix is a company specialized in evaluating customer experience and quality control (Mystery Shopping & QA) for businesses and branches across Egypt, through confidential evaluation visits and documented reports. We also provide fully equipped quality staff for your location and deliver real, actionable solutions to help your business grow.",
+        "Merilex is a company specialized in evaluating customer experience and quality control (Mystery Shopping & QA) for businesses and branches across Egypt, through confidential evaluation visits and documented reports. We also provide fully equipped quality staff for your location and deliver real, actionable solutions to help your business grow.",
       exploreServices: "Explore our services",
       joinTeam: "Join our team",
       cards: {
@@ -244,7 +244,7 @@ const careersDoc = {
           type: "Full-time",
           location: "Cairo, Egypt",
           description:
-            "Plan and run marketing campaigns across digital and offline channels, grow Merlix's brand presence, and generate qualified leads for our services.",
+            "Plan and run marketing campaigns across digital and offline channels, grow Merilex's brand presence, and generate qualified leads for our services.",
         },
         "mystery-shopper": {
           title: "Mystery Shopper (MS)",
@@ -291,7 +291,7 @@ const careersDoc = {
           type: "دوام كامل",
           location: "القاهرة، مصر",
           description:
-            "تخطيط وتنفيذ حملات تسويقية على القنوات الرقمية والتقليدية، تنمية حضور براند Merlix وجلب عملاء محتملين لخدماتنا.",
+            "تخطيط وتنفيذ حملات تسويقية على القنوات الرقمية والتقليدية، تنمية حضور براند Merilex وجلب عملاء محتملين لخدماتنا.",
         },
         "mystery-shopper": {
           title: "متسوق سري (MS)",
@@ -335,8 +335,8 @@ const navbarDoc = {
     { id: "careers", href: "/careers" },
   ],
   i18n: {
-    en: { brand: "Merlix", links: { home: "Home", services: "Services", careers: "Careers" }, quote: "Get a quote" },
-    ar: { brand: "Merlix", links: { home: "الرئيسية", services: "خدماتنا", careers: "وظائف" }, quote: "اطلب عرض سعر" },
+    en: { brand: "Merilex", links: { home: "Home", services: "Services", careers: "Careers" }, quote: "Get a quote" },
+    ar: { brand: "Merilex", links: { home: "الرئيسية", services: "خدماتنا", careers: "وظائف" }, quote: "اطلب عرض سعر" },
   },
 };
 
@@ -345,19 +345,20 @@ const footerDoc = {
   brandLetter: "Q",
   links: [
     { id: "home", href: "/" },
-    { id: "services", href: "/services" },
+    { id: "services", href: "/solutions" },
     { id: "careers", href: "/careers" },
   ],
   contact: {
     email: "Merilex.Consulting@gmail.com",
-    phone: "+20 100 000 0000",
+    phone: "+20 121 024 5637",
     location: "Cairo, Egypt",
-    facebook: "https://www.facebook.com/share/1CV676z1E4/",
+    facebook: "https://www.facebook.com/profile.php?id=61594845413905",
+    linkedin: "https://www.linkedin.com/company/merilex-consulting/",
     whatsapp: "https://wa.me/201210245637",
   },
   i18n: {
     en: {
-      brand: "Merlix",
+      brand: "Merilex",
       description:
         "Quality Assurance & Customer Experience for businesses and branches across Egypt — Mystery Shopping, Auditing, Managed Services, and CX.",
       companyTitle: "Company",
@@ -365,7 +366,7 @@ const footerDoc = {
       links: { home: "Home", services: "Services", careers: "Careers" },
     },
     ar: {
-      brand: "Merlix",
+      brand: "Merilex",
       description:
         "ضمان جودة وتجربة عملاء للشركات والفروع في مصر — تسوق سري، زيارات تدقيق، خدمات مُدارة، وتجربة عملاء.",
       companyTitle: "الشركة",

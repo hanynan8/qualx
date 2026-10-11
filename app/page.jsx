@@ -9,7 +9,7 @@ import { resolveServices } from "./lib/servicesFallback";
 import ServiceIcon from "./components/ServiceIcon";
 import ServiceVisual from "./components/ServiceVisual";
 import { IMAGES, SERVICE_IMAGES } from "./lib/siteImages";
-import { useContactEmail, mailtoHref } from "./lib/useContactEmail";
+import { useContactForm } from "./components/ContactFormProvider";
 
 // 🔄 DYNAMIC: الصفحة بقت client component وبتجيب محتواها من كولكشنين:
 // "home" (نصوص الهيرو/الأقسام) و"services" (كروت المعاينة أسفل الصفحة،
@@ -22,7 +22,7 @@ const FALLBACK_HOME = {
       badge: "Mystery Shopping · Auditing · CX",
       heroTitle: "See your business the way your customers actually see it.",
       heroSummary:
-        "Merlix is a company specialized in evaluating customer experience and quality control (Mystery Shopping & QA) for businesses and branches across Egypt, through confidential evaluation visits and documented reports. We also provide fully equipped quality staff for your location and deliver real, actionable solutions to help your business grow.",
+        "Merilex is a company specialized in evaluating customer experience and quality control (Mystery Shopping & QA) for businesses and branches across Egypt, through confidential evaluation visits and documented reports. We also provide fully equipped quality staff for your location and deliver real, actionable solutions to help your business grow.",
       exploreServices: "Explore our services",
       joinTeam: "Join our team",
       cards: {
@@ -69,7 +69,7 @@ export default function HomePage() {
   const { language } = useLanguage();
   const home = useCollectionData("home");
   const services = useCollectionData("services");
-  const contactEmail = useContactEmail();
+  const { openForm } = useContactForm();
 
   if (home.loading || services.loading) return <PageLoading />;
 
@@ -214,10 +214,10 @@ export default function HomePage() {
               <h2 className="font-display text-3xl font-bold leading-tight md:text-4xl">{t.ctaTitle}</h2>
               <p className="mt-3 leading-relaxed text-offwhite/75">{t.ctaSubtitle}</p>
             </div>
-            <a href={mailtoHref(contactEmail, "contact", language)} className="btn-primary group shrink-0">
+            <button type="button" onClick={() => openForm({ kind: "contact" })} className="btn-primary group shrink-0">
               {t.ctaButton}
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
-            </a>
+            </button>
           </div>
         </div>
       </section>

@@ -4,7 +4,7 @@
 // نسخة مؤمّنة (Hardened) — كل التعديلات موضّحة بتعليقات تبدأ بـ "🔒 SECURITY:"
 //
 // 🔄 ملحوظة: شلت من النسخة الأصلية بس الأجزاء الخاصة بمشروع تاني (نماذج
-// الاستشارات/الترجمة/إشعارات Resend...) اللي مالهاش علاقة بـ Merlix
+// الاستشارات/الترجمة/إشعارات Resend...) اللي مالهاش علاقة بـ Merilex
 // وسبت الجوهر: allowlist للقراءة العامة، admin-only للكتابة، تعقيم كامل،
 // rate limiting، إلخ.
 //
@@ -154,10 +154,12 @@ function isProtectedCollection(name) {
   return PROTECTED_COLLECTIONS.has(String(name));
 }
 
-// الكولكشنز المسموح فيها بالكتابة (POST) من غير تسجيل دخول admin. فاضية
-// حاليًا: الموقع مفيهوش فورم تواصل، فكل الكتابة (home, navbar, footer,
-// services, careers) بتتم من لوحة الأدمن بس.
-const PUBLIC_WRITE_COLLECTIONS = new Set();
+// الكولكشنز المسموح فيها بالكتابة (POST) من غير تسجيل دخول admin.
+// "form" بس: بتستقبل طلبات التواصل / عرض السعر / التقديم على وظيفة من
+// ContactFormProvider، والأدمن بيشوفها في بانل Form Submissions. القراءة
+// منها admin-only (مش في PUBLIC_READ_COLLECTIONS). باقي الكولكشنز
+// (home, navbar, footer, services, careers) كتابتها من لوحة الأدمن بس.
+const PUBLIC_WRITE_COLLECTIONS = new Set(["form"]);
 
 // كولكشنز القراءة فيها admin-only (فاضية حاليًا، لنفس السبب).
 const ADMIN_READ_COLLECTIONS = new Set();
@@ -234,6 +236,18 @@ const FORM_FIELD_MAX_LENGTHS = {
 };
 const SIMPLE_EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// 🔒 SECURITY: الكتابة العامة بتقبل الحقول المعروفة بس — أي حقل زيادة بيتشال،
+// عشان محدش يخزّن بيانات عشوائية في الكولكشن.
+function pickFormFields(body) {
+  const out = {};
+  for (const field of Object.keys(FORM_FIELD_MAX_LENGTHS)) {
+    const val = body[field];
+    if (val === undefined || val === null) continue;
+    out[field] = typeof val === "string" ? val.trim() : val;
+  }
+  return out;
+}
+
 function validateFormPayload(body) {
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     return "Invalid form data";
@@ -245,7 +259,12 @@ function validateFormPayload(body) {
       if (val.length > maxLen) return `Field '${field}' is too long`;
     }
   }
-  if (body.email && !SIMPLE_EMAIL_REGEX.test(body.email)) {
+  for (const field of ["name", "email", "message"]) {
+    if (typeof body[field] !== "string" || body[field] === "") {
+      return `Field '${field}' is required`;
+    }
+  }
+  if (!SIMPLE_EMAIL_REGEX.test(body.email)) {
     return "Invalid email format";
   }
   return null;
@@ -372,9 +391,15 @@ export async function POST(request) {
     }
 
     if (isPublicWrite) {
-      const validationError = Array.isArray(sanitizedBody)
-        ? "Bulk submissions are not allowed for this collection"
-        : validateFormPayload(sanitizedBody);
+      if (Array.isArray(sanitizedBody)) {
+        return jsonResponse({ error: "Bulk submissions are not allowed for this collection" }, 400);
+      }
+      // 🔒 honeypot: حقل مخفي بيملاه البوتات بس. بنرد بنجاح وهمي من غير ما نحفظ حاجة.
+      if (typeof sanitizedBody.website === "string" && sanitizedBody.website.trim() !== "") {
+        return jsonResponse({ ok: true }, 201);
+      }
+      sanitizedBody = pickFormFields(sanitizedBody);
+      const validationError = validateFormPayload(sanitizedBody);
       if (validationError) return jsonResponse({ error: validationError }, 400);
     }
 

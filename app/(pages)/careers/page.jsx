@@ -24,6 +24,7 @@ import {
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation, mergePageText } from "../../lib/useCollectionData";
 import { IMAGES } from "../../lib/siteImages";
+import { useContactForm } from "../../components/ContactFormProvider";
 
 // 🎨 صفحة الوظائف بنفس لغة تصميم صفحة الخدمات: هيرو بصورة الرئيسية، شريط
 // Navy تعريفي، كروت ملوّنة (ذهبي / كحلي / سماوي)، خط تدفق ذهبي، وبانر تواصل.
@@ -129,7 +130,7 @@ const FALLBACK_CAREERS = {
           type: "Full-time",
           location: "Cairo, Egypt",
           description:
-            "Plan and run marketing campaigns across digital and offline channels, grow Merlix's brand presence, and generate qualified leads for our services.",
+            "Plan and run marketing campaigns across digital and offline channels, grow Merilex's brand presence, and generate qualified leads for our services.",
         },
         "mystery-shopper": {
           title: "Mystery Shopper (MS)",
@@ -176,7 +177,7 @@ const FALLBACK_CAREERS = {
           type: "دوام كامل",
           location: "القاهرة، مصر",
           description:
-            "تخطيط وتنفيذ حملات تسويقية على القنوات الرقمية والتقليدية، تنمية حضور براند Merlix وجلب عملاء محتملين لخدماتنا.",
+            "تخطيط وتنفيذ حملات تسويقية على القنوات الرقمية والتقليدية، تنمية حضور براند Merilex وجلب عملاء محتملين لخدماتنا.",
         },
         "mystery-shopper": {
           title: "متسوق سري (MS)",
@@ -214,6 +215,7 @@ const FALLBACK_CAREERS = {
 export default function CareersPage() {
   const { language } = useLanguage();
   const { data, loading } = useCollectionData("careers");
+  const { openForm } = useContactForm();
 
   if (loading) return <PageLoading />;
 
@@ -329,15 +331,16 @@ export default function CareersPage() {
                     </li>
                   </ul>
 
-                  <a
-                    href={`mailto:${contactEmail}?subject=${encodeURIComponent(
-                      "Application: " + (rt.title || role.slug)
-                    )}`}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openForm({ kind: "apply", subject: rt.title || role.slug, email: contactEmail })
+                    }
                     className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-sm px-4 py-3 text-sm font-semibold uppercase tracking-wide transition-colors ${c.btn}`}
                   >
                     {t.applyNow}
                     <ArrowRight size={16} className="rtl:rotate-180" />
-                  </a>
+                  </button>
                 </article>
               );
             })}
@@ -396,10 +399,10 @@ export default function CareersPage() {
                 {t.noRoleTail}
               </p>
             </div>
-            <a href={`mailto:${contactEmail}`} className="btn-primary group shrink-0">
+            <button type="button" onClick={() => openForm({ kind: "contact", email: contactEmail })} className="btn-primary group shrink-0">
               {p.ctaButton}
               <Send size={16} className="transition-transform group-hover:translate-x-1 rtl:-scale-x-100 rtl:group-hover:-translate-x-1" />
-            </a>
+            </button>
           </div>
         </div>
       </section>

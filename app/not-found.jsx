@@ -49,7 +49,7 @@ export default function NotFound() {
             {t.home}
             <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
           </Link>
-          <Link href="/services" className="btn-secondary">
+          <Link href="/solutions" className="btn-secondary">
             {t.services}
           </Link>
         </div>

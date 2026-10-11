@@ -28,7 +28,7 @@ export const PAGE_DEFAULTS = {
     "en": {
       "heroTitle": "Our Solutions",
       "heroCta": "Get a quote",
-      "introTitle": "Merlix delivers a full range of quality Solutions to help businesses reach their true potential.",
+      "introTitle": "Merilex delivers a full range of quality Solutions to help businesses reach their true potential.",
       "introText": "Through a comprehensive approach, we help our clients evaluate the customer experience, keep quality standards consistent across every branch, and turn documented findings into real improvements, building customer loyalty while growing sales and profits.",
       "videoTitle": "Contact us today!",
       "videoText": "We can help you choose the perfect combination of Solutions to maximize your ROI.",
@@ -98,7 +98,7 @@ export const PAGE_DEFAULTS = {
           "label": "Reporting & Tracking"
         }
       ],
-      "platformTitle": "Merlix Reporting",
+      "platformTitle": "Merilex Reporting",
       "platformSub": "PLATFORM",
       "platformText": "Every service feeds into one clear, documented reporting flow, so you always see where each branch stands and what to fix first.",
       "demoTitle": "Let us show you how we generate real value for our clients.",

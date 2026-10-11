@@ -56,7 +56,7 @@ async function main() {
   const base32 = new Secret({ size: 20 }).base32;
   // نفس إعدادات التحقق في app/lib/authSecurity.js (6 أرقام / 30 ثانية / SHA1).
   const totp = new TOTP({
-    issuer: "Merlix",
+    issuer: "Merilex",
     label: email,
     secret: Secret.fromBase32(base32),
     digits: 6,

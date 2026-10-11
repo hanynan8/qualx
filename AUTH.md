@@ -1,4 +1,4 @@
-# نظام تسجيل الدخول — merlix
+# نظام تسجيل الدخول — merilex
 
 مبني على نفس أساس Edumaster: **NextAuth (JWT) + MongoDB/Mongoose + bcrypt**، مع rate limiting وقفل حسابات وMFA.
 

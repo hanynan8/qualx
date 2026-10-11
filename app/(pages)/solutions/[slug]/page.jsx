@@ -11,7 +11,7 @@ import ServiceVisual from "../../../components/ServiceVisual";
 import PageHero from "../../../components/PageHero";
 import { SERVICE_IMAGES } from "../../../lib/siteImages";
 import { FALLBACK_SERVICES } from "../../../lib/servicesFallback";
-import { useContactEmail, mailtoHref } from "../../../lib/useContactEmail";
+import { useContactForm } from "../../../components/ContactFormProvider";
 
 // 🔄 DYNAMIC: كانت الصفحة دي Server Component بتستخدم generateStaticParams +
 // generateMetadata (SSG). بما إن المحتوى بقى ديناميكي 100% من مونجو وبيتقرا
@@ -21,7 +21,7 @@ export default function ServiceDetailPage() {
   const { slug } = useParams();
   const { language } = useLanguage();
   const { data, loading } = useCollectionData("services");
-  const contactEmail = useContactEmail();
+  const { openForm } = useContactForm();
 
   if (loading) return <PageLoading />;
 
@@ -80,10 +80,10 @@ export default function ServiceDetailPage() {
           <span className="mt-4 block h-1 w-14 rounded-full bg-gold" />
           <p className="mt-6 text-base leading-loose text-charcoal/80 md:text-lg">{st.description}</p>
 
-          <a href={mailtoHref(contactEmail, "service", language, st.title)} className="btn-primary group mt-8">
+          <button type="button" onClick={() => openForm({ kind: "service", subject: st.title })} className="btn-primary group mt-8">
             {t.askAboutService || "Ask about this service"}
             <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
-          </a>
+          </button>
         </div>
 
         <div>
@@ -118,7 +118,7 @@ export default function ServiceDetailPage() {
               return (
                 <Link
                   key={s2.slug}
-                  href={`/services/${s2.slug}`}
+                  href={`/solutions/${s2.slug}`}
                   style={{ animationDelay: `${i * 90}ms` }}
                   className="svc-rise group overflow-hidden rounded-2xl border border-charcoal/10 bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-sky/40 hover:shadow-2xl hover:shadow-navy/15"
                 >

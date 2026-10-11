@@ -9,7 +9,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "../lib/useCollectionData";
 import { IMAGES } from "../lib/siteImages";
-import { useContactEmail, mailtoHref } from "../lib/useContactEmail";
+import { useContactForm } from "./ContactFormProvider";
 
 // 🔐 نصوص واجهة تسجيل الدخول/الخروج — محلية هنا (مش جايه من كولكشن
 // "navbar" في مونجو) لأنها سلوك ثابت في الموقع مش محتوى بيتغير من لوحة
@@ -31,8 +31,8 @@ const FALLBACK_NAVBAR = {
     { id: "careers", href: "/careers" },
   ],
   i18n: {
-    en: { brand: "Merlix", links: { home: "Home", about: "About us", solutions: "Solutions", careers: "Careers" }, quote: "Get a quote" },
-    ar: { brand: "Merlix", links: { home: "الرئيسية", about: "من نحن", solutions: "خدماتنا", careers: "وظائف" }, quote: "اطلب عرض سعر" },
+    en: { brand: "Merilex", links: { home: "Home", about: "About us", solutions: "Solutions", careers: "Careers" }, quote: "Get a quote" },
+    ar: { brand: "Merilex", links: { home: "الرئيسية", about: "من نحن", solutions: "خدماتنا", careers: "وظائف" }, quote: "اطلب عرض سعر" },
   },
 };  
 
@@ -56,8 +56,7 @@ export default function Navbar() {
   const { language, changeLanguage } = useLanguage();
   const { data } = useCollectionData("navbar");
   const { data: session, status } = useSession();
-  const contactEmail = useContactEmail();
-  const quoteHref = mailtoHref(contactEmail, "quote", language);
+  const { openForm } = useContactForm();
 
   const navbar = data || FALLBACK_NAVBAR;
   const t = pickTranslation(navbar, language) || FALLBACK_NAVBAR.i18n.en;
@@ -126,9 +125,9 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-4 border-x border-white/10 px-6 xl:flex">
-          <a href={quoteHref} className="btn-primary !px-4 !py-2 text-sm">
+          <button type="button" onClick={() => openForm({ kind: "quote" })} className="btn-primary !px-4 !py-2 text-sm">
             {t.quote}
-          </a>
+          </button>
           <LangSwitcher language={language} onChange={changeLanguage} />
           <AuthControl status={status} session={session} authText={authText} />
         </div>
@@ -164,13 +163,16 @@ export default function Navbar() {
                 </Link>
               );
             })}
-            <a
-              href={quoteHref}
-              onClick={() => setOpen(false)}
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                openForm({ kind: "quote" });
+              }}
               className="btn-primary mt-3 justify-center text-sm"
             >
               {t.quote}
-            </a>
+            </button>
             <div className="mt-3 border-t border-white/10 pt-3">
               <AuthControl
                 status={status}

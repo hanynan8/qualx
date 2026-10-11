@@ -12,6 +12,7 @@ import { LanguageProvider } from "../contexts/LanguageContext";
 import SessionProviderWrapper from "./components/SessionProviderWrapper";
 import ScrollReveal from "./components/ScrollReveal";
 import SiteChrome from "./components/SiteChrome";
+import ContactFormProvider from "./components/ContactFormProvider";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../app/lib/authOptions";
 
@@ -32,14 +33,16 @@ export default async function RootLayout({ children }) {
       <body className="font-sans flex min-h-screen flex-col bg-offwhite text-charcoal antialiased">
         <SessionProviderWrapper session={session}>
           <LanguageProvider>
-            <SiteChrome>
-              <Navbar />
-            </SiteChrome>
-            <main className="flex-1">{children}</main>
-            <SiteChrome>
-              <Footer />
-            </SiteChrome>
-            <ScrollReveal />
+            <ContactFormProvider>
+              <SiteChrome>
+                <Navbar />
+              </SiteChrome>
+              <main className="flex-1">{children}</main>
+              <SiteChrome>
+                <Footer />
+              </SiteChrome>
+              <ScrollReveal />
+            </ContactFormProvider>
           </LanguageProvider>
         </SessionProviderWrapper>
       </body>

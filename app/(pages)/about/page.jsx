@@ -6,7 +6,7 @@ import { ArrowRight, ShieldCheck, Users2, ClipboardList } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation, mergePageText } from "../../lib/useCollectionData";
 import { IMAGES } from "../../lib/siteImages";
-import { useContactEmail, mailtoHref } from "../../lib/useContactEmail";
+import { useContactForm } from "../../components/ContactFormProvider";
 
 // صفحة About us: قسم "Who we are" اللي كان في الرئيسية اتنقل هنا.
 // المحتوى (الملخص، الكروت، الميزة) لسه جاي من كولكشن "home" زي ما كان،
@@ -17,7 +17,7 @@ const FALLBACK_HOME = {
     en: {
       badge: "Mystery Shopping · Auditing · CX",
       heroSummary:
-        "Merlix is a company specialized in evaluating customer experience and quality control (Mystery Shopping & QA) for businesses and branches across Egypt, through confidential evaluation visits and documented reports. We also provide fully equipped quality staff for your location and deliver real, actionable solutions to help your business grow.",
+        "Merilex is a company specialized in evaluating customer experience and quality control (Mystery Shopping & QA) for businesses and branches across Egypt, through confidential evaluation visits and documented reports. We also provide fully equipped quality staff for your location and deliver real, actionable solutions to help your business grow.",
       cards: {
         shield: "Confidential, structured evaluation visits across Egypt",
         users: "A dedicated quality team, embedded in your operation",
@@ -65,7 +65,7 @@ const CARD_ICON_COMPONENTS = { shield: ShieldCheck, users: Users2, clipboard: Cl
 export default function AboutPage() {
   const { language } = useLanguage();
   const home = useCollectionData("home");
-  const contactEmail = useContactEmail();
+  const { openForm } = useContactForm();
 
   if (home.loading) return <PageLoading />;
 
@@ -174,10 +174,10 @@ export default function AboutPage() {
               <h2 className="font-display text-3xl font-bold leading-tight md:text-4xl">{p.ctaTitle}</h2>
               <p className="mt-3 leading-relaxed text-offwhite/75">{p.ctaSubtitle}</p>
             </div>
-            <a href={mailtoHref(contactEmail, "contact", language)} className="btn-primary group shrink-0">
+            <button type="button" onClick={() => openForm({ kind: "contact" })} className="btn-primary group shrink-0">
               {p.contact}
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
-            </a>
+            </button>
           </div>
         </div>
       </section>

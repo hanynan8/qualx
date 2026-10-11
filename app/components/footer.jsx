@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { Mail, Phone, MapPin } from "lucide-react";
-import { FaFacebookF, FaWhatsapp } from "react-icons/fa";
+import { FaFacebookF, FaLinkedinIn, FaWhatsapp } from "react-icons/fa";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "../lib/useCollectionData";
 
@@ -14,19 +14,20 @@ const FALLBACK_FOOTER = {
   links: [
     { id: "home", href: "/" },
     { id: "about", href: "/about" },
-    { id: "services", href: "/services" },
+    { id: "services", href: "/solutions" },
     { id: "careers", href: "/careers" },
   ],
   contact: {
     email: "Merilex.Consulting@gmail.com",
-    phone: "+20 100 000 0000",
+    phone: "+20 121 024 5637",
     location: "Cairo, Egypt",
-    facebook: "https://www.facebook.com/share/1CV676z1E4/",
+    facebook: "https://www.facebook.com/profile.php?id=61594845413905",
+    linkedin: "https://www.linkedin.com/company/merilex-consulting/",
     whatsapp: "https://wa.me/201210245637",
   },
   i18n: {
     en: {
-      brand: "Merlix",
+      brand: "Merilex",
       description:
         "Quality Assurance & Customer Experience for businesses and branches across Egypt — Mystery Shopping, Auditing, Managed Services, and CX.",
       companyTitle: "Company",
@@ -34,7 +35,7 @@ const FALLBACK_FOOTER = {
       links: { home: "Home", about: "About us", services: "Services", careers: "Careers" },
     },
     ar: {
-      brand: "Merlix",
+      brand: "Merilex",
       description:
         "ضمان جودة وتجربة عملاء للشركات والفروع في مصر — تسوق سري، زيارات تدقيق، خدمات مُدارة، وتجربة عملاء.",
       companyTitle: "الشركة",
@@ -65,6 +66,8 @@ export default function Footer() {
   // الداتابيز بتغلب الافتراضي حقل بحقل (فلو الأدمن فضّى حقل، بيختفي من الفوتر).
   const contact = { ...FALLBACK_FOOTER.contact, ...(footer.contact || {}) };
   const year = new Date().getFullYear();
+  const phoneDigits = String(contact.phone || "").replace(/\D/g, "");
+  const hasPhone = phoneDigits.length > 0 && !/0{7,}/.test(phoneDigits);
 
   const isAr = language === "ar";
   const rights = isAr ? "جميع الحقوق محفوظة." : "All rights reserved.";
@@ -112,6 +115,7 @@ export default function Footer() {
                 <span dir="ltr">{contact.email}</span>
               </a>
             </li>
+            {hasPhone && (
             <li>
               <a
                 href={`tel:${String(contact.phone || "").replace(/\s+/g, "")}`}
@@ -123,6 +127,7 @@ export default function Footer() {
                 <span dir="ltr">{contact.phone}</span>
               </a>
             </li>
+            )}
             <li className="flex items-center gap-3">
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-sky">
                 <MapPin size={16} />
@@ -156,6 +161,21 @@ export default function Footer() {
                     <FaFacebookF size={15} />
                   </span>
                   <span>Facebook</span>
+                </a>
+              </li>
+            )}
+            {contact.linkedin && (
+              <li>
+                <a
+                  href={contact.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-3 hover:text-gold"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-sky transition-colors group-hover:bg-gold group-hover:text-navy">
+                    <FaLinkedinIn size={15} />
+                  </span>
+                  <span>LinkedIn</span>
                 </a>
               </li>
             )}

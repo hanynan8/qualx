@@ -5,7 +5,8 @@
 // وممكن يمسح تعديلات الأدمن).
 //
 // بيعدّل بس:
-//   footer.contact.email / footer.contact.facebook / footer.contact.whatsapp
+//   footer.contact.email / phone / facebook / linkedin / whatsapp
+//   footer.links (لينك الخدمات من /services لـ /solutions)
 //   careers.contactEmail
 //
 // الاستخدام:   node scripts/update-contact.mjs
@@ -16,7 +17,9 @@ import { connect } from "./_shared.mjs";
 
 const CONTACT = {
   email: "Merilex.Consulting@gmail.com",
-  facebook: "https://www.facebook.com/share/1CV676z1E4/",
+  phone: "+20 121 024 5637",
+  facebook: "https://www.facebook.com/profile.php?id=61594845413905",
+  linkedin: "https://www.linkedin.com/company/merilex-consulting/",
   whatsapp: "https://wa.me/201210245637",
 };
 
@@ -34,11 +37,19 @@ async function main() {
       {
         $set: {
           "contact.email": CONTACT.email,
+          "contact.phone": CONTACT.phone,
           "contact.facebook": CONTACT.facebook,
+          "contact.linkedin": CONTACT.linkedin,
           "contact.whatsapp": CONTACT.whatsapp,
           updatedAt: now,
         },
       }
+    );
+    // لينك الخدمات في الفوتر كان /services (بيتحوّل بـ redirect) — نخليه /solutions مباشرة.
+    await footer.updateMany(
+      { "links.href": "/services" },
+      { $set: { "links.$[l].href": "/solutions" } },
+      { arrayFilters: [{ "l.href": "/services" }] }
     );
     console.log("footer.contact (بعد): ", (await footer.findOne({})).contact);
   } else {
