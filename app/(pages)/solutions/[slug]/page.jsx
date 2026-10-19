@@ -3,7 +3,8 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowRight, ArrowLeft, Check } from "lucide-react";
+import { ArrowRight, ArrowLeft, Check, LayoutDashboard } from "lucide-react";
+import { MYSTERY_DASHBOARD_PATH } from "../../../lib/dashboardAccess";
 import { useLanguage } from "../../../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "../../../lib/useCollectionData";
 import ServiceIcon from "../../../components/ServiceIcon";
@@ -84,6 +85,31 @@ export default function ServiceDetailPage() {
             {t.askAboutService || "Ask about this service"}
             <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
           </button>
+
+          {/* 📊 مدخل داشبورد الميستري شوبنج — الراوت نفسه محمي (تسجيل دخول مطلوب). */}
+          {slug === "mystery-shopping" && (
+            <div className="mt-10 flex flex-col gap-5 rounded-2xl border border-gold/30 bg-gradient-to-br from-navy to-[#15406E] p-6 text-offwhite shadow-lg shadow-navy/10 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-4">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gold text-navy">
+                  <LayoutDashboard size={22} />
+                </span>
+                <div>
+                  <h3 className="font-display text-lg font-bold">
+                    {language === "ar" ? "داشبورد الميستري شوبنج" : "Mystery Shopping Dashboard"}
+                  </h3>
+                  <p className="mt-1 text-sm leading-relaxed text-offwhite/75">
+                    {language === "ar"
+                      ? "تابع نتائج الزيارات ودرجات الفروع والتقارير في مكان واحد. يتطلب تسجيل الدخول."
+                      : "Track visit results, branch scores, and reports in one place. Sign-in required."}
+                  </p>
+                </div>
+              </div>
+              <Link href={MYSTERY_DASHBOARD_PATH} className="btn-primary group shrink-0 justify-center">
+                {language === "ar" ? "افتح الداشبورد" : "Open dashboard"}
+                <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
+              </Link>
+            </div>
+          )}
         </div>
 
         <div>

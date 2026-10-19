@@ -11,7 +11,13 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { ADMIN_AUTH_DISABLED } from "./app/lib/devBypass";
 
-const PAGE_ROLE_RULES = [{ prefix: "/admin", roles: ["admin"] }];
+// roles: null = أي مستخدم مسجّل دخول (من غير تحديد role).
+// /dashboard/mystery-shopping: لأي مسجّل دخول دلوقتي. لما تتحصر على المشتركين
+// المدفوعين، غيّر app/lib/dashboardAccess.js (الفحص هناك بيتم على السيرفر).
+const PAGE_ROLE_RULES = [
+  { prefix: "/admin", roles: ["admin"] },
+  { prefix: "/dashboard", roles: null },
+];
 const API_ROLE_RULES = [{ prefix: "/api/admin", roles: ["admin"] }];
 
 function jsonError(status, error) {
@@ -41,7 +47,7 @@ export async function proxy(request) {
       return NextResponse.redirect(loginUrl);
     }
 
-    if (!rule.roles.includes(token.role)) {
+    if (rule.roles && !rule.roles.includes(token.role)) {
       return isApiPath ? jsonError(403, "forbidden") : NextResponse.redirect(new URL("/", request.url));
     }
   }
