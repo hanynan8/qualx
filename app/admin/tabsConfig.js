@@ -28,6 +28,7 @@ export const TABS = [
     collection: "home",
     mode: "singleton",
     href: "/",
+    imageFields: [{ key: "heroImage", label: "صورة هيرو الصفحة الرئيسية (الخلفية)", fallback: DEFAULT_IMAGES.homeHero }],
     visible: [
       "i18n.*.heroTitle",
       "i18n.*.exploreServices",
@@ -47,6 +48,10 @@ export const TABS = [
     mode: "singleton",
     href: "/about",
     pageKey: "about",
+    imageFields: [
+      { key: "aboutHeroImage", label: "صورة هيرو صفحة من نحن (الخلفية)", fallback: DEFAULT_IMAGES.aboutHero },
+      { key: "aboutWhoWeAreImage", label: "صورة قسم \"من نحن\"", fallback: DEFAULT_IMAGES.aboutWhoWeAre },
+    ],
     visible: [
       "cardIcons",
       "i18n.*.heroSummary",
@@ -90,6 +95,7 @@ export const TABS = [
     mode: "singleton",
     href: "/careers",
     pageKey: "careers",
+    imageFields: [{ key: "heroImage", label: "صورة هيرو صفحة الوظائف (الخلفية)", fallback: DEFAULT_IMAGES.careersHero }],
     items: {
       listKey: "items",
       idKey: "slug",
@@ -107,6 +113,7 @@ export const TABS = [
     collection: "navbar",
     mode: "singleton",
     markManaged: true,
+    imageFields: [{ key: "logo", label: "اللوجو (بيظهر في الناف بار)", fallback: DEFAULT_IMAGES.logo }],
     items: {
       listKey: "links",
       idKey: "id",

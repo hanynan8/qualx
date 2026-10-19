@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation, mergePageText } from "../../lib/useCollectionData";
-import { IMAGES } from "../../lib/siteImages";
+import { IMAGES, pageImage, cssUrl } from "../../lib/siteImages";
 import { useContactForm } from "../../components/ContactFormProvider";
 
 // 🎨 صفحة الوظائف بنفس لغة تصميم صفحة الخدمات: هيرو بصورة الرئيسية، شريط
@@ -224,7 +224,8 @@ export default function CareersPage() {
   const t = pickTranslation(doc, language) || FALLBACK_CAREERS.i18n.en;
   const p = mergePageText(PAGE[language] || PAGE.en, t.page);
   const contactEmail = doc.contactEmail || FALLBACK_CAREERS.contactEmail;
-  const heroImage = IMAGES.careersHero;
+  // 🔄 DYNAMIC IMAGE: من كولكشن careers (تاب "الوظائف" في الأدمن)
+  const heroImage = pageImage(doc.heroImage, IMAGES.careersHero);
 
   return (
     <div>
@@ -233,7 +234,7 @@ export default function CareersPage() {
         <div
           aria-hidden
           className="absolute inset-0 -z-10 bg-cover bg-center"
-          style={{ backgroundImage: `url("${heroImage}"), url(/hero-bg.svg)` }}
+          style={{ backgroundImage: `url("${cssUrl(heroImage)}"), url(/hero-bg.svg)` }}
         />
         <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-navy/60 via-navy/35 to-navy/65" />
         <div

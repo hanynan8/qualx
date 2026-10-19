@@ -32,6 +32,9 @@ function modelFor(name) {
 
 // ───────────────────────────── home ─────────────────────────────
 const homeDoc = {
+  heroImage: DEFAULT_IMAGES.homeHero,
+  aboutHeroImage: DEFAULT_IMAGES.aboutHero,
+  aboutWhoWeAreImage: DEFAULT_IMAGES.aboutWhoWeAre,
   cardIcons: ["shield", "users", "clipboard"],
   i18n: {
     en: {
@@ -224,6 +227,7 @@ const servicesDoc = {
 
 // ──────────────────────────── careers ───────────────────────────
 const careersDoc = {
+  heroImage: DEFAULT_IMAGES.careersHero,
   contactEmail: "Merilex.Consulting@gmail.com",
   items: [
     { slug: "marketing" },
@@ -332,6 +336,7 @@ const careersDoc = {
 
 // ──────────────────────────── navbar ────────────────────────────
 const navbarDoc = {
+  logo: DEFAULT_IMAGES.logo,
   brandLetter: "Q",
   links: [
     { id: "home", href: "/" },

@@ -8,7 +8,7 @@ import { useCollectionData, pickTranslation } from "./lib/useCollectionData";
 import { resolveServices } from "./lib/servicesFallback";
 import ServiceIcon from "./components/ServiceIcon";
 import ServiceVisual from "./components/ServiceVisual";
-import { IMAGES, serviceImage } from "./lib/siteImages";
+import { IMAGES, serviceImage, pageImage, cssUrl } from "./lib/siteImages";
 import { useContactForm } from "./components/ContactFormProvider";
 
 // 🔄 DYNAMIC: الصفحة بقت client component وبتجيب محتواها من كولكشنين:
@@ -89,7 +89,7 @@ export default function HomePage() {
         <div
           aria-hidden
           className="absolute inset-0 -z-10 bg-cover bg-center"
-          style={{ backgroundImage: `url("${IMAGES.homeHero}"), url(/hero-bg.svg)` }}
+          style={{ backgroundImage: `url("${cssUrl(pageImage(homeDoc.heroImage, IMAGES.homeHero))}"), url(/hero-bg.svg)` }}
         />
         <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-navy/55 via-navy/30 to-navy/60" />
         <div

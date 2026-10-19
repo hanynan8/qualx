@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowRight, ShieldCheck, Users2, ClipboardList } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation, mergePageText } from "../../lib/useCollectionData";
-import { IMAGES } from "../../lib/siteImages";
+import { IMAGES, pageImage, cssUrl } from "../../lib/siteImages";
 import { useContactForm } from "../../components/ContactFormProvider";
 
 // صفحة About us: قسم "Who we are" اللي كان في الرئيسية اتنقل هنا.
@@ -74,6 +74,9 @@ export default function AboutPage() {
   const t = { ...fb, ...(pickTranslation(homeDoc, language) || {}) };
   const p = mergePageText(PAGE[language] || PAGE.en, t.page);
   const cardIcons = homeDoc.cardIcons || FALLBACK_HOME.cardIcons;
+  // 🔄 DYNAMIC IMAGES: من كولكشن home (تاب "من نحن" في الأدمن)
+  const heroImage = pageImage(homeDoc.aboutHeroImage, IMAGES.aboutHero);
+  const whoWeAreImage = pageImage(homeDoc.aboutWhoWeAreImage, IMAGES.aboutWhoWeAre);
 
   return (
     <div>
@@ -82,7 +85,7 @@ export default function AboutPage() {
         <div
           aria-hidden
           className="absolute inset-0 -z-10 bg-cover bg-center"
-          style={{ backgroundImage: `url("${IMAGES.aboutHero}"), url(/hero-bg.svg)` }}
+          style={{ backgroundImage: `url("${cssUrl(heroImage)}"), url(/hero-bg.svg)` }}
         />
         <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-navy/60 via-navy/35 to-navy/65" />
         <div
@@ -153,7 +156,7 @@ export default function AboutPage() {
             <div aria-hidden className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-gold/30 to-sky/30 blur-xl" />
             <div className="relative aspect-[5/4] overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-navy/25">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={IMAGES.aboutWhoWeAre} alt={t.whoWeAreTitle} loading="lazy" className="h-full w-full object-cover" />
+              <img src={whoWeAreImage} alt={t.whoWeAreTitle} loading="lazy" className="h-full w-full object-cover" />
             </div>
 
             <div className="absolute -bottom-6 start-4 max-w-[16rem] rounded-2xl border border-gold/40 bg-white p-4 shadow-xl sm:start-8">
