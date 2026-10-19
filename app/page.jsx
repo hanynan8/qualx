@@ -8,7 +8,7 @@ import { useCollectionData, pickTranslation } from "./lib/useCollectionData";
 import { resolveServices } from "./lib/servicesFallback";
 import ServiceIcon from "./components/ServiceIcon";
 import ServiceVisual from "./components/ServiceVisual";
-import { IMAGES, SERVICE_IMAGES } from "./lib/siteImages";
+import { IMAGES, serviceImage } from "./lib/siteImages";
 import { useContactForm } from "./components/ContactFormProvider";
 
 // 🔄 DYNAMIC: الصفحة بقت client component وبتجيب محتواها من كولكشنين:
@@ -165,7 +165,7 @@ export default function HomePage() {
                   <div className="relative aspect-[4/3] overflow-hidden bg-navy">
                     <ServiceVisual
                       slug={service.slug}
-                      image={service.image || SERVICE_IMAGES[service.slug]}
+                      image={serviceImage(service)}
                       alt={st.title}
                       className="h-full w-full transition-transform duration-700 group-hover:scale-110"
                     />

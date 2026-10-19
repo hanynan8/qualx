@@ -165,12 +165,15 @@ function titleOfItem(item, i) {
   return `#${i + 1}`;
 }
 
-export default function TreeEditor({ value, onChange, path = [], patterns = null, depth = 0 }) {
+export default function TreeEditor({ value, onChange, path = [], patterns = null, depth = 0, hiddenKeys = null }) {
   const deep = depth >= 2;
 
   // ── object ──
   if (isPlainObject(value)) {
-    const keys = Object.keys(value).filter((k) => isPathVisible(patterns, [...path, k]));
+    // hiddenKeys: مفاتيح على المستوى الأعلى بتتعدّل من مدير تاني (زي ImageFieldsManager)
+    const keys = Object.keys(value).filter(
+      (k) => isPathVisible(patterns, [...path, k]) && !(path.length === 0 && hiddenKeys?.includes(k))
+    );
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {keys.map((key) => {

@@ -9,7 +9,7 @@ import { useCollectionData, pickTranslation } from "../../../lib/useCollectionDa
 import ServiceIcon from "../../../components/ServiceIcon";
 import ServiceVisual from "../../../components/ServiceVisual";
 import PageHero from "../../../components/PageHero";
-import { SERVICE_IMAGES } from "../../../lib/siteImages";
+import { serviceImage } from "../../../lib/siteImages";
 import { FALLBACK_SERVICES } from "../../../lib/servicesFallback";
 import { useContactForm } from "../../../components/ContactFormProvider";
 
@@ -66,7 +66,7 @@ export default function ServiceDetailPage() {
           <>
             <div aria-hidden className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-gold/30 to-sky/30 blur-xl" />
             <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-black/30">
-              <ServiceVisual slug={service.slug} image={SERVICE_IMAGES[service.slug] || service.image} alt={st.title} className="h-full w-full" />
+              <ServiceVisual slug={service.slug} image={serviceImage(service)} alt={st.title} className="h-full w-full" />
             </div>
           </>
         }
@@ -125,7 +125,7 @@ export default function ServiceDetailPage() {
                   <div className="relative aspect-[16/9] overflow-hidden bg-navy">
                     <ServiceVisual
                       slug={s2.slug}
-                      image={SERVICE_IMAGES[s2.slug] || s2.image}
+                      image={serviceImage(s2)}
                       alt={ost.title}
                       className="h-full w-full transition-transform duration-700 group-hover:scale-110"
                     />

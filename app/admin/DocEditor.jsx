@@ -12,6 +12,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle, AlertCircle, Wand2 } from "lucide-react";
 import TreeEditor from "./TreeEditor";
 import ItemsManager from "./ItemsManager";
+import ImageFieldsManager from "./ImageFieldsManager";
 import { api, clone, fillMissing, splitMeta } from "./adminUtils";
 import { LANGS } from "./tabsConfig";
 import { PAGE_DEFAULTS } from "./pageDefaults";
@@ -117,9 +118,16 @@ export default function DocEditor({ collection, doc, tab, onSaved, onDirtyChange
         </div>
       )}
 
+      {tab?.imageFields && <ImageFieldsManager fields={tab.imageFields} draft={draft} setDraft={setDraft} />}
+
       {tab?.items && <ItemsManager config={tab.items} draft={draft} setDraft={setDraft} />}
 
-      <TreeEditor value={draft} onChange={setDraft} patterns={tab?.visible || null} />
+      <TreeEditor
+        value={draft}
+        onChange={setDraft}
+        patterns={tab?.visible || null}
+        hiddenKeys={tab?.imageFields?.map((f) => f.key)}
+      />
     </div>
   );
 }

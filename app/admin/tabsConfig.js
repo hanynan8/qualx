@@ -11,6 +11,12 @@
 //   items      : مدير عناصر مخصص (إضافة/حذف/ترتيب/إعادة تسمية) بيحافظ على
 //                التزامن بين القائمة وترجماتها في كل لغة.
 //   pageKey    : مفتاح قالب نصوص الصفحة الافتراضية (pageDefaults.js).
+//   imageFields: صور على مستوى الصفحة (روابط في الداتابيز) — كل عنصر
+//                { key, label, fallback } والـ fallback هو الرابط الافتراضي
+//                اللي الموقع بيستخدمه لو الحقل فاضي.
+//   items.imageDefaults: صورة افتراضية لكل عنصر حسب الـ id (لو image فاضي).
+
+import { DEFAULT_IMAGES, DEFAULT_SERVICE_IMAGES } from "../lib/siteImageDefaults.mjs";
 
 export const LANGS = ["en", "ar"];
 
@@ -59,13 +65,20 @@ export const TABS = [
     mode: "singleton",
     href: "/solutions",
     pageKey: "services",
+    // 🖼️ صور صفحة الخدمات (ديناميك من الداتابيز، بتتعدّل من هنا)
+    imageFields: [
+      { key: "heroImage", label: "صورة هيرو صفحة الخدمات (الخلفية)", fallback: DEFAULT_IMAGES.solutionsHero },
+      { key: "introImage", label: "صورة شريط التعريف", fallback: DEFAULT_IMAGES.solutionsIntro },
+    ],
     items: {
       listKey: "items",
       idKey: "slug",
       idLabel: "slug الخدمة (إنجليزي بشرطات، مثال: new-service)",
       langPath: "items",
       template: { title: "", short: "", description: "", highlights: [] },
-      extra: { icon: "eye" },
+      // image = رابط صورة الخدمة (بيظهر في صفحة الخدمات والرئيسية وصفحة التفاصيل)
+      extra: { icon: "eye", image: "" },
+      imageDefaults: DEFAULT_SERVICE_IMAGES,
       titleOf: (lang) => lang?.title,
     },
   },

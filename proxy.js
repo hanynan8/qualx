@@ -54,8 +54,8 @@ export async function proxy(request) {
   response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
 
-  // CSP مبني على اللي الموقع بيستخدمه فعلًا (صور من cdn.jsdelivr.net بس، من
-  // next.config.mjs). لو ضفت خدمة خارجية (خطوط جوجل، analytics...) ضيف نطاقها
+  // CSP مبني على اللي الموقع بيستخدمه فعلًا. img-src بيسمح بأي رابط https لأن صور
+  // الخدمات بقت ديناميك والأدمن بيحط روابطها من أي استضافة (GitHub/Cloudinary/...). لو ضفت خدمة خارجية (خطوط جوجل، analytics...) ضيف نطاقها
   // للـ directive المناسبة هنا. 'unsafe-eval' في dev بس (Turbopack/React DevTools).
   const isDev = process.env.NODE_ENV !== "production";
   response.headers.set(
@@ -65,7 +65,7 @@ export async function proxy(request) {
       `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",
-      "img-src 'self' data: blob: https://cdn.jsdelivr.net https://images.unsplash.com https://raw.githubusercontent.com/hanynan8/merlix-files/",
+      "img-src 'self' data: blob: https:",
       "connect-src 'self'",
       "object-src 'none'",
       "base-uri 'self'",

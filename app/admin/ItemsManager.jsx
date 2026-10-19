@@ -22,7 +22,7 @@ function langsOf(draft) {
 }
 
 export default function ItemsManager({ config, draft, setDraft }) {
-  const { listKey, idKey, langPath, template, extra = {}, titleOf, idLabel } = config;
+  const { listKey, idKey, langPath, template, extra = {}, titleOf, idLabel, imageDefaults = {} } = config;
   const list = Array.isArray(draft?.[listKey]) ? draft[listKey] : [];
   const langs = langsOf(draft);
 
@@ -159,17 +159,19 @@ export default function ItemsManager({ config, draft, setDraft }) {
                 )}
               </div>
 
-              {Object.keys(extra).map((key) => (
-                <input
-                  key={key}
-                  dir="ltr"
-                  aria-label={key}
-                  title={key}
-                  value={item[key] ?? ""}
-                  onChange={(e) => setExtra(index, key, e.target.value)}
-                  className={`${inputClass} !w-40`}
-                />
-              ))}
+              {Object.keys(extra)
+                .filter((key) => key !== "image")
+                .map((key) => (
+                  <input
+                    key={key}
+                    dir="ltr"
+                    aria-label={key}
+                    title={key}
+                    value={item[key] ?? ""}
+                    onChange={(e) => setExtra(index, key, e.target.value)}
+                    className={`${inputClass} !w-40`}
+                  />
+                ))}
 
               <div className="flex items-center gap-1">
                 <button type="button" title="إعادة تسمية الـ id" onClick={() => setRenaming({ index, value: item[idKey] })} className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100">
@@ -185,6 +187,14 @@ export default function ItemsManager({ config, draft, setDraft }) {
                   <Trash2 size={16} /> Remove
                 </button>
               </div>
+
+              {"image" in extra && (
+                <ItemImageField
+                  value={item.image ?? ""}
+                  fallback={imageDefaults[item[idKey]]}
+                  onChange={(v) => setExtra(index, "image", v)}
+                />
+              )}
             </div>
           ))}
         </div>
@@ -241,6 +251,44 @@ export default function ItemsManager({ config, draft, setDraft }) {
           <Plus size={18} /> Add Item
         </button>
       )}
+    </div>
+  );
+}
+
+// رابط صورة العنصر + معاينة. لو الحقل فاضي الموقع بيستخدم الصورة الافتراضية
+// (fallback) وبنعرضها كـ placeholder ومعاينة باهتة.
+function ItemImageField({ value, fallback, onChange }) {
+  const shown = (value || "").trim() || fallback || "";
+  const isFallback = !(value || "").trim() && !!fallback;
+  return (
+    <div className="flex w-full items-center gap-3 border-t border-purple-50 pt-3">
+      {shown ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={shown}
+          alt="Preview"
+          onError={(e) => {
+            e.currentTarget.style.visibility = "hidden";
+          }}
+          className={`h-16 w-24 shrink-0 rounded-lg border-2 border-gray-200 object-cover ${isFallback ? "opacity-60" : ""}`}
+        />
+      ) : (
+        <div className="flex h-16 w-24 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-gray-200 text-[10px] text-gray-400">
+          no image
+        </div>
+      )}
+      <div className="min-w-0 flex-1">
+        <label className="mb-1 block text-xs font-semibold text-gray-500">رابط الصورة (Image URL)</label>
+        <input
+          dir="ltr"
+          type="text"
+          value={value}
+          placeholder={fallback || "https://..."}
+          onChange={(e) => onChange(e.target.value)}
+          className={inputClass}
+        />
+        {isFallback && <p className="mt-1 text-[11px] text-gray-400">فاضي → الموقع بيستخدم الصورة الافتراضية (المعروضة).</p>}
+      </div>
     </div>
   );
 }

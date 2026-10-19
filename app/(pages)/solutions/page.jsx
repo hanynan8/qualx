@@ -24,7 +24,7 @@ import {
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation, mergePageText } from "../../lib/useCollectionData";
 import ServiceVisual from "../../components/ServiceVisual";
-import { IMAGES, SERVICE_IMAGES } from "../../lib/siteImages";
+import { IMAGES, serviceImage, pageImage, cssUrl } from "../../lib/siteImages";
 import { useContactForm } from "../../components/ContactFormProvider";
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -285,7 +285,14 @@ export default function SolutionsPage() {
 
   const titleOf = (slug) => dbT.items?.[slug]?.title || fbT.items?.[slug]?.title || "";
   const shortOf = (slug) => dbT.items?.[slug]?.short || fbT.items?.[slug]?.short || "";
-  const heroImage = IMAGES.solutionsHero;
+  // 🔄 DYNAMIC IMAGES: الصور بتيجي من الداتابيز (تاب "الخدمات" في الأدمن)،
+  // ولو الحقل فاضي بنرجع للرابط الافتراضي من siteImages.js.
+  const heroImage = pageImage(doc.heroImage, IMAGES.solutionsHero);
+  const introImage = pageImage(doc.introImage, IMAGES.solutionsIntro);
+  const imageOf = (slug) => {
+    const item = (doc.items || []).find((it) => it.slug === slug);
+    return serviceImage(item || { slug });
+  };
 
   return (
     <div>
@@ -294,7 +301,7 @@ export default function SolutionsPage() {
         <div
           aria-hidden
           className="absolute inset-0 -z-10 bg-cover bg-center"
-          style={{ backgroundImage: `url("${heroImage}"), url(/hero-bg.svg)` }}
+          style={{ backgroundImage: `url("${cssUrl(heroImage)}"), url(/hero-bg.svg)` }}
         />
         <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-navy/60 via-navy/35 to-navy/65" />
         <div
@@ -341,7 +348,7 @@ export default function SolutionsPage() {
             <div aria-hidden className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-gold/30 to-sky/30 blur-xl" />
             <div className="relative aspect-video overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-navy/40">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={IMAGES.solutionsIntro} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+              <img src={introImage} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
             </div>
           </div>
         </div>
@@ -363,7 +370,7 @@ export default function SolutionsPage() {
                   <div className="relative -mx-6 -mt-8 mb-0 aspect-[4/3] w-[calc(100%+3rem)] overflow-hidden rounded-t-sm">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={SERVICE_IMAGES[slug]}
+                      src={imageOf(slug)}
                       alt={s.name}
                       loading="lazy"
                       className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"

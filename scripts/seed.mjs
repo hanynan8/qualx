@@ -14,6 +14,7 @@
 // أو يمسحه، هيحدّثه). آمن تشغله أكتر من مرة.
 
 import mongoose from "mongoose";
+import { DEFAULT_IMAGES, DEFAULT_SERVICE_IMAGES } from "../app/lib/siteImageDefaults.mjs";
 
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
@@ -82,11 +83,14 @@ const homeDoc = {
 
 // ─────────────────────────── services ───────────────────────────
 const servicesDoc = {
+  // 🖼️ الصور ديناميك: بتتعدّل من الأدمن (تاب الخدمات). دي القيم الابتدائية بس.
+  heroImage: DEFAULT_IMAGES.solutionsHero,
+  introImage: DEFAULT_IMAGES.solutionsIntro,
   items: [
-    { slug: "mystery-shopping", icon: "eye" },
-    { slug: "managed-services", icon: "users" },
-    { slug: "auditing-visits", icon: "clipboard-check" },
-    { slug: "customer-experience", icon: "heart-handshake" },
+    { slug: "mystery-shopping", icon: "eye", image: DEFAULT_SERVICE_IMAGES["mystery-shopping"] },
+    { slug: "managed-services", icon: "users", image: DEFAULT_SERVICE_IMAGES["managed-services"] },
+    { slug: "auditing-visits", icon: "clipboard-check", image: DEFAULT_SERVICE_IMAGES["auditing-visits"] },
+    { slug: "customer-experience", icon: "heart-handshake", image: DEFAULT_SERVICE_IMAGES["customer-experience"] },
   ],
   i18n: {
     en: {
