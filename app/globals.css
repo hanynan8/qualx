@@ -185,3 +185,15 @@ body {
     transition: none;
   }
 }
+
+/* لوحة الأدمن: من غير ترانزيشن ولا أنيميشن (الـ spinner بتاع التحميل بس بيفضل شغال) */
+.admin-no-motion,
+.admin-no-motion *,
+.admin-no-motion *::before,
+.admin-no-motion *::after {
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+.admin-no-motion *:not(.animate-spin) {
+  animation: none !important;
+}

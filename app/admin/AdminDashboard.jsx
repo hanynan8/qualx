@@ -153,7 +153,7 @@ export default function AdminDashboard({ user, mfaEnabled }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="ltr">
+    <div className="admin-no-motion min-h-screen bg-gray-50" dir="ltr">
       <div className="shadow-lg bg-gradient-to-r from-blue-700 to-purple-700 border-b-4 border-blue-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-5 flex-wrap gap-4">
