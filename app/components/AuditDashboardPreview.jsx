@@ -13,7 +13,7 @@ const RED = "#E05252";
 
 const TXT = {
   en: {
-    url: "app.merilex.com/dashboard/operational-audit",
+    url: "app.merilex.online/dashboard/operational-audit",
     nav: ["Dashboard", "Audits", "Findings", "Branches", "Reports", "Analytics", "Settings"],
     welcome: "Welcome back",
     overview: "Here’s your operational compliance overview.",
@@ -28,7 +28,7 @@ const TXT = {
     criteria: ["Products", "Facility", "Hygiene & Safety", "Procedures"],
   },
   ar: {
-    url: "app.merilex.com/dashboard/operational-audit",
+    url: "app.merilex.online/dashboard/operational-audit",
     nav: ["لوحة التحكم", "زيارات التدقيق", "الملاحظات", "الفروع", "التقارير", "التحليلات", "الإعدادات"],
     welcome: "أهلًا بعودتك",
     overview: "نظرة عامة على التزامك بالمعايير التشغيلية.",

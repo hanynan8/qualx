@@ -5,7 +5,7 @@
 // مفيش تسجيل عام في الموقع.
 //
 // الاستخدام:
-//   node scripts/make-admin.mjs admin@merlix.com
+//   node scripts/make-admin.mjs admin@merilex.online
 //
 // بيسأل عن الاسم (لو حساب جديد) والباسورد (مخفي على الشاشة). لو الحساب موجود
 // وسبت الباسورد فاضي، الباسورد بيفضل زي ما هو.

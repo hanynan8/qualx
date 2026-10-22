@@ -6,7 +6,7 @@
 // بمجموعات قابلة للطي، وبانل لكل قسم. الفحص الأمني بيحصل على السيرفر في
 // page.jsx (getServerSession) وكل العمليات بتمر على /api/admin/* المحمية.
 //
-// الحفاظ على منطق qualx: تحذير التعديلات غير المحفوظة قبل التنقل/الإغلاق،
+// الحفاظ على منطق Merilex: تحذير التعديلات غير المحفوظة قبل التنقل/الإغلاق،
 // وحفظ القسم النشط في الـ hash (#services).
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -165,7 +165,7 @@ export default function AdminDashboard({ user, mfaEnabled }) {
               </Link>
               <h1 className="text-2xl font-semibold text-white flex items-center gap-3">
                 <Database size={30} className="animate-pulse" />
-                Qualx Admin Panel
+                Merilex Admin Panel
                 {dirty && <span aria-label="تعديلات غير محفوظة" className="h-2.5 w-2.5 rounded-full bg-amber-400" />}
               </h1>
             </div>

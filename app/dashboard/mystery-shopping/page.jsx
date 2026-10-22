@@ -104,7 +104,7 @@ export default function MysteryShoppingDashboard() {
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-gold text-gold">
             <ClipboardCheck size={28} />
           </span>
-          <div className="mt-3 font-display text-xl font-bold">Qualx</div>
+          <div className="mt-3 font-display text-xl font-bold">Merilex</div>
           <div className="text-xs text-gold">{t.brandTag}</div>
         </div>
 
@@ -263,7 +263,7 @@ export default function MysteryShoppingDashboard() {
                     <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-gold text-gold">
                       <Search size={14} />
                     </span>
-                    <div className="text-sm font-bold text-navy">Qualx</div>
+                    <div className="text-sm font-bold text-navy">Merilex</div>
                   </div>
                   <div className="text-end">
                     <div className="text-xs font-bold text-navy">{t.reportName}</div>

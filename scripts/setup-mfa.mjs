@@ -3,8 +3,8 @@
 // تفعيل التحقق بخطوتين (TOTP) لحساب أدمن — شغّال مع Google Authenticator /
 // Microsoft Authenticator / Authy / 1Password.
 //
-//   node scripts/setup-mfa.mjs admin@merlix.com            # تفعيل
-//   node scripts/setup-mfa.mjs admin@merlix.com --disable  # إلغاء (لو ضاع الموبايل والأكواد الاحتياطية)
+//   node scripts/setup-mfa.mjs admin@merilex.online            # تفعيل
+//   node scripts/setup-mfa.mjs admin@merilex.online --disable  # إلغاء (لو ضاع الموبايل والأكواد الاحتياطية)
 //
 // التفعيل: بيعرض QR في التيرمينال، وما بيحفظش حاجة إلا بعد ما تدخل كود صحيح
 // من التطبيق (عشان ما تقفلش على نفسك بسكرت غلط). بعدها بيطبع 8 أكواد احتياطية

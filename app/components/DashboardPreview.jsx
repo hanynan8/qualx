@@ -13,7 +13,7 @@ const GREEN = "#1F9D6B";
 
 const TXT = {
   en: {
-    url: "app.merilex.com/dashboard/mystery-shopping",
+    url: "app.merilex.online/dashboard/mystery-shopping",
     nav: ["Dashboard", "Visits", "Evaluations", "Branches", "Reports", "Analytics", "Settings"],
     welcome: "Welcome back",
     overview: "Here’s your quality performance overview.",
@@ -28,7 +28,7 @@ const TXT = {
     criteria: ["Service", "Cleanliness", "Speed", "Staff Behavior"],
   },
   ar: {
-    url: "app.merilex.com/dashboard/mystery-shopping",
+    url: "app.merilex.online/dashboard/mystery-shopping",
     nav: ["لوحة التحكم", "الزيارات", "التقييمات", "الفروع", "التقارير", "التحليلات", "الإعدادات"],
     welcome: "أهلًا بعودتك",
     overview: "نظرة عامة على أداء الجودة لديك.",

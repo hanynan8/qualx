@@ -13,7 +13,7 @@ import {
   MYSTERY_SERVICE_PATH,
 } from "../../lib/dashboardAccess";
 
-export const metadata = { title: "Mystery Shopping Dashboard — Qualx" };
+export const metadata = { title: "Mystery Shopping Dashboard" };
 
 export default async function MysteryDashboardLayout({ children }) {
   const session = await getServerSession(authOptions);

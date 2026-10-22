@@ -11,7 +11,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Loader, AlertCircle, Inbox, Trash2, Mail, MessageCircle, FileText } from "lucide-react";
 import { api, splitMeta } from "../adminUtils";
 
-const SENDER_NAME = "Qualx";
+const SENDER_NAME = "Merilex";
 
 // mailto: بيفتح برنامج الإيميل الافتراضي عند الأدمن عشان يرد على صاحب الرسالة.
 function buildReplyUrl({ to, name, originalMessage }) {

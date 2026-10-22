@@ -6,8 +6,8 @@
 
 1. انسخ `.env.example` إلى `.env.local` وعبّي `MONGODB_URI` و`NEXTAUTH_SECRET` (`openssl rand -base64 32`) و`NEXTAUTH_URL`.
 2. `npm install`
-3. اعمل أول أدمن: `node scripts/make-admin.mjs admin@merlix.com`
-4. فعّل MFA له: `node scripts/setup-mfa.mjs admin@merlix.com` (امسح الـ QR واحفظ الأكواد الاحتياطية)
+3. اعمل أول أدمن: `node scripts/make-admin.mjs admin@merilex.online`
+4. فعّل MFA له: `node scripts/setup-mfa.mjs admin@merilex.online` (امسح الـ QR واحفظ الأكواد الاحتياطية)
 5. ادخل من `/login` — الأدمن بيتحوّل تلقائيًا لـ `/admin`. الزوار بينشئوا حساب من `/register` (وبيدخلوا تلقائيًا بعدها).
 
 ## إنشاء الحسابات

@@ -2,7 +2,7 @@
 import { Suspense } from "react";
 import AuthForm from "../components/auth/AuthForm";
 
-export const metadata = { title: "Sign in — Merilex" };
+export const metadata = { title: "Sign in" };
 
 // useSearchParams (جوه AuthForm) محتاج Suspense boundary وقت الـ build.
 export default function LoginPage() {

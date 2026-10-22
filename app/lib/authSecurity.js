@@ -134,6 +134,6 @@ export async function verifyBackupCode(userDoc, code) {
   return false;
 }
 
-export function buildTotp(base32Secret, label, issuer = "Qualx") {
+export function buildTotp(base32Secret, label, issuer = "Merilex") {
   return new TOTP({ ...TOTP_OPTS, issuer, label, secret: Secret.fromBase32(base32Secret) });
 }
