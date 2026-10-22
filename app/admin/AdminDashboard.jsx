@@ -13,7 +13,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Database, Settings, Home, Navigation, Info, Layers, Briefcase, PanelBottom, Users,
-  FileText, ChevronDown, ArrowLeft, Loader,
+  FileText, ChevronDown, ArrowLeft, Loader, FileUser,
 } from "lucide-react";
 
 import { TABS } from "./tabsConfig";
@@ -21,6 +21,7 @@ import { api } from "./adminUtils";
 import AccountCard from "./components/accountCard";
 import PagePanel from "./components/pagePanel";
 import UsersPanel from "./components/usersPanel";
+import CvPanel from "./components/cvPanel";
 
 // عناصر السايدبار. tabId = بانل صفحة بيتبني من TABS (tabsConfig.js)؛ component
 // = بانل مخصص بيستقبل { user, mfaEnabled, onDirtyChange }.
@@ -45,6 +46,7 @@ const SIDEBAR_GROUPS = [
     name: "Management",
     icon: Users,
     items: [
+      { id: "cvs", name: "CVs", icon: FileUser, component: CvPanel },
       { id: "users", name: "Users", icon: Users, component: UsersPanel },
     ],
   },

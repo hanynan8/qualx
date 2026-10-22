@@ -148,7 +148,7 @@ function safeSanitize(body) {
 // ⚠️ كولكشنز حساسة ممنوع تتعامل معها من الـ endpoint المفتوح ده خالص.
 // "audit_logs" كمان ممنوع: سجل التدقيق append-only، مالوش لازمة أي حد (حتى admin)
 // يعدّله أو يمسحه من الـ API العام.
-const PROTECTED_COLLECTIONS = new Set(["auth", "audit_logs"]);
+const PROTECTED_COLLECTIONS = new Set(["auth", "audit_logs", "cv_applications"]);
 
 function isProtectedCollection(name) {
   return PROTECTED_COLLECTIONS.has(String(name));

@@ -5,6 +5,8 @@
 // فورم تواصل / طلب عرض سعر / تقديم على وظيفة — بيفتح كنافذة (Modal) من أي زرار
 // في الموقع، وبيحفظ الطلب في كولكشن "form" في مونجو عن طريق
 // POST /api/data?collection=form. الأدمن بيشوف الطلبات في بانل "Form Submissions".
+// التقديم على وظيفة (kind: "apply") بيرفع CV بصيغة PDF لـ POST /api/cv (multipart)،
+// وبيتخزن في Vercel Blob، والأدمن بيشوفه في بانل "CVs".
 //
 // الاستخدام في أي كومبوننت:
 //   const { openForm } = useContactForm();
@@ -14,7 +16,7 @@
 // kind: "quote" | "contact" | "service" | "apply"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { X, Send, AlertCircle, Loader, Mail } from "lucide-react";
+import { X, Send, AlertCircle, Loader, Mail, Upload, FileText, Trash2 } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useContactEmail } from "../lib/useContactEmail";
 
@@ -25,6 +27,10 @@ export function useContactForm() {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// لازم يطابق MAX_CV_BYTES في app/lib/cvValidation.js (4MB — حد Vercel لحجم الـ request).
+const MAX_CV_MB = 4;
+const MAX_CV_BYTES = MAX_CV_MB * 1024 * 1024;
 
 const TEXT = {
   en: {
@@ -51,7 +57,11 @@ const TEXT = {
     phone: "Phone (optional)",
     message: "Message",
     messageApply: "About you (optional)",
-    link: "CV / LinkedIn link (optional)",
+    link: "LinkedIn / portfolio link (optional)",
+    cv: "Your CV (PDF)",
+    cvChoose: "Choose a PDF file",
+    cvHint: `PDF only, up to ${MAX_CV_MB} MB`,
+    cvRemove: "Remove file",
     send: "Send",
     sending: "Sending…",
     close: "Close",
@@ -60,7 +70,10 @@ const TEXT = {
     errName: "Please enter your name.",
     errEmail: "Please enter a valid email address.",
     errMessage: "Please write a short message.",
-    errApply: "Please add a CV/LinkedIn link or a short note about you.",
+    errApply: "Please attach your CV as a PDF file.",
+    errCvType: "The CV must be a PDF file.",
+    errCvSize: `The file is too large. Maximum size is ${MAX_CV_MB} MB.`,
+    errUnavailable: "File upload is temporarily unavailable. Please email us your CV instead.",
     errRate: "Too many attempts. Please try again in a minute.",
     errGeneric: "Something went wrong. Please try again.",
     orEmail: "Or email us directly at",
@@ -89,7 +102,11 @@ const TEXT = {
     phone: "رقم التليفون (اختياري)",
     message: "الرسالة",
     messageApply: "نبذة عنك (اختياري)",
-    link: "لينك السيرة الذاتية / LinkedIn (اختياري)",
+    link: "لينك LinkedIn / أعمالك (اختياري)",
+    cv: "السيرة الذاتية (PDF)",
+    cvChoose: "اختار ملف PDF",
+    cvHint: `PDF فقط، لحد ${MAX_CV_MB} ميجا`,
+    cvRemove: "إزالة الملف",
     send: "إرسال",
     sending: "جاري الإرسال…",
     close: "إغلاق",
@@ -98,7 +115,10 @@ const TEXT = {
     errName: "من فضلك اكتب اسمك.",
     errEmail: "من فضلك اكتب بريد إلكتروني صحيح.",
     errMessage: "من فضلك اكتب رسالة قصيرة.",
-    errApply: "من فضلك ضيف لينك السيرة الذاتية أو نبذة قصيرة عنك.",
+    errApply: "من فضلك ارفع سيرتك الذاتية كملف PDF.",
+    errCvType: "السيرة الذاتية لازم تكون ملف PDF.",
+    errCvSize: `الملف كبير. الحد الأقصى ${MAX_CV_MB} ميجا.`,
+    errUnavailable: "رفع الملفات مش متاح دلوقتي. ابعتلنا سيرتك الذاتية على الإيميل.",
     errRate: "محاولات كتير. جرّب تاني بعد دقيقة.",
     errGeneric: "حصلت مشكلة. جرّب تاني.",
     orEmail: "أو ابعتلنا إيميل على",
@@ -117,11 +137,14 @@ export default function ContactFormProvider({ children }) {
   const [form, setForm] = useState(EMPTY);
   const [status, setStatus] = useState("idle"); // idle | sending | success
   const [error, setError] = useState("");
+  const [cvFile, setCvFile] = useState(null);
   const firstFieldRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const openForm = useCallback((opts = {}) => {
     setCtx({ kind: "contact", subject: "", email: "", ...opts });
     setForm(EMPTY);
+    setCvFile(null);
     setStatus("idle");
     setError("");
   }, []);
@@ -147,6 +170,22 @@ export default function ContactFormProvider({ children }) {
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
+  function handleCvChange(e) {
+    const file = e.target.files?.[0] || null;
+    e.target.value = ""; // يسمح باختيار نفس الملف تاني بعد إزالته
+    if (!file) return;
+    if (!(file.type === "application/pdf" || /\.pdf$/i.test(file.name))) {
+      setCvFile(null);
+      return setError(t.errCvType);
+    }
+    if (file.size > MAX_CV_BYTES) {
+      setCvFile(null);
+      return setError(t.errCvSize);
+    }
+    setError("");
+    setCvFile(file);
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     if (status === "sending" || !ctx) return;
@@ -160,30 +199,51 @@ export default function ContactFormProvider({ children }) {
 
     if (!name) return setError(t.errName);
     if (!EMAIL_RE.test(email)) return setError(t.errEmail);
-    if (isApply ? !text && !link : !text) return setError(isApply ? t.errApply : t.errMessage);
+    if (isApply && !cvFile) return setError(t.errApply);
+    if (!isApply && !text) return setError(t.errMessage);
 
-    // في التقديم على وظيفة: لينك الـ CV بيتضاف آخر الرسالة (الـ API مفيهوش رفع ملفات).
-    const message = isApply && link ? `${text}${text ? "\n\n" : ""}CV / Profile: ${link}` : text;
+    const message = text;
     const labelBase = TEXT.en.labels[ctx.kind] || TEXT.en.labels.contact;
     const service = (ctx.subject ? `${labelBase}: ${ctx.subject}` : labelBase).slice(0, 200);
 
     setError("");
     setStatus("sending");
     try {
-      const res = await fetch("/api/data?collection=form", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          ...(phone ? { phone } : {}),
-          service,
-          message,
-          website: form.website, // honeypot — لازم يفضل فاضي
-        }),
-      });
+      let res;
+      if (isApply) {
+        // التقديم بملف: multipart لـ /api/cv (من غير Content-Type يدوي — المتصفح بيحط الـ boundary).
+        const fd = new FormData();
+        fd.append("file", cvFile);
+        fd.append("name", name);
+        fd.append("email", email);
+        if (phone) fd.append("phone", phone);
+        if (ctx.subject) fd.append("position", ctx.subject);
+        if (text) fd.append("message", text);
+        if (link) fd.append("link", link);
+        fd.append("website", form.website); // honeypot — لازم يفضل فاضي
+        res = await fetch("/api/cv", { method: "POST", body: fd });
+      } else {
+        res = await fetch("/api/data?collection=form", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            email,
+            ...(phone ? { phone } : {}),
+            service,
+            message,
+            website: form.website, // honeypot — لازم يفضل فاضي
+          }),
+        });
+      }
       if (res.status === 429) throw new Error(t.errRate);
-      if (!res.ok) throw new Error(t.errGeneric);
+      if (!res.ok) {
+        const code = (await res.json().catch(() => null))?.error || "";
+        if (res.status === 413 || code === "file_too_large") throw new Error(t.errCvSize);
+        if (code === "file_not_pdf") throw new Error(t.errCvType);
+        if (code === "storage_not_configured") throw new Error(t.errUnavailable);
+        throw new Error(t.errGeneric);
+      }
       setStatus("success");
     } catch (err) {
       setStatus("idle");
@@ -290,19 +350,62 @@ export default function ContactFormProvider({ children }) {
                 </div>
 
                 {ctx.kind === "apply" && (
-                  <label className={labelCls}>
-                    {t.link}
-                    <input
-                      type="url"
-                      name="link"
-                      dir="ltr"
-                      placeholder="https://"
-                      maxLength={500}
-                      value={form.link}
-                      onChange={set("link")}
-                      className={inputCls}
-                    />
-                  </label>
+                  <>
+                    <div>
+                      <span className={labelCls}>{t.cv}</span>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        name="cv"
+                        accept="application/pdf,.pdf"
+                        onChange={handleCvChange}
+                        className="sr-only"
+                        tabIndex={-1}
+                      />
+                      {cvFile ? (
+                        <div className="mt-1.5 flex items-center gap-3 rounded-lg border border-gold/50 bg-gold/10 px-3.5 py-2.5">
+                          <FileText size={20} className="shrink-0 text-gold" />
+                          <div className="min-w-0 flex-1">
+                            <p dir="auto" className="truncate text-sm font-semibold text-navy">{cvFile.name}</p>
+                            <p className="text-xs text-charcoal/60">{(cvFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setCvFile(null)}
+                            aria-label={t.cvRemove}
+                            title={t.cvRemove}
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-charcoal/60 transition-colors hover:bg-red-50 hover:text-red-600"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="mt-1.5 flex w-full flex-col items-center gap-1 rounded-lg border-2 border-dashed border-charcoal/20 bg-white px-4 py-5 text-center transition-colors hover:border-gold hover:bg-gold/5 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30"
+                        >
+                          <Upload size={22} className="text-gold" />
+                          <span className="text-sm font-semibold text-navy">{t.cvChoose}</span>
+                          <span className="text-xs text-charcoal/60">{t.cvHint}</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <label className={labelCls}>
+                      {t.link}
+                      <input
+                        type="url"
+                        name="link"
+                        dir="ltr"
+                        placeholder="https://"
+                        maxLength={500}
+                        value={form.link}
+                        onChange={set("link")}
+                        className={inputCls}
+                      />
+                    </label>
+                  </>
                 )}
 
                 <label className={labelCls}>

@@ -9,6 +9,7 @@ import { useLanguage } from "../../../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "../../../lib/useCollectionData";
 import ServiceIcon from "../../../components/ServiceIcon";
 import ServiceVisual from "../../../components/ServiceVisual";
+import DashboardPreview from "../../../components/DashboardPreview";
 import PageHero from "../../../components/PageHero";
 import { serviceImage } from "../../../lib/siteImages";
 import { FALLBACK_SERVICES } from "../../../lib/servicesFallback";
@@ -85,31 +86,6 @@ export default function ServiceDetailPage() {
             {t.askAboutService || "Ask about this service"}
             <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
           </button>
-
-          {/* 📊 مدخل داشبورد الميستري شوبنج — الراوت نفسه محمي (تسجيل دخول مطلوب). */}
-          {slug === "mystery-shopping" && (
-            <div className="mt-10 flex flex-col gap-5 rounded-2xl border border-gold/30 bg-gradient-to-br from-navy to-[#15406E] p-6 text-offwhite shadow-lg shadow-navy/10 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-start gap-4">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gold text-navy">
-                  <LayoutDashboard size={22} />
-                </span>
-                <div>
-                  <h3 className="font-display text-lg font-bold">
-                    {language === "ar" ? "داشبورد الميستري شوبنج" : "Mystery Shopping Dashboard"}
-                  </h3>
-                  <p className="mt-1 text-sm leading-relaxed text-offwhite/75">
-                    {language === "ar"
-                      ? "تابع نتائج الزيارات ودرجات الفروع والتقارير في مكان واحد. يتطلب تسجيل الدخول."
-                      : "Track visit results, branch scores, and reports in one place. Sign-in required."}
-                  </p>
-                </div>
-              </div>
-              <Link href={MYSTERY_DASHBOARD_PATH} className="btn-primary group shrink-0 justify-center">
-                {language === "ar" ? "افتح الداشبورد" : "Open dashboard"}
-                <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
-              </Link>
-            </div>
-          )}
         </div>
 
         <div>
@@ -130,6 +106,9 @@ export default function ServiceDetailPage() {
           </div>
         </div>
       </section>
+
+      {/* 📊 قسم الداشبورد — خاص بخدمة الميستري شوبنج. الراوت نفسه محمي (تسجيل دخول مطلوب). */}
+      {slug === "mystery-shopping" && <MysteryDashboardSection language={language} />}
 
       <section className="border-t border-charcoal/10 bg-gradient-to-b from-white to-offwhite">
         <div className="container-content py-16 md:py-20">
@@ -172,6 +151,82 @@ export default function ServiceDetailPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+function MysteryDashboardSection({ language }) {
+  const isAr = language === "ar";
+  const c = isAr
+    ? {
+        badge: "مُضمَّن مع الخدمة",
+        title: "هتتابع كل النتائج من داشبورد خاص بيك",
+        text: "مش هتستنى تقارير على الإيميل. مع كل زيارة ميستري شوبنج بتحصل على داشبورد مباشر بتشوف فيه نتائج فروعك لحظة بلحظة، وتقارن الأداء وتحدد نقاط التحسين بسهولة.",
+        points: [
+          "درجة الجودة الكلية ومؤشرات الأداء الرئيسية في شاشة واحدة",
+          "مقارنة أداء الفروع وترتيبها",
+          "اتجاه الأداء شهريًا ومعايير التقييم (الخدمة، النظافة، السرعة، سلوك الموظفين)",
+          "تحميل التقارير الكاملة في أي وقت",
+        ],
+        cta: "افتح الداشبورد",
+        note: "يتطلب تسجيل الدخول",
+        caption: "صورة توضيحية — الأرقام للعرض فقط",
+      }
+    : {
+        badge: "Included with the service",
+        title: "Track every result in your own dashboard",
+        text: "No more waiting for reports by email. With every mystery shopping visit you get a live dashboard to follow your branch results as they come in, compare performance, and spot exactly where to improve.",
+        points: [
+          "Overall quality score and key KPIs on a single screen",
+          "Branch-by-branch comparison and ranking",
+          "Monthly trends and criteria scores (service, cleanliness, speed, staff behavior)",
+          "Download full reports anytime",
+        ],
+        cta: "Open dashboard",
+        note: "Sign-in required",
+        caption: "Illustrative preview — figures are sample data",
+      };
+
+  return (
+    <section className="border-t border-charcoal/10 bg-gradient-to-br from-navy to-[#15406E] text-offwhite">
+      <div className="container-content grid items-center gap-12 py-16 md:grid-cols-2 md:py-24">
+        <div>
+          <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-semibold text-gold">
+            <LayoutDashboard size={14} />
+            {c.badge}
+          </span>
+          <h2 className="mt-5 font-display text-3xl font-bold leading-tight md:text-4xl">{c.title}</h2>
+          <span className="mt-4 block h-1 w-14 rounded-full bg-gold" />
+          <p className="mt-6 text-base leading-loose text-offwhite/80">{c.text}</p>
+
+          <ul className="mt-6 space-y-3">
+            {c.points.map((p) => (
+              <li key={p} className="flex items-start gap-3 text-sm leading-relaxed text-offwhite/90">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold text-navy">
+                  <Check size={12} strokeWidth={3} />
+                </span>
+                {p}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <Link href={MYSTERY_DASHBOARD_PATH} className="btn-primary group">
+              {c.cta}
+              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
+            </Link>
+            <span className="text-xs text-offwhite/60">{c.note}</span>
+          </div>
+        </div>
+
+        <div className="relative">
+          <div aria-hidden className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-gold/25 to-sky/25 blur-2xl" />
+          <div className="relative overflow-hidden rounded-2xl border border-white/15 shadow-2xl shadow-black/40">
+            <DashboardPreview language={language} />
+          </div>
+          <p className="relative mt-3 text-center text-xs text-offwhite/50">{c.caption}</p>
+        </div>
+      </div>
+    </section>
   );
 }
 

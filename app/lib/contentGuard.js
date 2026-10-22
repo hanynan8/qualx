@@ -14,7 +14,7 @@ export const COLLECTION_NAME_REGEX = /^[a-zA-Z0-9_-]{1,64}$/;
 
 // كولكشنز ممنوعة تمامًا حتى على الأدمن من الراوت ده: الحسابات (فيها باسوردات
 // وأسرار MFA) وسجل التدقيق (append-only).
-export const PROTECTED_COLLECTIONS = new Set(["auth", "audit_logs"]);
+export const PROTECTED_COLLECTIONS = new Set(["auth", "audit_logs", "cv_applications"]);
 
 export function isValidCollectionName(name) {
   return typeof name === "string" && COLLECTION_NAME_REGEX.test(name);

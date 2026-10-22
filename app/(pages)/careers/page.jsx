@@ -400,7 +400,7 @@ export default function CareersPage() {
                 {t.noRoleTail}
               </p>
             </div>
-            <button type="button" onClick={() => openForm({ kind: "contact", email: contactEmail })} className="btn-primary group shrink-0">
+            <button type="button" onClick={() => openForm({ kind: "apply", email: contactEmail })} className="btn-primary group shrink-0">
               {p.ctaButton}
               <Send size={16} className="transition-transform group-hover:translate-x-1 rtl:-scale-x-100 rtl:group-hover:-translate-x-1" />
             </button>
