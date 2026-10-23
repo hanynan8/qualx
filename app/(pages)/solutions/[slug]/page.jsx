@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowRight, ArrowLeft, Check, LayoutDashboard } from "lucide-react";
-import { MYSTERY_DASHBOARD_PATH } from "../../../lib/dashboardAccess";
+import { MYSTERY_DASHBOARD_PATH, AUDIT_DASHBOARD_PATH } from "../../../lib/dashboardAccess";
 import { useLanguage } from "../../../../contexts/LanguageContext";
 import { useCollectionData, pickTranslation } from "../../../lib/useCollectionData";
 import ServiceIcon from "../../../components/ServiceIcon";
@@ -111,7 +111,7 @@ export default function ServiceDetailPage() {
       {/* 📊 قسم الداشبورد — خاص بخدمة الميستري شوبنج. الراوت نفسه محمي (تسجيل دخول مطلوب). */}
       {slug === "mystery-shopping" && <MysteryDashboardSection language={language} />}
 
-      {/* 📊 قسم الداشبورد — خاص بخدمة الـ Operational Audit (auditing-visits). الداشبورد لسه قريبًا. */}
+      {/* 📊 قسم الداشبورد — خاص بخدمة الـ Operational Audit (auditing-visits). الراوت نفسه محمي (تسجيل دخول مطلوب). */}
       {slug === "auditing-visits" && <AuditDashboardSection language={language} />}
 
       <section className="border-t border-charcoal/10 bg-gradient-to-b from-white to-offwhite">
@@ -239,30 +239,30 @@ function AuditDashboardSection({ language }) {
   const c = isAr
     ? {
         badge: "مُضمَّن مع الخدمة",
-        soon: "قريبًا",
         title: "هتتابع كل نتائج التدقيق من داشبورد خاص بيك",
-        text: "مش هتستنى تقارير على الإيميل. مع كل زيارة تدقيق هيكون عندك داشبورد مباشر بتشوف فيه نتائج فروعك لحظة بلحظة، وتتابع نسب الالتزام وتتأكد إن كل ملاحظة اتقفلت.",
+        text: "مش هتستنى تقارير على الإيميل. مع كل زيارة تدقيق بتحصل على داشبورد مباشر بتشوف فيه نتائج فروعك لحظة بلحظة، وتتابع نسب الالتزام وتتأكد إن كل ملاحظة اتقفلت.",
         points: [
           "نسبة الالتزام الكلية ومؤشرات الأداء الرئيسية في شاشة واحدة",
           "مقارنة التزام الفروع وترتيبها",
           "اتجاه الالتزام شهريًا ومجالات التدقيق (المنتجات، المنشأة، النظافة والسلامة، الإجراءات)",
           "متابعة الملاحظات المفتوحة وتحميل التقارير الكاملة في أي وقت",
         ],
-        note: "الداشبورد هيكون متاح قريبًا ويتطلب تسجيل الدخول",
+        cta: "افتح الداشبورد",
+        note: "يتطلب تسجيل الدخول",
         caption: "صورة توضيحية — الأرقام للعرض فقط",
       }
     : {
         badge: "Included with the service",
-        soon: "Coming soon",
         title: "Track every audit result in your own dashboard",
-        text: "No more waiting for reports by email. With every audit visit you'll get a live dashboard to follow your branch results as they come in, track compliance rates, and make sure every finding gets closed.",
+        text: "No more waiting for reports by email. With every audit visit you get a live dashboard to follow your branch results as they come in, track compliance rates, and make sure every finding gets closed.",
         points: [
           "Overall compliance rate and key KPIs on a single screen",
           "Branch-by-branch compliance comparison and ranking",
           "Monthly trends and audit areas (products, facility, hygiene & safety, procedures)",
           "Follow open findings and download full reports anytime",
         ],
-        note: "Dashboard launching soon — sign-in will be required",
+        cta: "Open dashboard",
+        note: "Sign-in required",
         caption: "Illustrative preview — figures are sample data",
       };
 
@@ -270,15 +270,10 @@ function AuditDashboardSection({ language }) {
     <section className="border-t border-charcoal/10 bg-gradient-to-br from-navy to-[#15406E] text-offwhite">
       <div className="container-content grid items-center gap-12 py-16 md:grid-cols-2 md:py-24">
         <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-semibold text-gold">
-              <LayoutDashboard size={14} />
-              {c.badge}
-            </span>
-            <span className="inline-flex items-center rounded-full bg-sky/20 px-3 py-1 text-xs font-semibold text-sky">
-              {c.soon}
-            </span>
-          </div>
+          <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-semibold text-gold">
+            <LayoutDashboard size={14} />
+            {c.badge}
+          </span>
           <h2 className="mt-5 font-display text-3xl font-bold leading-tight md:text-4xl">{c.title}</h2>
           <span className="mt-4 block h-1 w-14 rounded-full bg-gold" />
           <p className="mt-6 text-base leading-loose text-offwhite/80">{c.text}</p>
@@ -294,7 +289,13 @@ function AuditDashboardSection({ language }) {
             ))}
           </ul>
 
-          <p className="mt-8 text-xs text-offwhite/60">{c.note}</p>
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <Link href={AUDIT_DASHBOARD_PATH} className="btn-primary group">
+              {c.cta}
+              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
+            </Link>
+            <span className="text-xs text-offwhite/60">{c.note}</span>
+          </div>
         </div>
 
         <div className="relative">
