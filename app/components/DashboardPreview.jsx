@@ -1,8 +1,8 @@
 // app/components/DashboardPreview.jsx
 //
 // صورة توضيحية لداشبورد الميستري شوبنج (SVG مرسوم بالكود — بدون صور خارجية،
-// متوافق مع الـ CSP). الأرقام نفس بيانات الداشبورد الحقيقي في
-// app/dashboard/mystery-shopping/data.js. الـ viewBox ثابت 800×500.
+// متوافق مع الـ CSP). الأرقام للعرض فقط (الداشبورد الحقيقي بيقرا من /api/mystery/*) —
+// الـ viewBox ثابت 800×500.
 
 const NAVY = "#0B1F3A";
 const SKY = "#1E9BC6";

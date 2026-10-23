@@ -16,18 +16,19 @@ import mongoose from "mongoose";
 // لخبطة في أسماء متغيرات البيئة.
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
-if (!MONGODB_URI) {
-  throw new Error(
-    "Missing MONGODB_URI (or MONGO_URI) environment variable. Set it in .env.local locally, or in your hosting provider's environment variables in production."
-  );
-}
-
 let cached = globalThis._mongooseConnection;
 if (!cached) {
   cached = globalThis._mongooseConnection = { conn: null, promise: null };
 }
 
 export async function connectToMongo() {
+  // الفحص هنا (وقت الطلب) مش وقت استيراد الملف، عشان `next build` ما يفشلش لو
+  // المتغير لسه مش متظبط في بيئة البناء — الخطأ بيظهر واضح عند أول طلب بدله.
+  if (!MONGODB_URI) {
+    throw new Error(
+      "Missing MONGODB_URI (or MONGO_URI) environment variable. Set it in .env.local locally, or in your hosting provider's environment variables in production."
+    );
+  }
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {

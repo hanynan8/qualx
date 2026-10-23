@@ -3,7 +3,7 @@
 // تقرير قابل للطباعة / الحفظ PDF + تصدير CSV. كل الأرقام من بيانات الفترة المختارة.
 
 import { Download, Printer, FileText } from "lucide-react";
-import { useApi, useMs, errMsg, qs, localDay, formatDay, monthLabel, levelStyle } from "../client";
+import { useApi, useMs, errMsg, qs, asQuery, localDay, formatDay, monthLabel, levelStyle } from "../client";
 import { Loading, ErrorBox, Empty, Btn } from "../components/ui";
 import { MiniTrend } from "../components/Charts";
 
@@ -52,7 +52,7 @@ export default function ReportsView() {
 
       <div className="mb-4 flex flex-wrap justify-end gap-2">
         <a
-          href={`/api/mystery/export${qs({ from: range.from, to: range.to })}`}
+          href={`/api/mystery/export${qs({ from: range.from, to: range.to, ...asQuery() })}`}
           className="inline-flex items-center gap-2 rounded-xl border border-charcoal/15 bg-white px-4 py-2 text-sm font-semibold text-navy transition-colors hover:bg-offwhite"
         >
           <Download size={16} />
@@ -70,7 +70,7 @@ export default function ReportsView() {
         <div id="report-print" className="mx-auto max-w-3xl rounded-xl border border-charcoal/10 bg-white p-6 shadow-md sm:p-8">
           <div className="flex items-start justify-between gap-4 border-b border-charcoal/10 pb-4">
             <div>
-              <div className="font-display text-lg font-bold text-navy">{settings.orgName || "Qualx"}</div>
+              <div className="font-display text-lg font-bold text-navy">{settings.orgName || "Merilex"}</div>
               <div className="text-xs text-charcoal/55">{t.brandTag}</div>
             </div>
             <div className="text-end">

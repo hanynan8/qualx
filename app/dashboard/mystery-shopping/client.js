@@ -23,10 +23,18 @@ export const qs = (obj = {}) => {
   return s ? `?${s}` : "";
 };
 
+// 👤 الأدمن بيشتغل على بيانات عميل: كل الطلبات بتاخد ?as=<id العميل> تلقائيًا
+// (السيرفر بيرفضه لأي حد مش أدمن). بيتظبط من page.jsx.
+let actingAs = "";
+export const setActingAs = (id) => {
+  actingAs = id || "";
+};
+export const asQuery = () => (actingAs ? { as: actingAs } : {});
+
 export async function api(path, { method = "GET", body, query } = {}) {
   let res;
   try {
-    res = await fetch(`/api/mystery/${path}${qs(query)}`, {
+    res = await fetch(`/api/mystery/${path}${qs({ ...query, ...asQuery() })}`, {
       method,
       headers: body ? { "Content-Type": "application/json" } : undefined,
       body: body ? JSON.stringify(body) : undefined,
@@ -49,7 +57,7 @@ export async function api(path, { method = "GET", body, query } = {}) {
 export function useApi(path, query, enabled = true) {
   const [state, setState] = useState({ data: null, error: null, loading: true });
   const [tick, setTick] = useState(0);
-  const key = `${path}${qs(query)}`;
+  const key = `${path}${qs({ ...query, ...asQuery() })}`;
 
   useEffect(() => {
     if (!enabled) return;

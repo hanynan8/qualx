@@ -12,7 +12,7 @@ const STATUS_TONE = { completed: "green", scheduled: "sky", cancelled: "gray" };
 const LIMIT = 15;
 
 export default function VisitsView() {
-  const { t, language, branches, branchName, notify, go } = useMs();
+  const { t, language, branches, branchName, notify, go, reloadBranches } = useMs();
   const [status, setStatus] = useState("");
   const [branchId, setBranchId] = useState("");
   const [q, setQ] = useState("");
@@ -44,6 +44,7 @@ export default function VisitsView() {
       await api(`visits/${v.id}`, { method: "DELETE" });
       notify(t.deleted);
       reload();
+      reloadBranches();
     } catch (e) {
       notify(errMsg(t, e), "error");
     }
@@ -170,6 +171,7 @@ export default function VisitsView() {
           onSaved={() => {
             setForm(null);
             reload();
+            reloadBranches();
           }}
         />
       )}

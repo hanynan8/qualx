@@ -28,7 +28,7 @@ import {
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { MYSTERY_SERVICE_PATH } from "../../lib/dashboardAccess";
 import { T } from "./i18n";
-import { MsContext, PRESETS, presetRange, useApi } from "./client";
+import { MsContext, PRESETS, presetRange, useApi, setActingAs } from "./client";
 import DashboardView from "./views/DashboardView";
 import VisitsView from "./views/VisitsView";
 import BranchesView from "./views/BranchesView";
@@ -61,11 +61,30 @@ export default function MysteryShoppingDashboard() {
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
 
+  // 👤 الأدمن يقدر يختار عميل ويدير بياناته (الزيارات/الفروع/الإجراءات...). الـ API
+  // بيرفض ?as لأي حد مش أدمن، فالاختيار ده مش بيدي صلاحية لحد غيره.
+  const isAdmin = session?.user?.role === "admin";
+  const [clients, setClients] = useState([]);
+  const [clientId, setClientId] = useState("");
+  setActingAs(isAdmin ? clientId : "");
+
   useEffect(() => {
     setRange(presetRange("last30"));
     const h = window.location.hash.slice(1);
     if (NAV.some((n) => n.key === h)) setView(h);
   }, []);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    let off = false;
+    fetch("/api/admin/users", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((list) => !off && setClients(Array.isArray(list) ? list.filter((u) => u.role !== "admin" && u.status !== "suspended") : []))
+      .catch(() => {});
+    return () => {
+      off = true;
+    };
+  }, [isAdmin]);
 
   const go = useCallback((key) => {
     setView(key);
@@ -82,7 +101,7 @@ export default function MysteryShoppingDashboard() {
   useEffect(() => () => clearTimeout(toastTimer.current), []);
 
   // الفروع مشتركة بين الزيارات والإجراءات والفروع نفسها.
-  const bq = useApi("branches");
+  const bq = useApi("branches"); // المفتاح بيشمل ?as تلقائيًا عند اختيار عميل (أدمن)
   const branches = useMemo(() => bq.data?.items || [], [bq.data]);
   const branchName = useCallback((id) => branches.find((b) => b.id === id)?.name || "—", [branches]);
 
@@ -132,7 +151,7 @@ export default function MysteryShoppingDashboard() {
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-gold text-gold">
             <ClipboardCheck size={28} />
           </span>
-          <div className="mt-3 font-display text-xl font-bold">Qualx</div>
+          <div className="mt-3 font-display text-xl font-bold">Merilex</div>
           <div className="text-xs text-gold">{t.brandTag}</div>
         </div>
 
@@ -236,6 +255,21 @@ export default function MysteryShoppingDashboard() {
                 )}
               </>
             )}
+            {isAdmin && (
+              <select
+                value={clientId}
+                onChange={(e) => setClientId(e.target.value)}
+                aria-label={t.adminClient}
+                className="h-10 max-w-[220px] rounded-xl border border-gold/60 bg-white px-3 text-sm font-medium text-navy outline-none focus:border-sky"
+              >
+                <option value="">{t.adminOwn}</option>
+                {clients.map((u) => (
+                  <option key={u._id} value={u._id}>
+                    {u.name || u.email}
+                  </option>
+                ))}
+              </select>
+            )}
             <button
               type="button"
               onClick={() => changeLanguage(rtl ? "en" : "ar")}
@@ -268,7 +302,11 @@ export default function MysteryShoppingDashboard() {
           })}
         </nav>
 
-        <MsContext.Provider value={ctx}>{(!current.period || range) && <View key={view} />}</MsContext.Provider>
+        {isAdmin && clientId && (
+          <div className="mb-4 rounded-xl border border-gold/40 bg-gold/10 px-4 py-2.5 text-sm text-[#6b5409]">{t.adminActing}</div>
+        )}
+
+        <MsContext.Provider value={ctx}>{(!current.period || range) && <View key={`${view}:${clientId}`} />}</MsContext.Provider>
       </div>
 
       {toast && (

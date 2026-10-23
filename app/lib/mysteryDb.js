@@ -8,7 +8,7 @@
 // dashboardAccess.js، والفحص صارم عن طريق requireSession (getServerSession).
 
 import mongoose from "mongoose";
-import { connectToMongo } from "./mongodb";
+import { connectToMongo, getAuthModel } from "./mongodb";
 import { requireSession } from "./rbac";
 import { enforceRateLimit } from "./rateLimit";
 import { canAccessMysteryDashboard } from "./dashboardAccess";
@@ -106,7 +106,17 @@ export async function mysteryAuth(request, { write = false } = {}) {
   if (base.response) return { response: base.response };
   const user = base.session.user;
   if (!canAccessMysteryDashboard(user)) return { response: json({ error: "forbidden" }, 403) };
-  const userId = String(user.id);
+  let userId = String(user.id);
+
+  // 👤 الأدمن بس يقدر يشتغل على بيانات عميل: ?as=<id العميل>. أي حد تاني بيبعت
+  // `as` بياخد 403 (مفيش طريقة يشوف بيها بيانات غيره). كل البيانات فضلت
+  // متفلترة بـ owner، فالأدمن بيدخّل زيارات العميل ويظهرله في داشبورده.
+  const as = new URL(request.url).searchParams.get("as");
+  if (as) {
+    if (user.role !== "admin") return { response: json({ error: "forbidden" }, 403) };
+    if (!isId(as)) return { response: json({ error: "invalid_id" }, 400) };
+    userId = as;
+  }
 
   if (write) {
     const rl = await enforceRateLimit(request, {
@@ -118,6 +128,7 @@ export async function mysteryAuth(request, { write = false } = {}) {
     if (rl) return { response: rl };
   }
   await connectToMongo();
+  if (as && !(await getAuthModel().exists({ _id: as }))) return { response: json({ error: "client_not_found" }, 404) };
   return { userId, user };
 }
 
