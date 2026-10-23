@@ -247,6 +247,27 @@ export default function MysteryShoppingDashboard() {
           </div>
         </header>
 
+        {/* تابات ظاهرة على الشاشات الصغيرة (السايدبار بيتخبّى تحت lg) */}
+        <nav aria-label="Sections" className="-mx-4 mb-5 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:hidden">
+          {NAV.map(({ key, Icon }) => {
+            const active = key === view;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => go(key)}
+                aria-current={active ? "page" : undefined}
+                className={`flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                  active ? "bg-navy text-white" : "bg-white text-charcoal/70 shadow-sm hover:bg-sky/10"
+                }`}
+              >
+                <Icon size={16} />
+                {t.nav[key]}
+              </button>
+            );
+          })}
+        </nav>
+
         <MsContext.Provider value={ctx}>{(!current.period || range) && <View key={view} />}</MsContext.Provider>
       </div>
 
