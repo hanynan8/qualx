@@ -8,11 +8,15 @@
 - app/dashboard/_shared/ui.jsx + Charts.jsx (Modal `wide`, Delta `invert`, Gauge `stars`); mystery-shopping/components/ui.jsx + Charts.jsx now re-export them
 - app/dashboard/auditing-visits: client.js, checklist.js, layout.jsx, page.jsx, i18n.js, components/AuditCharts.jsx, views/DashboardView.jsx, views/VisitsView.jsx
 
-## Missing (page.jsx already imports them, so the build fails until they exist)
-- views/FindingsView.jsx   (API ready: GET/POST /api/audit/findings, PUT/DELETE /findings/[id]; GET returns counts)
-- views/BranchesView.jsx   (API ready incl. POST /branches/import)
-- views/AnalyticsView.jsx  (API ready: /api/audit/analytics)
-- views/ReportsView.jsx    (API ready: /api/audit/export?type=visits|findings, dashboard + analytics)
-- views/SettingsView.jsx   (API ready: /api/audit/settings)
-- Replace the "coming soon" AuditDashboardSection in app/(pages)/solutions/[slug]/page.jsx with a live link to /dashboard/auditing-visits (like MysteryDashboardSection)
-- Not tested: no `next build` / lint run yet
+## Also done (this pass)
+- views/FindingsView.jsx, BranchesView.jsx, AnalyticsView.jsx, ReportsView.jsx, SettingsView.jsx
+- AuditDashboardSection in app/(pages)/solutions/[slug]/page.jsx now links to /dashboard/auditing-visits (AR + EN)
+- i18n: added `branches.noMatch` and `reports.moreOpen` (AR + EN)
+
+## Verified
+- `npm ci`, `eslint` (audit files) and `next build` pass.
+- jsdom render smoke test of the 5 new views (EN + AR) against the real computeDashboard/computeAnalytics output with a mocked fetch; request bodies checked with the real validateFinding / validateSettings.
+
+## Not verified
+- No real MongoDB run (API routes, findings sync, cascade delete, CSV export were not exercised against a database).
+- No visual check in a browser (RTL layout, print/PDF output of the report).
