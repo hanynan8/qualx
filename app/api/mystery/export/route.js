@@ -44,7 +44,7 @@ export async function GET(request) {
       status: 200,
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": `attachment; filename="qualx-visits-${from}_${to}.csv"`,
+        "Content-Disposition": `attachment; filename="merilex-visits-${from}_${to}.csv"`,
         "Cache-Control": "no-store",
       },
     });
