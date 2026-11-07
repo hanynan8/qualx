@@ -1,7 +1,7 @@
 // app/api/admin/career-jobs/route.js — إدارة وظائف الكارير (admin-only).
 // GET: كل الوظائف (مفتوحة ومقفولة) + عدد المكلّفين. POST: وظيفة جديدة.
 import { connectToMongo } from "../../../lib/mongodb";
-import { requireRole } from "../../../lib/rbac";
+import { requireRole, CAREER_ROLES } from "../../../lib/rbac";
 import { enforceRateLimit } from "../../../lib/rateLimit";
 import { logAudit } from "../../../lib/auditLog";
 import { getCareerJobModel, getCareerAssignmentModel, serializeJob, cleanJobInput } from "../../../lib/careerJobs";
@@ -15,7 +15,7 @@ function json(data, status = 200) {
 
 export async function GET(request) {
   try {
-    const auth = await requireRole(["admin"]);
+    const auth = await requireRole(CAREER_ROLES);
     if (auth.response) return auth.response;
     const rl = await enforceRateLimit(request, {
       keyPrefix: "admin:career-jobs:list",
@@ -42,7 +42,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const auth = await requireRole(["admin"]);
+    const auth = await requireRole(CAREER_ROLES);
     if (auth.response) return auth.response;
     const rl = await enforceRateLimit(request, {
       keyPrefix: "admin:career-jobs:create",

@@ -90,3 +90,23 @@ export async function api(path, options = {}) {
   }
   return data;
 }
+
+// تنزيل CSV من المتصفح. BOM عشان Excel يقرا العربي، وبنحيّد الخلايا اللي بتبدأ بـ = + - @
+// (CSV/formula injection) بإضافة ' قبلها.
+export function downloadCsv(filename, headers, rows) {
+  const cell = (v) => {
+    let t = String(v ?? "");
+    if (/^[=+\-@\t\r]/.test(t)) t = `'${t}`;
+    return `"${t.replace(/"/g, '""')}"`;
+  };
+  const lines = [headers.map(cell).join(","), ...rows.map((r) => r.map(cell).join(","))];
+  const blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}

@@ -17,6 +17,7 @@ import bcrypt from "bcryptjs";
 import { connectToMongo, getAuthModel } from "../../lib/mongodb";
 import { checkRateLimit, getClientIp } from "../../lib/rateLimit";
 import { logAudit } from "../../lib/auditLog";
+import { isRegistrationOpen } from "../../lib/platformSettings";
 
 const REGISTER_LIMIT = 5;
 const REGISTER_WINDOW_SECONDS = 60 * 60;
@@ -36,7 +37,7 @@ const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export async function POST(request) {
   try {
-    if (process.env.REGISTRATION_ENABLED === "false") {
+    if (!(await isRegistrationOpen("site"))) {
       return jsonResponse({ error: "registration_disabled" }, 403);
     }
 

@@ -2,7 +2,7 @@
 // حذف الوظيفة بيحذف تكليفاتها كمان.
 import mongoose from "mongoose";
 import { connectToMongo } from "../../../../lib/mongodb";
-import { requireRole } from "../../../../lib/rbac";
+import { requireRole, CAREER_ROLES } from "../../../../lib/rbac";
 import { enforceRateLimit } from "../../../../lib/rateLimit";
 import { logAudit } from "../../../../lib/auditLog";
 import { getCareerJobModel, getCareerAssignmentModel, serializeJob, cleanJobInput } from "../../../../lib/careerJobs";
@@ -15,7 +15,7 @@ function json(data, status = 200) {
 }
 
 async function guard(request, keyPrefix) {
-  const auth = await requireRole(["admin"]);
+  const auth = await requireRole(CAREER_ROLES);
   if (auth.response) return { response: auth.response };
   const rl = await enforceRateLimit(request, {
     keyPrefix,

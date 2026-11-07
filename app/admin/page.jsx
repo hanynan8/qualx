@@ -18,12 +18,12 @@ export const dynamic = "force-dynamic";
 export default async function AdminPage() {
   // ⚠️ تطوير فقط (شوف app/lib/devBypass.js): من غير تسجيل دخول.
   if (ADMIN_AUTH_DISABLED) {
-    return <AdminDashboard user={{ name: DEV_ADMIN_USER.name, email: DEV_ADMIN_USER.email }} mfaEnabled={false} />;
+    return <AdminDashboard user={{ name: DEV_ADMIN_USER.name, email: DEV_ADMIN_USER.email, role: "admin" }} mfaEnabled={false} />;
   }
 
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect("/login?callbackUrl=/admin");
-  if (session.user.role !== "admin") redirect("/");
+  if (!["admin", "hr", "editor"].includes(session.user.role)) redirect("/");
 
   let mfaEnabled = false;
   try {
@@ -36,7 +36,7 @@ export default async function AdminPage() {
 
   return (
     <AdminDashboard
-      user={{ name: session.user.name || "", email: session.user.email || "" }}
+      user={{ name: session.user.name || "", email: session.user.email || "", role: session.user.role }}
       mfaEnabled={mfaEnabled}
     />
   );

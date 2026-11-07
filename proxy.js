@@ -15,10 +15,11 @@ import { ADMIN_AUTH_DISABLED } from "./app/lib/devBypass";
 // /dashboard/mystery-shopping: لأي مسجّل دخول دلوقتي. لما تتحصر على المشتركين
 // المدفوعين، غيّر app/lib/dashboardAccess.js (الفحص هناك بيتم على السيرفر).
 const PAGE_ROLE_RULES = [
-  { prefix: "/admin", roles: ["admin"] },
+  { prefix: "/admin", roles: ["admin", "hr", "editor"] },
   { prefix: "/dashboard", roles: null },
 ];
-const API_ROLE_RULES = [{ prefix: "/api/admin", roles: ["admin"] }];
+// الفحص الدقيق لكل راوت (admin / hr / editor) جوه الراوت نفسه بـ requireRole.
+const API_ROLE_RULES = [{ prefix: "/api/admin", roles: ["admin", "hr", "editor"] }];
 
 function jsonError(status, error) {
   return new Response(JSON.stringify({ error }), {

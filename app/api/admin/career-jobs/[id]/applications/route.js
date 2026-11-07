@@ -4,10 +4,11 @@
 //         "accepted" بيعمل تكليف تلقائي (الوظيفة بتظهر في My Jobs عند المتقدّم).
 import mongoose from "mongoose";
 import { connectToMongo } from "../../../../../lib/mongodb";
-import { requireRole } from "../../../../../lib/rbac";
+import { requireRole, CAREER_ROLES } from "../../../../../lib/rbac";
 import { enforceRateLimit } from "../../../../../lib/rateLimit";
 import { logAudit } from "../../../../../lib/auditLog";
 import { getCareerAccountModel } from "../../../../../lib/careerAuth";
+import { notify } from "../../../../../lib/email";
 import {
   getCareerJobModel,
   getCareerAssignmentModel,
@@ -21,7 +22,7 @@ const json = (data, status = 200) =>
   });
 
 async function guard(request, keyPrefix) {
-  const auth = await requireRole(["admin"]);
+  const auth = await requireRole(CAREER_ROLES);
   if (auth.response) return { response: auth.response };
   const rl = await enforceRateLimit(request, {
     keyPrefix,
@@ -121,7 +122,21 @@ export async function PATCH(request, { params }) {
       targetId: String(job._id),
       details: { status: body.status, title: job.title },
     });
-    return json({ ok: true });
+
+    // إشعار بالإيميل للمتقدّم (لو Resend متظبط). فشل الإرسال مابيوقفش العملية.
+    let emailed = false;
+    if (body.status === "accepted" || body.status === "rejected") {
+      const applicant = await getCareerAccountModel().findById(app.accountId, "name email").lean();
+      if (applicant?.email) {
+        const r = await notify(body.status === "accepted" ? "application_accepted" : "application_rejected", {
+          to: applicant.email,
+          name: applicant.name,
+          jobTitle: job.title,
+        });
+        emailed = r.sent;
+      }
+    }
+    return json({ ok: true, emailed });
   } catch (err) {
     console.error("[admin/career-apps] PATCH error:", err);
     return json({ error: "internal_error" }, 500);

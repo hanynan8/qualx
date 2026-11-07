@@ -64,7 +64,7 @@ export default connectToMongo;
 // ⚠️ الموديل ده مخصص لكود السيرفر الموثوق بس (authOptions, scripts, rbac).
 // كولكشن "auth" و "audit_logs" ممنوعين تمامًا من /api/data العام.
 // ─────────────────────────────────────────────────────────────────────
-export const USER_ROLES = ["admin", "user"];
+export const USER_ROLES = ["admin", "hr", "editor", "user"];
 
 const authSchema = new mongoose.Schema(
   {
@@ -90,6 +90,10 @@ const authSchema = new mongoose.Schema(
     mfaEnabled: { type: Boolean, default: false },
     mfaSecret: { type: String, default: null },
     mfaBackupCodeHashes: { type: [String], default: [] },
+
+    // داشبوردات الخدمات اللي الأدمن حاجبها عن الحساب ده ("mystery" | "audit").
+    // فاضي = كل الداشبوردات متاحة (الافتراضي). بيتقرا من dashboardAccess.js.
+    blockedDashboards: { type: [String], default: [] },
   },
   { strict: false, timestamps: true }
 );

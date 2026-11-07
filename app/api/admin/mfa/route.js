@@ -16,7 +16,7 @@ import { Secret } from "otpauth";
 import QRCode from "qrcode";
 import { connectToMongo, getAuthModel } from "../../../lib/mongodb";
 import { logAudit } from "../../../lib/auditLog";
-import { requireRole } from "../../../lib/rbac";
+import { requireRole, STAFF_ROLES } from "../../../lib/rbac";
 import { enforceRateLimit } from "../../../lib/rateLimit";
 import { buildTotp, verifyTotpCode, verifyBackupCode } from "../../../lib/authSecurity";
 
@@ -107,7 +107,7 @@ async function handleDisable({ request, session, user, code }) {
 
 export async function POST(request) {
   try {
-    const auth = await requireRole(["admin"]);
+    const auth = await requireRole(STAFF_ROLES);
     if (auth.response) return auth.response;
     const { session } = auth;
 

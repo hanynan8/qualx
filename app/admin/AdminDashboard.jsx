@@ -9,11 +9,12 @@
 // الحفاظ على منطق Merilex: تحذير التعديلات غير المحفوظة قبل التنقل/الإغلاق،
 // وحفظ القسم النشط في الـ hash (#services).
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Database, Settings, Home, Navigation, Info, Layers, Briefcase, PanelBottom, Users,
   FileText, ChevronDown, ArrowLeft, Loader, FileUser, ClipboardCheck, Award, Wallet,
+  BarChart3, Inbox, ScrollText, UserRound, Wrench, ShieldCheck,
 } from "lucide-react";
 
 import { TABS } from "./tabsConfig";
@@ -21,20 +22,38 @@ import { api } from "./adminUtils";
 import AccountCard from "./components/accountCard";
 import PagePanel from "./components/pagePanel";
 import UsersPanel from "./components/usersPanel";
+import OverviewPanel from "./components/overviewPanel";
+import FormsPanel from "./components/formsPanel";
+import AuditLogsPanel from "./components/auditLogsPanel";
+import SettingsPanel from "./components/settingsPanel";
+import MfaPanel from "./components/mfaPanel";
+import CareerAccountsPanel from "./components/career/CareerAccountsPanel";
 import CvPanel from "./components/cvPanel";
 import JobsPanel from "./components/career/JobsPanel";
 import ApplicationsPanel from "./components/career/ApplicationsPanel";
 import CertsPanel from "./components/career/CertsPanel";
 import PayPanel from "./components/career/PayPanel";
 
+// بانل MFA لأي حساب إداري (hr / editor مالهمش تاب Users اللي فيه MFA).
+function SecurityPanel({ mfaEnabled }) {
+  return <MfaPanel mfaEnabled={mfaEnabled} />;
+}
+
+// الأدوار اللي بتشوف كل قسم (admin بيشوف كله). عنصر من غير roles = كل الأدوار الإدارية.
+const ADMIN_ONLY = ["admin"];
+const CONTENT = ["admin", "editor"];
+const CAREER = ["admin", "hr"];
+
 // عناصر السايدبار. tabId = بانل صفحة بيتبني من TABS (tabsConfig.js)؛ component
 // = بانل مخصص بيستقبل { user, mfaEnabled, onDirtyChange }.
 const SIDEBAR_GROUPS = [
+  { id: "overview", type: "single", name: "Overview", icon: BarChart3, component: OverviewPanel },
   {
     id: "pages",
     type: "group",
     name: "Pages",
     icon: FileText,
+    roles: CONTENT,
     items: [
       { id: "home", name: "Home", icon: Home, tabId: "home" },
       { id: "about", name: "About", icon: Info, tabId: "about" },
@@ -50,8 +69,9 @@ const SIDEBAR_GROUPS = [
     name: "Management",
     icon: Users,
     items: [
-      { id: "cvs", name: "CVs", icon: FileUser, component: CvPanel },
-      { id: "users", name: "Users", icon: Users, component: UsersPanel },
+      { id: "users", name: "Users", icon: Users, component: UsersPanel, roles: ADMIN_ONLY },
+      { id: "messages", name: "Messages", icon: Inbox, component: FormsPanel, roles: CONTENT },
+      { id: "cvs", name: "CVs", icon: FileUser, component: CvPanel, roles: CAREER },
     ],
   },
   {
@@ -59,16 +79,35 @@ const SIDEBAR_GROUPS = [
     type: "group",
     name: "Career Portal",
     icon: Briefcase,
+    roles: CAREER,
     items: [
+      { id: "career-accounts", name: "Accounts", icon: UserRound, component: CareerAccountsPanel },
       { id: "career-jobs", name: "Jobs", icon: Briefcase, component: JobsPanel },
       { id: "career-applications", name: "Applications", icon: ClipboardCheck, component: ApplicationsPanel },
       { id: "career-certs", name: "Certifications", icon: Award, component: CertsPanel },
       { id: "career-pay", name: "Pay", icon: Wallet, component: PayPanel },
     ],
   },
+  {
+    id: "system",
+    type: "group",
+    name: "System",
+    icon: Wrench,
+    items: [
+      { id: "audit-logs", name: "Audit Log", icon: ScrollText, component: AuditLogsPanel, roles: ADMIN_ONLY },
+      { id: "settings", name: "Settings", icon: Settings, component: SettingsPanel, roles: ADMIN_ONLY },
+      { id: "security", name: "My Security (MFA)", icon: ShieldCheck, component: SecurityPanel },
+    ],
+  },
 ];
 
-const FLAT_TABS = SIDEBAR_GROUPS.flatMap((g) => (g.type === "single" ? [g] : g.items));
+// بيرجّع الأقسام اللي الدور ده يقدر يفتحها (الفلترة هنا للعرض بس — الحماية الفعلية في الـ API).
+function visibleGroups(role) {
+  const ok = (x) => !x.roles || x.roles.includes(role);
+  return SIDEBAR_GROUPS.filter(ok)
+    .map((g) => (g.type === "group" ? { ...g, items: g.items.filter(ok) } : g))
+    .filter((g) => g.type !== "group" || g.items.length > 0);
+}
 
 function findGroupIdForTab(tabId) {
   const group = SIDEBAR_GROUPS.find((g) => g.type === "group" && g.items.some((i) => i.id === tabId));
@@ -76,8 +115,12 @@ function findGroupIdForTab(tabId) {
 }
 
 export default function AdminDashboard({ user, mfaEnabled }) {
-  const [activeTab, setActiveTab] = useState("home");
-  const [openGroups, setOpenGroups] = useState({ pages: true });
+  const role = user?.role || "admin";
+  const groups = useMemo(() => visibleGroups(role), [role]);
+  const FLAT_TABS = useMemo(() => groups.flatMap((g) => (g.type === "single" ? [g] : g.items)), [groups]);
+  const canExportSite = role === "admin" || role === "editor";
+  const [activeTab, setActiveTab] = useState("overview");
+  const [openGroups, setOpenGroups] = useState({ management: true });
   const [exporting, setExporting] = useState(false);
   const [dirty, setDirty] = useState(false);
   const dirtyRef = useRef(false);
@@ -95,7 +138,7 @@ export default function AdminDashboard({ user, mfaEnabled }) {
       const gid = findGroupIdForTab(fromHash);
       if (gid) setOpenGroups((prev) => ({ ...prev, [gid]: true }));
     }
-  }, []);
+  }, [FLAT_TABS]);
 
   // تحذير قبل ما المتصفح يقفل/يعمل refresh والفيه تعديلات غير محفوظة.
   useEffect(() => {
@@ -167,7 +210,7 @@ export default function AdminDashboard({ user, mfaEnabled }) {
       return <PagePanel tab={tab} icon={activeItem.icon} title={activeItem.name} onDirtyChange={onDirtyChange} />;
     }
     const Panel = activeItem.component;
-    return <Panel key={activeItem.id} user={user} mfaEnabled={mfaEnabled} onDirtyChange={onDirtyChange} />;
+    return <Panel key={activeItem.id} user={user} mfaEnabled={mfaEnabled} onDirtyChange={onDirtyChange} onNavigate={selectTab} />;
   }
 
   return (
@@ -185,14 +228,14 @@ export default function AdminDashboard({ user, mfaEnabled }) {
                 {dirty && <span aria-label="تعديلات غير محفوظة" className="h-2.5 w-2.5 rounded-full bg-amber-400" />}
               </h1>
             </div>
-            <button
+            {canExportSite && <button
               onClick={handleExportAllData}
               disabled={exporting}
               className="flex items-center gap-2 bg-white/10 hover:bg-white/20 disabled:opacity-60 text-white font-semibold px-4 py-2 rounded-xl border border-white/30"
             >
               {exporting ? <Loader size={18} className="animate-spin" /> : <Database size={18} />}
               {exporting ? "Exporting..." : "Export All Site Data (JSON)"}
-            </button>
+            </button>}
           </div>
         </div>
       </div>
@@ -208,7 +251,7 @@ export default function AdminDashboard({ user, mfaEnabled }) {
                 Sections
               </h2>
               <div className="space-y-2">
-                {SIDEBAR_GROUPS.map((group) => {
+                {groups.map((group) => {
                   if (group.type === "single") {
                     const Icon = group.icon;
                     const isActive = activeTab === group.id;

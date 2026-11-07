@@ -5,7 +5,7 @@
 
 import { connectToMongo } from "../../../lib/mongodb";
 import { getCvModel } from "../../../lib/cvModel";
-import { requireRole } from "../../../lib/rbac";
+import { requireRole, CAREER_ROLES } from "../../../lib/rbac";
 import { enforceRateLimit } from "../../../lib/rateLimit";
 
 function json(data, status = 200) {
@@ -19,7 +19,7 @@ const MAX_RETURNED = 2000;
 
 export async function GET(request) {
   try {
-    const auth = await requireRole(["admin"]);
+    const auth = await requireRole(CAREER_ROLES);
     if (auth.response) return auth.response;
 
     const rl = await enforceRateLimit(request, {

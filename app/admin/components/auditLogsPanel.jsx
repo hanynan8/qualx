@@ -27,6 +27,7 @@ function detailsText(details) {
 export default function AuditLogsPanel() {
   const [logs, setLogs] = useState([]);
   const [limit, setLimit] = useState(100);
+  const [group, setGroup] = useState("");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -35,13 +36,13 @@ export default function AuditLogsPanel() {
     setLoading(true);
     setError("");
     try {
-      setLogs(await api(`/api/admin/audit-logs?limit=${limit}`));
+      setLogs(await api(`/api/admin/audit-logs?limit=${limit}${group ? `&action=${encodeURIComponent(group)}` : ""}`));
     } catch (err) {
       setError(`تعذّر تحميل السجل: ${err.message}`);
     } finally {
       setLoading(false);
     }
-  }, [limit]);
+  }, [limit, group]);
 
   useEffect(() => {
     load();
@@ -75,6 +76,13 @@ export default function AuditLogsPanel() {
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search action, actor, target, IP..." className="w-full pl-9 pr-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 outline-none" />
         </div>
+        <select value={group} onChange={(e) => setGroup(e.target.value)} className="px-4 py-3 border border-gray-300 rounded-xl bg-white">
+          <option value="">All events</option>
+          <option value="auth.">Sign-ins & security</option>
+          <option value="user.">User management</option>
+          <option value="career.">Career portal</option>
+          <option value="settings.">Platform settings</option>
+        </select>
         <select value={limit} onChange={(e) => setLimit(Number(e.target.value))} className="px-4 py-3 border border-gray-300 rounded-xl bg-white">
           {[50, 100, 250, 500].map((n) => (
             <option key={n} value={n}>Last {n}</option>

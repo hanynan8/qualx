@@ -19,6 +19,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "./authOptions";
 import { ADMIN_AUTH_DISABLED, DEV_ADMIN_USER } from "./devBypass";
 
+// مجموعات الأدوار. admin = كل حاجة. hr = بوابة الكارير والـ CVs. editor = محتوى الصفحات
+// والرسائل. أي حاجة تانية (المستخدمين، الإعدادات، سجل التدقيق) admin بس.
+export const STAFF_ROLES = ["admin", "hr", "editor"];
+export const CAREER_ROLES = ["admin", "hr"];
+export const CONTENT_ROLES = ["admin", "editor"];
+
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,

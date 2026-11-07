@@ -5,6 +5,7 @@ import { connectToMongo } from "../../../../lib/mongodb";
 import { getCareerAccountModel, createCareerSession, careerJson } from "../../../../lib/careerAuth";
 import { checkRateLimit, getClientIp } from "../../../../lib/rateLimit";
 import { logAudit } from "../../../../lib/auditLog";
+import { isRegistrationOpen } from "../../../../lib/platformSettings";
 
 // قابل للضبط من الـ env (مثلًا للعرض/التجربة من نفس الشبكة). الافتراضي 5 تسجيلات/ساعة لكل IP.
 const REGISTER_LIMIT = Number(process.env.CAREER_REGISTER_LIMIT) || 5;
@@ -16,7 +17,7 @@ const isValidPhone = (v) => /^\+?[0-9\s-]{7,20}$/.test(v);
 
 export async function POST(request) {
   try {
-    if (process.env.CAREER_REGISTRATION_ENABLED === "false") {
+    if (!(await isRegistrationOpen("career"))) {
       return careerJson({ error: "registration_disabled" }, 403);
     }
 

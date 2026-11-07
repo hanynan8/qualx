@@ -139,8 +139,8 @@ export const authOptions = {
 
           const role = userDoc.role || "user";
 
-          // MFA إجباري لأي admin مفعّل عنده MFA. الباسورد صح، بس مش كفاية.
-          if (role === "admin" && userDoc.mfaEnabled) {
+          // MFA إجباري لأي حساب إداري (admin/hr/editor) مفعّل عنده MFA. الباسورد صح، بس مش كفاية.
+          if (role !== "user" && userDoc.mfaEnabled) {
             const code = credentials.mfaCode ? String(credentials.mfaCode).trim() : "";
             if (!code) throw new Error("mfa_required");
 
@@ -179,6 +179,7 @@ export const authOptions = {
             email: userDoc.email || null,
             role,
             tokenVersion: userDoc.tokenVersion || 0,
+            blockedDashboards: Array.isArray(userDoc.blockedDashboards) ? userDoc.blockedDashboards : [],
           };
         } catch (error) {
           if (
@@ -244,6 +245,7 @@ export const authOptions = {
         token.email = user.email;
         token.role = user.role;
         token.tokenVersion = user.tokenVersion ?? 0;
+        token.blockedDashboards = user.blockedDashboards || [];
         token.lastValidated = Date.now();
         token.invalid = false;
         return token;
@@ -261,7 +263,7 @@ export const authOptions = {
           const AuthModel = getAuthModel();
           const dbUser = await AuthModel.findById(
             token.id,
-            "tokenVersion role status name"
+            "tokenVersion role status name blockedDashboards"
           ).lean();
 
           if (
@@ -273,6 +275,7 @@ export const authOptions = {
           } else {
             token.invalid = false;
             token.role = dbUser.role || "user";
+            token.blockedDashboards = Array.isArray(dbUser.blockedDashboards) ? dbUser.blockedDashboards : [];
             token.name = dbUser.name ?? token.name;
             token.lastValidated = now;
           }
@@ -295,6 +298,7 @@ export const authOptions = {
         session.user.name = token.name;
         session.user.email = token.email;
         session.user.role = token.role;
+        session.user.blockedDashboards = token.blockedDashboards || [];
       }
       return session;
     },

@@ -6,7 +6,7 @@
 //
 // الحماية على 3 طبقات:
 //   1) proxy.js: أي طلب لـ /api/admin/* من غير توكن admin يتقفل قبل الوصول هنا.
-//   2) requireRole(["admin"]) تحت: فحص صارم من الداتابيز (الحساب موقوف؟ الـ
+//   2) requireRole(CONTENT_ROLES) تحت: فحص صارم من الداتابيز (الحساب موقوف؟ الـ
 //      role اتغير؟) في كل طلب.
 //   3) تعقيم الـ payload + حدود حجم + سجل تدقيق لكل كتابة.
 //
@@ -20,7 +20,7 @@
 //   DELETE /api/admin/content?collection=navbar&id=… → يمسح document
 
 import mongoose from "mongoose";
-import { requireRole } from "../../../lib/rbac";
+import { requireRole, CONTENT_ROLES } from "../../../lib/rbac";
 import { connectToMongo } from "../../../lib/mongodb";
 import { logAudit } from "../../../lib/auditLog";
 import {
@@ -88,7 +88,7 @@ function toIso(value) {
 }
 
 export async function GET(request) {
-  const auth = await requireRole(["admin"]);
+  const auth = await requireRole(CONTENT_ROLES);
   if (auth.response) return auth.response;
 
   try {
@@ -126,7 +126,7 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-  const auth = await requireRole(["admin"]);
+  const auth = await requireRole(CONTENT_ROLES);
   if (auth.response) return auth.response;
 
   try {
@@ -159,7 +159,7 @@ export async function POST(request) {
 }
 
 export async function PUT(request) {
-  const auth = await requireRole(["admin"]);
+  const auth = await requireRole(CONTENT_ROLES);
   if (auth.response) return auth.response;
 
   try {
@@ -211,7 +211,7 @@ export async function PUT(request) {
 }
 
 export async function DELETE(request) {
-  const auth = await requireRole(["admin"]);
+  const auth = await requireRole(CONTENT_ROLES);
   if (auth.response) return auth.response;
 
   try {

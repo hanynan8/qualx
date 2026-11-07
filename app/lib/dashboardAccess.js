@@ -10,8 +10,13 @@
 export const MYSTERY_DASHBOARD_PATH = "/dashboard/mystery-shopping";
 export const MYSTERY_SERVICE_PATH = "/solutions/mystery-shopping";
 
+// 🔒 الأدمن يقدر يحجب داشبورد معيّن عن حساب بعينه (Users → Manage → Dashboard access).
+// الحجب بيتخزن في auth.blockedDashboards وبيوصل لهنا عن طريق الـ JWT (بيتحدّث خلال ~60 ثانية).
+// الأدمن نفسه مش بيتحجب أبدًا.
+const isBlocked = (user, key) => !["admin", "hr", "editor"].includes(user?.role) && Array.isArray(user?.blockedDashboards) && user.blockedDashboards.includes(key);
+
 export function canAccessMysteryDashboard(user) {
-  return Boolean(user);
+  return Boolean(user) && !isBlocked(user, "mystery");
 }
 
 // ───────────── داشبورد التدقيق التشغيلي (Auditing Visits) ─────────────
@@ -21,5 +26,5 @@ export const AUDIT_DASHBOARD_PATH = "/dashboard/auditing-visits";
 export const AUDIT_SERVICE_PATH = "/solutions/auditing-visits";
 
 export function canAccessAuditDashboard(user) {
-  return Boolean(user);
+  return Boolean(user) && !isBlocked(user, "audit");
 }

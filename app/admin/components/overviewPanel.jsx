@@ -6,7 +6,7 @@
 // أعمدة CSS بسيطين لآخر 6 شهور (تسجيلات جديدة + رسائل الزوار).
 
 import { useCallback, useEffect, useState } from "react";
-import { BarChart3, Users, ShieldCheck, Inbox, Layers, Briefcase, UserX, RefreshCcw, TrendingUp } from "lucide-react";
+import { BarChart3, Users, ShieldCheck, Inbox, Layers, Briefcase, UserX, RefreshCcw, TrendingUp, UserRound, ClipboardCheck, Wallet, Award, ChevronRight } from "lucide-react";
 import PanelFrame, { Banner, Spinner } from "./PanelFrame";
 import { api } from "../adminUtils";
 
@@ -23,6 +23,23 @@ function StatCard({ icon: Icon, label, value, accent }) {
         <p className="text-xl font-bold text-gray-800 truncate">{value}</p>
       </div>
     </div>
+  );
+}
+
+// قائمة "محتاج انتباه": بنود فيها شغل معلّق على الأدمن، كل بند بيفتح القسم المختص.
+function AttentionItem({ icon: Icon, label, value, target, onNavigate }) {
+  if (!value) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => onNavigate?.(target)}
+      className="flex w-full items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-left hover:bg-amber-100"
+    >
+      <Icon size={18} className="shrink-0 text-amber-700" />
+      <span className="flex-1 text-sm font-medium text-amber-900">{label}</span>
+      <span className="rounded-full bg-amber-500 px-2.5 py-0.5 text-xs font-bold text-white">{value}</span>
+      <ChevronRight size={16} className="text-amber-700" />
+    </button>
   );
 }
 
@@ -50,7 +67,7 @@ function TrendChart({ title, data, color }) {
   );
 }
 
-export default function OverviewPanel() {
+export default function OverviewPanel({ onNavigate }) {
   const [stats, setStats] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -72,6 +89,7 @@ export default function OverviewPanel() {
   }, [load]);
 
   const c = stats?.counts;
+  const k = stats?.career;
 
   return (
     <PanelFrame
@@ -104,9 +122,32 @@ export default function OverviewPanel() {
               <StatCard icon={Layers} label="Services" value={c.services} accent="bg-sky-50 text-sky-600" />
               <StatCard icon={Briefcase} label="Open Careers" value={c.careers} accent="bg-indigo-50 text-indigo-600" />
             </div>
+            {k && (
+              <>
+                <h3 className="pt-2 text-sm font-semibold uppercase tracking-wide text-gray-400">Career Portal</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                  <StatCard icon={UserRound} label="Freelancer Accounts" value={k.accounts} accent="bg-blue-50 text-blue-600" />
+                  <StatCard icon={UserX} label="Suspended Freelancers" value={k.suspended} accent="bg-red-50 text-red-600" />
+                  <StatCard icon={Briefcase} label="Open Jobs" value={k.jobsOpen} accent="bg-emerald-50 text-emerald-600" />
+                  <StatCard icon={Briefcase} label="Closed Jobs" value={k.jobsClosed} accent="bg-gray-100 text-gray-600" />
+                  <StatCard icon={ClipboardCheck} label="Active Assignments" value={k.assignmentsActive} accent="bg-purple-50 text-purple-600" />
+                  <StatCard icon={Award} label="Active Certifications" value={k.certificationsActive} accent="bg-amber-50 text-amber-600" />
+                </div>
+                {(k.applicationsPending > 0 || k.payPending > 0) && (
+                  <div className="space-y-2">
+                    <h3 className="pt-2 text-sm font-semibold uppercase tracking-wide text-gray-400">Needs your attention</h3>
+                    <AttentionItem icon={ClipboardCheck} label="Applications waiting for review" value={k.applicationsPending} target="career-applications" onNavigate={onNavigate} />
+                    <AttentionItem icon={Wallet} label="Pay items pending review" value={k.payPending} target="career-pay" onNavigate={onNavigate} />
+                  </div>
+                )}
+              </>
+            )}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               <TrendChart title="Visitor Messages — last 6 months" data={stats.messagesTrend} color="bg-emerald-500" />
-              <TrendChart title="New Signups — last 6 months" data={stats.signupsTrend} color="bg-blue-500" />
+              <TrendChart title="New Website Signups — last 6 months" data={stats.signupsTrend} color="bg-blue-500" />
+              {stats.careerSignupsTrend && (
+                <TrendChart title="New Freelancer Signups — last 6 months" data={stats.careerSignupsTrend} color="bg-purple-500" />
+              )}
             </div>
           </>
         )

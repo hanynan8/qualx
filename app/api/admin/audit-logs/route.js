@@ -24,8 +24,14 @@ export async function GET(request) {
     const limitParam = parseInt(url.searchParams.get("limit"), 10);
     const limit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), MAX_LOGS_RETURNED) : 100;
 
+    // فلتر اختياري بالـ action (مثال: "career." أو "user.deleted") — بادئة نصية، مش regex من العميل.
+    const actionParam = (url.searchParams.get("action") || "").trim().slice(0, 64);
+    const filter = actionParam && /^[a-zA-Z0-9_.-]+$/.test(actionParam)
+      ? { action: new RegExp(`^${actionParam.replace(/[.]/g, "\\.")}`) }
+      : {};
+
     await connectToMongo();
-    const logs = await getAuditLogModel().find({}).sort({ createdAt: -1 }).limit(limit).lean();
+    const logs = await getAuditLogModel().find(filter).sort({ createdAt: -1 }).limit(limit).lean();
 
     return json(
       logs.map((l) => ({

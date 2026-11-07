@@ -166,7 +166,7 @@ export default function AuthForm({ mode }) {
   };
 
   if (status === "authenticated") {
-    const isAdmin = session.user?.role === "admin";
+    const isAdmin = ["admin", "hr", "editor"].includes(session.user?.role);
     return (
       <div className="container-content flex min-h-[60vh] flex-col items-center justify-center gap-4 py-16 text-center">
         <p className="text-charcoal">
@@ -203,7 +203,7 @@ export default function AuthForm({ mode }) {
 
   async function finishLogin() {
     const fresh = await getSession();
-    const target = callbackUrl || (fresh?.user?.role === "admin" ? "/admin" : "/");
+    const target = callbackUrl || (["admin", "hr", "editor"].includes(fresh?.user?.role) ? "/admin" : "/");
     setForm((f) => ({ ...f, password: "" }));
     setMfaCode("");
     router.push(target);

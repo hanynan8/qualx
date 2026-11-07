@@ -214,7 +214,7 @@ function AuthControl({ status, session, authText, mobile = false, onNavigate }) 
   if (status === "authenticated") {
     return (
       <div className={mobile ? "flex items-center justify-between px-2 py-2" : "flex items-center gap-3"}>
-        {session.user?.role === "admin" ? (
+        {["admin", "hr", "editor"].includes(session.user?.role) ? (
           <Link
             href="/admin"
             onClick={onNavigate}

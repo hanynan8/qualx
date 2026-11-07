@@ -4,8 +4,16 @@
 // والوظائف المنشورة، + اتجاه آخر 6 شهور للتسجيلات والرسائل. admin-only.
 
 import { connectToMongo, getAuthModel } from "../../../lib/mongodb";
-import { requireRole } from "../../../lib/rbac";
+import { requireRole, STAFF_ROLES } from "../../../lib/rbac";
 import { getModelForCollection } from "../../../lib/contentGuard";
+import { getCareerAccountModel } from "../../../lib/careerAuth";
+import {
+  getCareerJobModel,
+  getCareerApplicationModel,
+  getCareerAssignmentModel,
+  ACTIVE_ASSIGNMENT_STATUSES,
+} from "../../../lib/careerJobs";
+import { getPayModel, getCertModel } from "../../../lib/careerExtras";
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -37,7 +45,7 @@ const monthGroup = {
 
 export async function GET() {
   try {
-    const auth = await requireRole(["admin"]);
+    const auth = await requireRole(STAFF_ROLES);
     if (auth.response) return auth.response;
 
     await connectToMongo();
@@ -51,8 +59,12 @@ export async function GET() {
     since.setDate(1);
     since.setHours(0, 0, 0, 0);
 
-    const [roleCounts, suspended, messagesTotal, messages30d, signupsRaw, messagesRaw, servicesDoc, careersDoc] =
-      await Promise.all([
+    const CareerAccount = getCareerAccountModel();
+    const [
+      roleCounts, suspended, messagesTotal, messages30d, signupsRaw, messagesRaw, servicesDoc, careersDoc,
+      careerAccounts, careerSuspended, careerSignupsRaw, jobsOpen, jobsClosed, appsPending, assignmentsActive,
+      payPending, certsActive,
+    ] = await Promise.all([
         Auth.aggregate([{ $group: { _id: "$role", count: { $sum: 1 } } }]),
         Auth.countDocuments({ status: "suspended" }),
         Form.countDocuments({}),
@@ -61,6 +73,15 @@ export async function GET() {
         Form.aggregate([{ $match: { createdAt: { $gte: since } } }, monthGroup]),
         Services.findOne({}).lean(),
         Careers.findOne({}).lean(),
+        CareerAccount.countDocuments({}),
+        CareerAccount.countDocuments({ status: "suspended" }),
+        CareerAccount.aggregate([{ $match: { createdAt: { $gte: since } } }, monthGroup]),
+        getCareerJobModel().countDocuments({ status: "open" }),
+        getCareerJobModel().countDocuments({ status: "closed" }),
+        getCareerApplicationModel().countDocuments({ status: "under_review" }),
+        getCareerAssignmentModel().countDocuments({ status: { $in: ACTIVE_ASSIGNMENT_STATUSES } }),
+        getPayModel().countDocuments({ status: "pending_review" }),
+        getCertModel().countDocuments({ status: "active" }),
       ]);
 
     const byRole = Object.fromEntries(roleCounts.map((r) => [r._id || "user", r.count]));
@@ -75,6 +96,17 @@ export async function GET() {
         services: Array.isArray(servicesDoc?.items) ? servicesDoc.items.length : 0,
         careers: Array.isArray(careersDoc?.items) ? careersDoc.items.length : 0,
       },
+      career: {
+        accounts: careerAccounts,
+        suspended: careerSuspended,
+        jobsOpen,
+        jobsClosed,
+        applicationsPending: appsPending,
+        assignmentsActive,
+        payPending,
+        certificationsActive: certsActive,
+      },
+      careerSignupsTrend: fillLastSixMonths(careerSignupsRaw),
       signupsTrend: fillLastSixMonths(signupsRaw),
       messagesTrend: fillLastSixMonths(messagesRaw),
     });

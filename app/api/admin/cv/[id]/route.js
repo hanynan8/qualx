@@ -9,7 +9,7 @@ import { connectToMongo } from "../../../../lib/mongodb";
 import { getCvModel } from "../../../../lib/cvModel";
 import { readCv, deleteCv } from "../../../../lib/cvStorage";
 import { logAudit } from "../../../../lib/auditLog";
-import { requireRole } from "../../../../lib/rbac";
+import { requireRole, CAREER_ROLES } from "../../../../lib/rbac";
 import { enforceRateLimit } from "../../../../lib/rateLimit";
 
 export const runtime = "nodejs";
@@ -29,7 +29,7 @@ function contentDisposition(type, fileName) {
 
 export async function GET(request, { params }) {
   try {
-    const auth = await requireRole(["admin"]);
+    const auth = await requireRole(CAREER_ROLES);
     if (auth.response) return auth.response;
 
     const rl = await enforceRateLimit(request, {
@@ -69,7 +69,7 @@ export async function GET(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    const auth = await requireRole(["admin"]);
+    const auth = await requireRole(CAREER_ROLES);
     if (auth.response) return auth.response;
     const { session } = auth;
 
