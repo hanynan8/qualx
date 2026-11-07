@@ -12,5 +12,7 @@ export default function SiteChrome({ children }) {
   if (pathname === "/admin" || pathname.startsWith("/admin/")) return null;
   // داشبورد العملاء ليها سايدبار وهيدر خاصين بيها.
   if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) return null;
+  // بوابة الكارير (لوجن + داشبورد) ليها واجهتها الخاصة ومن غير ناف بار/فوتر الموقع.
+  if (pathname === "/career-dashboard" || pathname.startsWith("/career-dashboard/")) return null;
   return children;
 }
