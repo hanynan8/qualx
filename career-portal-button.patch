@@ -1,0 +1,51 @@
+diff --git a/app/(pages)/careers/page.jsx b/app/(pages)/careers/page.jsx
+index cf4c3d5..4308469 100644
+--- a/app/(pages)/careers/page.jsx
++++ b/app/(pages)/careers/page.jsx
+@@ -20,7 +20,9 @@ import {
+   MessageSquare,
+   UserCheck,
+   Send,
++  LogIn,
+ } from "lucide-react";
++import Link from "next/link";
+ import { useLanguage } from "../../../contexts/LanguageContext";
+ import { useCollectionData, pickTranslation, mergePageText } from "../../lib/useCollectionData";
+ import { IMAGES, pageImage, cssUrl } from "../../lib/siteImages";
+@@ -71,6 +73,7 @@ const TONE_ORDER = ["gold", "navy", "sky"];
+ const PAGE = {
+   en: {
+     heroCta: "View open roles",
++    portalCta: "Career Portal",
+     perks: [
+       { icon: MapPin, text: "Work on real projects across Egypt" },
+       { icon: TrendingUp, text: "Grow your skills inside a hands-on quality team" },
+@@ -88,6 +91,7 @@ const PAGE = {
+   },
+   ar: {
+     heroCta: "شوف الوظائف المتاحة",
++    portalCta: "بوابة الكارير",
+     perks: [
+       { icon: MapPin, text: "اشتغل على مشاريع حقيقية في كل مصر" },
+       { icon: TrendingUp, text: "طوّر مهاراتك جوه فريق جودة شغال ميداني" },
+@@ -247,11 +251,19 @@ export default function CareersPage() {
+           <h1 className="mx-auto max-w-5xl font-display text-5xl font-extrabold leading-tight drop-shadow-lg md:text-7xl">
+             {t.badge}
+           </h1>
+-          <div className="mt-8 flex justify-center">
++          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+             <a href="#roles" className="btn-primary group !px-7 !py-3 text-base uppercase tracking-wide">
+               {p.heroCta}
+               <ArrowRight size={18} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
+             </a>
++            {/* بوابة الكارير: لو مسجّل دخول بتفتح الداشبورد، وإلا بتحوّله للوجن تلقائيًا */}
++            <Link
++              href="/career-dashboard"
++              className="inline-flex items-center justify-center gap-2 rounded-md border-2 border-white/80 bg-white/10 px-7 py-3 text-base font-semibold uppercase tracking-wide text-white backdrop-blur-sm transition-colors hover:border-gold hover:bg-gold hover:text-navy"
++            >
++              <LogIn size={18} className="rtl:-scale-x-100" />
++              {p.portalCta}
++            </Link>
+           </div>
+         </div>
+ 

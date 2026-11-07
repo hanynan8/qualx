@@ -165,6 +165,7 @@ export default function JobBoardListView({ t, go }) {
         backLabel={t.jobBoard}
         onBack={() => setOpenJob(null)}
         distanceText={formatDistance(km, unit, unitLabel)}
+        showApply
       />
     );
   }

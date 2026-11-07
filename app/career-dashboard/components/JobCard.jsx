@@ -30,7 +30,7 @@ export function JobLogo({ src, size = 64 }) {
   );
 }
 
-export default function JobCard({ job, t, distanceText, onView, statusLabel }) {
+export default function JobCard({ job, t, distanceText, onView, statusLabel, hideDistance = false, subtitle }) {
   return (
     <article className="rounded-md bg-white p-5 shadow-[0_1px_4px_rgba(11,31,58,0.14)]">
       <div className="flex items-start gap-4">
@@ -39,10 +39,10 @@ export default function JobCard({ job, t, distanceText, onView, statusLabel }) {
           <h3 className="break-words font-display text-sm font-extrabold uppercase leading-snug tracking-wide text-charcoal/85 sm:text-[15px]">
             {job.title}
           </h3>
-          {(job.city || job.client) && (
+          {(subtitle || job.city || job.client) && (
             <p className="mt-1.5 flex items-center gap-1 text-xs text-charcoal/55">
               <MapPin size={13} className="shrink-0 text-charcoal/40" />
-              <span className="truncate">{[job.city, job.client].filter(Boolean).join(" · ")}</span>
+              <span className="truncate">{subtitle || [job.city, job.client].filter(Boolean).join(" · ")}</span>
             </p>
           )}
           {statusLabel && (
@@ -60,12 +60,12 @@ export default function JobCard({ job, t, distanceText, onView, statusLabel }) {
         </button>
       </div>
 
-      <div className="mt-8 grid grid-cols-2 gap-y-4 sm:grid-cols-5">
+      <div className={`mt-8 grid grid-cols-2 gap-y-4 ${hideDistance ? "sm:grid-cols-4" : "sm:grid-cols-5"}`}>
         <Meta label={t.compensation} value={job.compensation} />
         <Meta label={t.reimbursement} value={job.reimbursement} />
         <Meta label={t.firstDate} value={job.firstDate} />
         <Meta label={t.lastDate} value={job.lastDate} />
-        <Meta label={t.distance} value={distanceText} />
+        {!hideDistance && <Meta label={t.distance} value={distanceText} />}
       </div>
     </article>
   );

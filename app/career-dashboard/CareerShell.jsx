@@ -35,6 +35,11 @@ import { SITE_NAME, SITE_CONTACT } from "../lib/siteConfig";
 import { T } from "./i18n";
 import MyJobsView from "./views/MyJobsView";
 import JobBoardListView from "./views/JobBoardListView";
+import JobBoardMapView from "./views/JobBoardMapView";
+import WebPhoneJobsView from "./views/WebPhoneJobsView";
+import MyApplicationsView from "./views/MyApplicationsView";
+import CertificationsView from "./views/CertificationsView";
+import MyPayView from "./views/MyPayView";
 
 const NAV = [
   { key: "home", Icon: Home },
@@ -201,6 +206,16 @@ export default function CareerShell({ initialUser }) {
             <MyJobsView t={t} go={go} />
           ) : view === "jobList" ? (
             <JobBoardListView t={t} go={go} />
+          ) : view === "jobMap" ? (
+            <JobBoardMapView t={t} language={language} />
+          ) : view === "webPhone" ? (
+            <WebPhoneJobsView t={t} />
+          ) : view === "applications" ? (
+            <MyApplicationsView t={t} go={go} />
+          ) : view === "certifications" ? (
+            <CertificationsView t={t} />
+          ) : view === "pay" ? (
+            <MyPayView t={t} language={language} />
           ) : (
             <ComingSoon t={t} title={t.nav[view]} />
           )}

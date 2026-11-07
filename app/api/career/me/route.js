@@ -5,6 +5,7 @@
 import mongoose from "mongoose";
 import { connectToMongo } from "../../../lib/mongodb";
 import { requireCareer, careerJson } from "../../../lib/careerAuth";
+import { getCertModel, getCertProgressModel } from "../../../lib/careerExtras";
 import {
   getCareerJobModel,
   getCareerAssignmentModel,
@@ -22,6 +23,7 @@ export async function GET() {
   let myJobs = 0;
   let allJobs = 0;
   let webPhoneJobs = 0;
+  let certifications = 0;
   try {
     await connectToMongo();
     const Job = getCareerJobModel();
@@ -33,12 +35,15 @@ export async function GET() {
       Job.countDocuments({ status: "open", type: "onsite" }),
       Job.countDocuments({ status: "open", type: "web_phone" }),
     ]);
+    // الشهادات المتاحة = النشطة اللي الحساب لسه ما بدأهاش.
+    const started = await getCertProgressModel().distinct("certId", { accountId: user.id });
+    certifications = await getCertModel().countDocuments({ status: "active", _id: { $nin: started } });
   } catch (err) {
     console.error("[career-me] counts error:", err);
   }
 
   return careerJson({
     user: { id: user.id, name: user.name, email: user.email, phone: user.phone },
-    summary: { profileCompletion, myJobs, allJobs, webPhoneJobs, certifications: 0, performance: null },
+    summary: { profileCompletion, myJobs, allJobs, webPhoneJobs, certifications, performance: null },
   });
 }

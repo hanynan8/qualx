@@ -3,6 +3,7 @@
 // components/JobDetail.jsx — تفاصيل وظيفة (بعد "View Job").
 import { ArrowLeft, MapPin, Building2, CalendarDays, Wallet, Receipt, Globe } from "lucide-react";
 import { JobLogo } from "./JobCard";
+import ApplyPanel from "./ApplyPanel";
 
 function Fact({ Icon, label, value }) {
   return (
@@ -16,7 +17,7 @@ function Fact({ Icon, label, value }) {
   );
 }
 
-export default function JobDetail({ job, t, onBack, backLabel, distanceText, statusLabel }) {
+export default function JobDetail({ job, t, onBack, backLabel, distanceText, statusLabel, showApply = false }) {
   const where = [job.city, job.address].filter(Boolean).join(" — ");
   return (
     <div className="px-4 py-6 sm:px-8">
@@ -54,6 +55,8 @@ export default function JobDetail({ job, t, onBack, backLabel, distanceText, sta
           <Fact Icon={CalendarDays} label={`${t.firstDate} → ${t.lastDate}`} value={[job.firstDate, job.lastDate].filter(Boolean).join("  →  ")} />
           {distanceText && distanceText !== "-" && <Fact Icon={MapPin} label={t.distance} value={distanceText} />}
         </div>
+
+        {showApply && <ApplyPanel job={job} t={t} />}
 
         <h2 className="mt-8 font-display text-lg font-bold text-navy">{t.description}</h2>
         <p className="mt-2 whitespace-pre-line break-words text-sm leading-relaxed text-charcoal/80">

@@ -10,6 +10,7 @@ import mongoose from "mongoose";
 export const JOB_TYPES = ["onsite", "web_phone"];
 export const JOB_STATUSES = ["open", "closed"];
 export const ASSIGNMENT_STATUSES = ["assigned", "in_progress", "submitted", "completed", "cancelled"];
+export const APPLICATION_STATUSES = ["under_review", "accepted", "rejected", "withdrawn"];
 // الحالات اللي لسه "شغالة" (بتتحسب في عدّاد My Jobs).
 export const ACTIVE_ASSIGNMENT_STATUSES = ["assigned", "in_progress", "submitted"];
 
@@ -45,6 +46,27 @@ const assignmentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 assignmentSchema.index({ jobId: 1, accountId: 1 }, { unique: true });
+
+// طلبات التقديم: الفريلانسر بيقدّم على وظيفة (My Applications). قبول الأدمن = تكليف في career_assignments.
+const applicationSchema = new mongoose.Schema(
+  {
+    jobId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true },
+    accountId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true },
+    status: { type: String, enum: APPLICATION_STATUSES, default: "under_review" },
+    proposedDate: { type: String, default: "" }, // YYYY-MM-DD — التاريخ اللي بيقترحه المتقدّم
+    note: { type: String, default: "", trim: true },
+    appliedAt: { type: Date, default: Date.now },
+  },
+  { timestamps: true }
+);
+applicationSchema.index({ jobId: 1, accountId: 1 }, { unique: true });
+
+export function getCareerApplicationModel() {
+  return (
+    mongoose.models.Model_career_application ||
+    mongoose.model("Model_career_application", applicationSchema, "career_applications")
+  );
+}
 
 export function getCareerJobModel() {
   return mongoose.models.Model_career_job || mongoose.model("Model_career_job", jobSchema, "career_jobs");

@@ -13,7 +13,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Database, Settings, Home, Navigation, Info, Layers, Briefcase, PanelBottom, Users,
-  FileText, ChevronDown, ArrowLeft, Loader, FileUser,
+  FileText, ChevronDown, ArrowLeft, Loader, FileUser, ClipboardCheck, Award, Wallet,
 } from "lucide-react";
 
 import { TABS } from "./tabsConfig";
@@ -22,6 +22,10 @@ import AccountCard from "./components/accountCard";
 import PagePanel from "./components/pagePanel";
 import UsersPanel from "./components/usersPanel";
 import CvPanel from "./components/cvPanel";
+import JobsPanel from "./components/career/JobsPanel";
+import ApplicationsPanel from "./components/career/ApplicationsPanel";
+import CertsPanel from "./components/career/CertsPanel";
+import PayPanel from "./components/career/PayPanel";
 
 // عناصر السايدبار. tabId = بانل صفحة بيتبني من TABS (tabsConfig.js)؛ component
 // = بانل مخصص بيستقبل { user, mfaEnabled, onDirtyChange }.
@@ -48,6 +52,18 @@ const SIDEBAR_GROUPS = [
     items: [
       { id: "cvs", name: "CVs", icon: FileUser, component: CvPanel },
       { id: "users", name: "Users", icon: Users, component: UsersPanel },
+    ],
+  },
+  {
+    id: "career",
+    type: "group",
+    name: "Career Portal",
+    icon: Briefcase,
+    items: [
+      { id: "career-jobs", name: "Jobs", icon: Briefcase, component: JobsPanel },
+      { id: "career-applications", name: "Applications", icon: ClipboardCheck, component: ApplicationsPanel },
+      { id: "career-certs", name: "Certifications", icon: Award, component: CertsPanel },
+      { id: "career-pay", name: "Pay", icon: Wallet, component: PayPanel },
     ],
   },
 ];

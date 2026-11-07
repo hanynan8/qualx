@@ -57,7 +57,7 @@ export async function proxy(request) {
   response.headers.set("X-Frame-Options", "SAMEORIGIN");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(self)");
   response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
 
   // CSP مبني على اللي الموقع بيستخدمه فعلًا. img-src بيسمح بأي رابط https لأن صور
