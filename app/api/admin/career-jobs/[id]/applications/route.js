@@ -93,11 +93,25 @@ export async function PATCH(request, { params }) {
     );
     if (!app) return json({ error: "not_found" }, 404);
 
+    const Assignment = getCareerAssignmentModel();
     if (body.status === "accepted") {
-      await getCareerAssignmentModel().updateOne(
+      // لو التكليف كان اتلغى قبل كده: نرجّعه "assigned" (من غير ده الطلب يبقى مقبول
+      // والوظيفة ماتظهرش في My Jobs). غير كده: بنعمل تكليف جديد لو مش موجود.
+      await Assignment.updateOne(
+        { jobId: job._id, accountId: app.accountId, status: "cancelled" },
+        { $set: { status: "assigned", assignedAt: new Date() } }
+      );
+      await Assignment.updateOne(
         { jobId: job._id, accountId: app.accountId },
         { $setOnInsert: { status: "assigned", assignedAt: new Date() } },
         { upsert: true }
+      );
+    } else {
+      // رفض/إرجاع للمراجعة بعد القبول: نلغي التكليف لو لسه ما بدأش (assigned بس).
+      // اللي اتبدأ/اتسلّم/اتكمّل مابنلمسوش عشان الشغل والمستحقات ما تضيعش.
+      await Assignment.updateOne(
+        { jobId: job._id, accountId: app.accountId, status: "assigned" },
+        { $set: { status: "cancelled" } }
       );
     }
     await logAudit({

@@ -6,7 +6,8 @@ import { getCareerAccountModel, createCareerSession, careerJson } from "../../..
 import { checkRateLimit, getClientIp } from "../../../../lib/rateLimit";
 import { logAudit } from "../../../../lib/auditLog";
 
-const REGISTER_LIMIT = 5;
+// قابل للضبط من الـ env (مثلًا للعرض/التجربة من نفس الشبكة). الافتراضي 5 تسجيلات/ساعة لكل IP.
+const REGISTER_LIMIT = Number(process.env.CAREER_REGISTER_LIMIT) || 5;
 const REGISTER_WINDOW_SECONDS = 60 * 60;
 const LIMITS = { name: 100, email: 254, phone: 20, password: 128 };
 

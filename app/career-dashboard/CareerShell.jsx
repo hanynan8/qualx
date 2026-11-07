@@ -21,14 +21,12 @@ import {
   ListChecks,
   BadgeCheck,
   CreditCard,
-  MessageSquare,
   AlertCircle,
   Award,
   User,
   LogOut,
   Languages,
   TrendingUp,
-  Construction,
 } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { SITE_NAME, SITE_CONTACT } from "../lib/siteConfig";
@@ -50,7 +48,6 @@ const NAV = [
   { key: "applications", Icon: ListChecks },
   { key: "certifications", Icon: BadgeCheck },
   { key: "pay", Icon: CreditCard },
-  { key: "chat", Icon: MessageSquare },
 ];
 
 export default function CareerShell({ initialUser }) {
@@ -217,7 +214,7 @@ export default function CareerShell({ initialUser }) {
           ) : view === "pay" ? (
             <MyPayView t={t} language={language} />
           ) : (
-            <ComingSoon t={t} title={t.nav[view]} />
+            <HomeView t={t} firstName={firstName} summary={summary} loadError={loadError} go={go} />
           )}
         </main>
       </div>
@@ -378,21 +375,6 @@ function ContactRow({ label, value, href, ltr }) {
           <span>{value}</span>
         )}
       </dd>
-    </div>
-  );
-}
-
-function ComingSoon({ t, title }) {
-  return (
-    <div className="px-4 py-10 sm:px-8">
-      <h1 className="font-display text-2xl font-bold text-navy">{title}</h1>
-      <div className="mt-6 flex flex-col items-center rounded-md bg-white px-6 py-16 text-center shadow-md">
-        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-gold/15 text-gold">
-          <Construction size={30} />
-        </span>
-        <p className="mt-4 font-display text-lg font-bold text-navy">{t.comingSoon}</p>
-        <p className="mt-1 max-w-sm text-sm text-charcoal/60">{t.comingSoonHint}</p>
-      </div>
     </div>
   );
 }

@@ -14,7 +14,8 @@ import {
   clearLoginLock,
 } from "../../../../lib/authSecurity";
 
-const IP_LIMIT = 10;
+// قابل للضبط من الـ env. الافتراضي 10 محاولات/15 دقيقة لكل IP.
+const IP_LIMIT = Number(process.env.CAREER_LOGIN_IP_LIMIT) || 10;
 const IP_WINDOW_SECONDS = 15 * 60;
 
 export async function POST(request) {
